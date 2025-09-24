@@ -1,3 +1,4 @@
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -12,19 +13,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.tec.ptoyectobj.R
 
 // Colores
 val morado = Color(0xFF38156E)
-val rosa = Color(24326138) // Rosa
-val naranja = Color(25077103) // Naranja
+//val rosa = Color(0x1731CFA) // Rosa
+val rosa = Color(red = 243, green = 26, blue = 138, alpha = 255)
+val naranja = Color(red = 250, green = 77, blue = 103, alpha = 255)
 val blanco = Color(0xFFFFFFFF)
 
 @Composable
@@ -35,16 +40,44 @@ fun Inicio() {
             .background(morado)
     ){
         // Formas de fondo
-        //Forma rosa inferior
+        //Forma rosa inferior de arriba
         Box(
             modifier = Modifier
-                //.align(Alignment.TopCenter)
                 .offset(x = (-40).dp, y = (-120).dp) // El offset negativo mueve el óvalo hacia arriba, fuera de la pantalla
                 .size(400.dp) // Define un tamaño de óvalo (casi un círculo en este caso)
                 .clip(CircleShape) // La forma circular crea un óvalo al ajustar el tamaño
                 .background(rosa)
 
         )
+        //Forma naranja superior de arriba
+        Box(
+            modifier = Modifier
+                .offset(x = 5.dp, y = (-190).dp) // El offset negativo mueve el óvalo hacia arriba, fuera de la pantalla
+                .size(width = 800.dp, height = 400.dp) // Define un tamaño de óvalo (casi un círculo en este caso)
+                .clip(CircleShape) // La forma circular crea un óvalo al ajustar el tamaño
+                .background(naranja)
+
+        )
+
+        //Forma rosa inferior de abajo
+        Box(
+            modifier = Modifier
+                .offset(x = (-150).dp, y = 700.dp) // El offset negativo mueve el óvalo hacia arriba, fuera de la pantalla
+                .size(400.dp) // Define un tamaño de óvalo (casi un círculo en este caso)
+                .clip(CircleShape) // La forma circular crea un óvalo al ajustar el tamaño
+                .background(rosa)
+
+        )
+        //Forma naranja superior de abajo
+        Box(
+            modifier = Modifier
+                .offset(x = 20.dp, y = 700.dp) // El offset negativo mueve el óvalo hacia arriba, fuera de la pantalla
+                .size(400.dp) // Define un tamaño de óvalo (casi un círculo en este caso)
+                .clip(CircleShape) // La forma circular crea un óvalo al ajustar el tamaño
+                .background(naranja)
+
+        )
+
         // Líneas blancas decorativas
         // Línea superior
         Box(
@@ -73,13 +106,14 @@ fun Inicio() {
                 .fillMaxSize()
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceAround // Para distribuir el espacio
+            verticalArrangement = Arrangement.SpaceAround
         ) {
             // Sección superior (Logo y texto "BENEFICIO JOVEN")
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp), // Padding superior para el logo
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Contenedor circular blanco para el logo 'b'
@@ -89,31 +123,21 @@ fun Inicio() {
                         .background(Color.White, shape = CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Placeholder del logo 'b' con degradado (si no tienes el asset)
-                    val logoBrush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF9966CC), Color(0xFFDDA0DD)) // Colores del logo 'b'
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(35.dp) // Tamaño de la 'b' dentro del círculo
-                            .background(logoBrush, shape = CircleShape)
-                    )
-                    // Si tienes el asset del logo, usa Image:
-                    /*
+                    // imagen del logo.
                     Image(
-                        painter = painterResource(id = R.drawable.your_logo_b_asset),
+                        painter = painterResource(id = R.drawable.logo),
                         contentDescription = "Logo de Beneficio Joven",
-                        modifier = Modifier.size(35.dp)
+                        modifier = Modifier.size(500.dp)
                     )
-                    */
+
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)){
                         append("BENEFICIO")
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append("JOVEN")
                         }
+                            append("JOVEN")
                     },
                     color = blanco,
                     fontSize = 20.sp
@@ -127,7 +151,7 @@ fun Inicio() {
             Text(
                 text = "DESBLOQUEA LOS BENEFICIOS",
                 color = blanco,
-                fontSize = 32.sp,
+                fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 32.dp)
@@ -137,6 +161,7 @@ fun Inicio() {
 
             // Botón "Iniciar sesión"
             Button(
+                //Modificar cuando se tenga lo de inicio
                 onClick = { /* TODO: Navegar a la pantalla de inicio de sesión */ },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -155,7 +180,7 @@ fun Inicio() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Texto "¿Eres nuevo aquí? Regístrate"
+            // Texto "¿Eres nuevo aquí?"
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
@@ -165,17 +190,24 @@ fun Inicio() {
                     color = blanco.copy(alpha = 0.8f),
                     fontSize = 16.sp
                 )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ){
                 // Usamos un Text simple para "Regístrate" para que parezca un enlace
                 // Puedes envolverlo en un ClickableText si necesitas una acción de click
                 Text(
                     text = "Regístrate",
-                    color = rosa, // Color rosa para el enlace
+                    color = blanco,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                    // Si quieres que sea clicable:
-                    // modifier = Modifier.clickable { /* TODO: Navegar a la pantalla de registro */ }
+                    textDecoration = TextDecoration.Underline
                 )
             }
+                    // Si quieres que sea clicable:
+                    // modifier = Modifier.clickable { /* TODO: Navegar a la pantalla de registro */ }
+
+
             // Espacio flexible para empujar el contenido central
             Spacer(modifier = Modifier.weight(1f))
         }
