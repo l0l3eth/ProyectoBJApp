@@ -43,15 +43,15 @@ fun Inicio() {
         Box(
             modifier = Modifier
                 .offset(x = (-40).dp, y = (-120).dp) // El offset negativo mueve el óvalo hacia arriba, fuera de la pantalla
-                .size(400.dp) // Define un tamaño de óvalo (casi un círculo en este caso)
-                .clip(CircleShape) // La forma circular crea un óvalo al ajustar el tamaño
+                .size(400.dp)
+                .clip(CircleShape)
                 .background(rosa)
 
         )
         //Forma naranja superior de arriba
         Box(
             modifier = Modifier
-                .offset(x = 5.dp, y = (-190).dp) // El offset negativo mueve el óvalo hacia arriba, fuera de la pantalla
+                .offset(x = 5.dp, y = (-190).dp)
                 .size(width = 800.dp, height = 400.dp) // Define un tamaño de óvalo (casi un círculo en este caso)
                 .clip(CircleShape) // La forma circular crea un óvalo al ajustar el tamaño
                 .background(naranja)
@@ -61,18 +61,18 @@ fun Inicio() {
         //Forma rosa inferior de abajo
         Box(
             modifier = Modifier
-                .offset(x = (-150).dp, y = 700.dp) // El offset negativo mueve el óvalo hacia arriba, fuera de la pantalla
-                .size(400.dp) // Define un tamaño de óvalo (casi un círculo en este caso)
-                .clip(CircleShape) // La forma circular crea un óvalo al ajustar el tamaño
+                .offset(x = (-150).dp, y = 700.dp)
+                .size(400.dp)
+                .clip(CircleShape)
                 .background(rosa)
 
         )
         //Forma naranja superior de abajo
         Box(
             modifier = Modifier
-                .offset(x = 20.dp, y = 700.dp) // El offset negativo mueve el óvalo hacia arriba, fuera de la pantalla
-                .size(400.dp) // Define un tamaño de óvalo (casi un círculo en este caso)
-                .clip(CircleShape) // La forma circular crea un óvalo al ajustar el tamaño
+                .offset(x = 20.dp, y = 700.dp)
+                .size(400.dp)
+                .clip(CircleShape)
                 .background(naranja)
 
         )
@@ -82,10 +82,9 @@ fun Inicio() {
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset(x = 8.dp, y = (-170).dp) // El offset negativo mueve el óvalo hacia arriba, fuera de la pantalla
-                .size(400.dp) // Define un tamaño de óvalo (casi un círculo en este caso)
-                .clip(CircleShape) // La forma circular crea un óvalo al ajustar el tamaño
-                //.background(Color.White.copy(alpha = 0.5f))
+                .offset(x = 8.dp, y = (-170).dp)
+                .size(400.dp)
+                .clip(CircleShape)
                 .border(1.dp, Color.White, CircleShape)
         )
         // Línea inferior
@@ -95,7 +94,6 @@ fun Inicio() {
                 .offset(x = 100.dp, y = 200.dp)
                 .size(400.dp)
                 .clip(CircleShape)
-                //.background(Color.White.copy(alpha = 0.25f))
                 .border(1.dp, Color.White, CircleShape)
         )
 
