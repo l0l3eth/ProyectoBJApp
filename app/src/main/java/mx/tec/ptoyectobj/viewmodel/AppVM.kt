@@ -9,8 +9,12 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import mx.tec.ptoyectobj.model.TOKEN_WEB
 
@@ -20,7 +24,24 @@ import mx.tec.ptoyectobj.model.TOKEN_WEB
  * Se encarga de la lógica  relacionada con el inicio y cierre de sesión.
  */
 
+sealed class PantallaSplash {
+    object NavegarAInicio : PantallaSplash()
+}
+
 class AppVM : ViewModel(){
+    private val _NavegarAInicio = MutableSharedFlow<PantallaSplash>()
+    val NavegarAInicio: SharedFlow<PantallaSplash> = _NavegarAInicio.asSharedFlow()
+
+    init {
+        // Ejecuta la lógica de retardo y navegación al iniciar el ViewModel
+        viewModelScope.launch {
+            // Retraso de menos de un segundo
+            delay(800L)
+            // Envía el evento de navegación
+            _NavegarAInicio.emit(PantallaSplash.NavegarAInicio)
+        }
+    }
+
     // Instancia de FirebaseAuth para gestionar la autenticación con Firebase.
     private val auth = Firebase.auth
 

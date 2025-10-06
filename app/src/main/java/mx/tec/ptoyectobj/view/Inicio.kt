@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -22,7 +23,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import mx.tec.ptoyectobj.R
+import mx.tec.ptoyectobj.viewmodel.AppVM
 
 // Colores
 val morado = Color(0xFF38156E)
@@ -32,7 +35,8 @@ val naranja = Color(red = 250, green = 77, blue = 103, alpha = 255)
 val blanco = Color(0xFFFFFFFF)
 
 @Composable
-fun Inicio() {
+fun Inicio(appVM: AppVM = AppVM(),
+           navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -202,7 +206,6 @@ fun Inicio() {
                 )
             }
             // Si quieres que sea clicable:
-            // modifier = Modifier.clickable { /* TODO: Navegar a la pantalla de registro */ }
 
             Spacer(modifier = Modifier.weight(1f))
         }
@@ -212,5 +215,5 @@ fun Inicio() {
 @Preview(showBackground = true)
 @Composable
 fun InicioPreview() {
-    Inicio()
+    Inicio(appVM = AppVM(), NavController(LocalContext.current))
 }

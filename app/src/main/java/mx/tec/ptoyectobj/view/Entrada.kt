@@ -13,9 +13,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -24,10 +27,25 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import mx.tec.ptoyectobj.R
+import mx.tec.ptoyectobj.viewmodel.AppVM
+import mx.tec.ptoyectobj.viewmodel.PantallaSplash
 
 @Composable
-fun Entrada(){
+fun Entrada(appVM: AppVM = AppVM(),
+            navController: NavController){
+
+    val eventoNavegacion = appVM.NavegarAInicio.collectAsState(initial = null)
+
+    // 2. Usar LaunchedEffect para reaccionar al evento de navegación
+    LaunchedEffect(eventoNavegacion) {
+        if (eventoNavegacion == PantallaSplash.NavegarAInicio) {
+            // 3. Realizar la navegación al destino (Pantalla 2: Inicio)
+            navController.navigate("InicioRoute")
+        }
+    }
+
     val morado = Color(0xFF38156E) // Color de fondo morado
 
     // Un Box para centrar todo el contenido en la pantalla
@@ -78,8 +96,8 @@ fun Entrada(){
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun EntradaPreview() {
-    Entrada()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun EntradaPreview() {
+//    Entrada((), NavController(LocalContext.current))
+//}
