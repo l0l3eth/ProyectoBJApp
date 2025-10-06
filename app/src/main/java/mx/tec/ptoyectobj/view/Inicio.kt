@@ -134,9 +134,9 @@ fun Inicio() {
                 Text(
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)){
-                        append("BENEFICIO")
+                            append("BENEFICIO")
                         }
-                            append("JOVEN")
+                        append("JOVEN")
                     },
                     color = blanco,
                     fontSize = 20.sp
@@ -203,11 +203,9 @@ fun Inicio() {
                     textDecoration = TextDecoration.Underline
                 )
             }
-                    // Si quieres que sea clicable:
-                    // modifier = Modifier.clickable { /* TODO: Navegar a la pantalla de registro */ }
+            // Si quieres que sea clicable:
+            // modifier = Modifier.clickable { /* TODO: Navegar a la pantalla de registro */ }
 
-
-            // Espacio flexible para empujar el contenido central
             Spacer(modifier = Modifier.weight(1f))
         }
     }
