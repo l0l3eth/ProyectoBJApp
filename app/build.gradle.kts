@@ -2,14 +2,15 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
-    namespace = "mx.tec.ptoyectobj"
+    namespace = "mx.tec.proyectoBJ"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "mx.tec.ptoyectobj"
+        applicationId = "mx.tec.proyectobj"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -49,7 +50,21 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    //Retrofit. Acceso a datos remotos
+    implementation(libs.retrofit)
+    implementation(libs.gson)
+
+    //Imágenes. Coil
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.compose)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
