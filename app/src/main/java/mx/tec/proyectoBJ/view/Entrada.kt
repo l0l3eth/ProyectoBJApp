@@ -26,9 +26,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import mx.tec.proyectoBJ.R
 import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.proyectoBJ.viewmodel.PantallaSplash
+import mx.tec.proyectoBJ.R
 
 @Composable
 fun Entrada(navController: NavController, appVM: AppVM)
@@ -93,9 +93,3 @@ fun Entrada(navController: NavController, appVM: AppVM)
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun EntradaPreview() {
-//    Entrada((), NavController(LocalContext.current))
-//}

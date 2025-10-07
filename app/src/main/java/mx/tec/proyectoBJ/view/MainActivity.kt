@@ -26,7 +26,7 @@ import mx.tec.proyectoBJ.viewmodel.AppVM
  * Configura la navegación y el tema general.
  */
 class MainActivity : ComponentActivity() {
-    private val viewModel: AppVM by viewModels()
+    val viewModel: AppVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +64,7 @@ fun AppNavHost(
     // NavHost define el grafo de navegación de la aplicación.
     NavHost(
         navController = navController,
-        startDestination = "Entrada", // La app siempre inicia en la pantalla de Entrada.
+        startDestination = "Entrada", // La app siempre inicia en la pantalla de Entrada, que es la splash
         modifier = modifier.fillMaxSize()
     ) {
         // Define la ruta "Entrada" y le asigna el Composable 'Entrada' (de Entrada.kt).
