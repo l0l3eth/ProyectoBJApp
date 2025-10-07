@@ -33,10 +33,10 @@ import mx.tec.ptoyectobj.viewmodel.AppVM
 import mx.tec.ptoyectobj.viewmodel.PantallaSplash
 
 @Composable
-fun Entrada(appVM: AppVM = AppVM(),
-            navController: NavController){
-
-    val eventoNavegacion = appVM.NavegarAInicio.collectAsState(initial = null)
+fun Entrada(navController: NavController, appVM: AppVM)
+{
+    // 1. Observa el evento de navegación del ViewModel.
+    val eventoNavegacion = appVM.NavegarAInicio.collectAsState(initial = null).value
 
     // 2. Usar LaunchedEffect para reaccionar al evento de navegación
     LaunchedEffect(eventoNavegacion) {

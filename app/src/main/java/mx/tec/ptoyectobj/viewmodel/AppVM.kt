@@ -36,7 +36,7 @@ class AppVM : ViewModel(){
         // Ejecuta la lógica de retardo y navegación al iniciar el ViewModel
         viewModelScope.launch {
             // Retraso de menos de un segundo
-            delay(800L)
+            delay(100L)
             // Envía el evento de navegación
             _NavegarAInicio.emit(PantallaSplash.NavegarAInicio)
         }

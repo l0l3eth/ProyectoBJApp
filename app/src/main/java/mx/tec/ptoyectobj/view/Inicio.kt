@@ -35,8 +35,7 @@ val naranja = Color(red = 250, green = 77, blue = 103, alpha = 255)
 val blanco = Color(0xFFFFFFFF)
 
 @Composable
-fun Inicio(appVM: AppVM = AppVM(),
-           navController: NavController) {
+fun Inicio(navController: NavController, appVM: AppVM) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -215,5 +214,5 @@ fun Inicio(appVM: AppVM = AppVM(),
 @Preview(showBackground = true)
 @Composable
 fun InicioPreview() {
-    Inicio(appVM = AppVM(), NavController(LocalContext.current))
+    Inicio(NavController(LocalContext.current), AppVM())
 }
