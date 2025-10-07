@@ -1,4 +1,4 @@
-package mx.tec.ptoyectobj
+package mx.tec.ptoyectobj.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

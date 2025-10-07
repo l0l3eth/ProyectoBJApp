@@ -20,12 +20,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-// Colores
-val morado = Color(0xFF38156E)
-val rosa = Color(24326138) // Rosa
-val naranja = Color(25077103) // Naranja
-val blanco = Color(0xFFFFFFFF)
+import mx.tec.ptoyectobj.view.LogoYTexto
 
 @Composable
 fun Inicio() {
@@ -76,49 +71,7 @@ fun Inicio() {
             verticalArrangement = Arrangement.SpaceAround // Para distribuir el espacio
         ) {
             // Sección superior (Logo y texto "BENEFICIO JOVEN")
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp), // Padding superior para el logo
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Contenedor circular blanco para el logo 'b'
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .background(Color.White, shape = CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    // Placeholder del logo 'b' con degradado (si no tienes el asset)
-                    val logoBrush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF9966CC), Color(0xFFDDA0DD)) // Colores del logo 'b'
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(35.dp) // Tamaño de la 'b' dentro del círculo
-                            .background(logoBrush, shape = CircleShape)
-                    )
-                    // Si tienes el asset del logo, usa Image:
-                    /*
-                    Image(
-                        painter = painterResource(id = R.drawable.your_logo_b_asset),
-                        contentDescription = "Logo de Beneficio Joven",
-                        modifier = Modifier.size(35.dp)
-                    )
-                    */
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = buildAnnotatedString {
-                        append("BENEFICIO")
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append("JOVEN")
-                        }
-                    },
-                    color = blanco,
-                    fontSize = 20.sp
-                )
-            }
+            LogoYTexto()
 
             // Espacio flexible para empujar el contenido central
             Spacer(modifier = Modifier.weight(1f))
