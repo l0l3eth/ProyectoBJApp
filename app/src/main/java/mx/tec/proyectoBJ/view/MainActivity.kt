@@ -1,4 +1,4 @@
-package mx.tec.ptoyectobj.view
+package mx.tec.proyectoBJ.view
 
 import Inicio // Asegúrate de que Inicio.kt también esté en el paquete 'view'
 import android.os.Bundle
@@ -18,8 +18,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import mx.tec.ptoyectobj.ui.theme.PtoyectoBJTheme
-import mx.tec.ptoyectobj.viewmodel.AppVM
+import mx.tec.proyectoBJ.ui.theme.PtoyectoBJTheme
+import mx.tec.proyectoBJ.viewmodel.AppVM
 
 /**
  * MainActivity es la actividad principal y el punto de entrada de la aplicación.

@@ -1,4 +1,4 @@
-package mx.tec.ptoyectobj
+package mx.tec.proyectoBJ
 
 import org.junit.Test
 

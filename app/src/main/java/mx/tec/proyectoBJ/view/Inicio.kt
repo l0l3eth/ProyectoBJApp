@@ -24,8 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import mx.tec.ptoyectobj.R
-import mx.tec.ptoyectobj.viewmodel.AppVM
+import mx.tec.proyectoBJ.viewmodel.AppVM
 
 // Colores
 val morado = Color(0xFF38156E)

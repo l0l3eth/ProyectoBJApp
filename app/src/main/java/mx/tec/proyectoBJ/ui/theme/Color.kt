@@ -1,4 +1,4 @@
-package mx.tec.ptoyectobj.ui.theme
+package mx.tec.proyectoBJ.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

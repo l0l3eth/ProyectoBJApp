@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "mx.tec.ptoyectobj"
+    namespace = "mx.tec.proyectoBJ"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "mx.tec.ptoyectobj"
+        applicationId = "mx.tec.proyectobj"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

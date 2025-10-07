@@ -1,4 +1,4 @@
-package mx.tec.ptoyectobj.viewmodel
+package mx.tec.proyectoBJ.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import mx.tec.ptoyectobj.model.TOKEN_WEB
+import mx.tec.proyectoBJ.model.TOKEN_WEB
 
 /**
  * AppVM (App ViewModel) es el ViewModel principal de la aplicación.
