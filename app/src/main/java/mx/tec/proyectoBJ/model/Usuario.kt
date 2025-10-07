@@ -6,7 +6,8 @@ data class Usuario(
     val numeroTelefono : String,
     val curp : String,
     val foto : String,
-    val genero : String,
+    val genero : Genero,
     val contrasena : String,
     val direccion : String,
+    val tiposNegocioFavorito: List<Negocio>
 )
