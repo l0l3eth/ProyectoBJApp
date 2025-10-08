@@ -12,6 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+<<<<<<< Updated upstream:app/src/main/java/mx/tec/ptoyectobj/view/Inicio.kt
+=======
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+>>>>>>> Stashed changes:app/src/main/java/mx/tec/proyectoBJ/view/Inicio.kt
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -185,5 +190,10 @@ fun Inicio() {
 @Preview(showBackground = true)
 @Composable
 fun InicioPreview() {
+<<<<<<< Updated upstream:app/src/main/java/mx/tec/ptoyectobj/view/Inicio.kt
     Inicio()
 }
+=======
+    Inicio(navController = NavController(LocalContext.current), appVM = AppVM())
+}
+>>>>>>> Stashed changes:app/src/main/java/mx/tec/proyectoBJ/view/Inicio.kt
