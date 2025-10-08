@@ -39,6 +39,7 @@ import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.naranja
 import mx.tec.ptoyectobj.rosa
+import mx.tec.ptoyectobj.view.LogoYTexto
 
 @Composable
 fun Inicio(navController: NavController, appVM: AppVM) {
@@ -114,41 +115,7 @@ fun Inicio(navController: NavController, appVM: AppVM) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceAround
         ) {
-            // Sección superior (Logo y texto "BENEFICIO JOVEN")
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp), // Padding superior para el logo
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Contenedor circular blanco para el logo 'b'
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .background(Color.White, shape = CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    // imagen del logo.
-                    Image(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo de Beneficio Joven",
-                        modifier = Modifier.size(500.dp)
-                    )
-
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)){
-                            append("BENEFICIO")
-                        }
-                        append("JOVEN")
-                    },
-                    color = blanco,
-                    fontSize = 20.sp
-                )
-            }
+            LogoYTexto()
 
             // Espacio flexible para empujar el contenido central
             Spacer(modifier = Modifier.weight(1f))
