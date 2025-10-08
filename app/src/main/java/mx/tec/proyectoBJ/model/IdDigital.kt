@@ -1,4 +1,4 @@
-package mx.tec.ptoyectobj.model
+package mx.tec.proyectoBJ.model
 
 class IdDigital(
     val folio: String = "",

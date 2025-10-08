@@ -34,14 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.proyectoBJ.R
-
-// Colores
-val morado = Color(0xFF38156E)
-//val rosa = Color(0x1731CFA) // Rosa
-val rosa = Color(red = 243, green = 26, blue = 138, alpha = 255)
-val naranja = Color(red = 250, green = 77, blue = 103, alpha = 255)
-val blanco = Color(0xFFFFFFFF)
+import mx.tec.ptoyectobj.R
+import mx.tec.ptoyectobj.blanco
+import mx.tec.ptoyectobj.morado
+import mx.tec.ptoyectobj.naranja
+import mx.tec.ptoyectobj.rosa
 
 @Composable
 fun Inicio(navController: NavController, appVM: AppVM) {
