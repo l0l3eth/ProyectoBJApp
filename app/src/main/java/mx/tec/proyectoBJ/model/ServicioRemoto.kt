@@ -1,5 +1,6 @@
 package mx.tec.ptoyectobj.model
 
+import mx.tec.proyectoBJ.model.Usuario
 import mx.tec.ptoyectobj.URL_BASE
 import retrofit2.HttpException
 import retrofit2.Retrofit

@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.ptoyectobj.R
 import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.naranja
