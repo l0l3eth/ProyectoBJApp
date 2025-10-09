@@ -1,7 +1,9 @@
 package mx.tec.ptoyectobj.view
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,15 +17,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,34 +47,56 @@ import mx.tec.ptoyectobj.blanco
 
 @Composable
 fun CampoDeTexto(texto: String, modifier: Modifier = Modifier) {
-    
+    // 1. You need a state to hold the text field's value.
+    val textState = remember { mutableStateOf("") }
+
+    OutlinedTextField(
+        // 2. The `value` parameter expects the current string to display.
+        value = textState.value,
+        // 3. The `onValueChange` lambda gives you the new string when the user types.
+        //    You must update your state here.
+        onValueChange = { newText ->
+            textState.value = newText
+        },
+        // The label parameter was already correct!
+        label = { Text(texto) },
+        modifier = modifier
+            .border(
+                shape = RoundedCornerShape(32.dp),
+                border = BorderStroke(1.dp, Color.Black)
+            )
+            .background(color = blanco), // It's good practice to apply the modifier.
+        shape = RoundedCornerShape(32.dp)
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerModal(
     onDateSelected: (Long?) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    menuFecha: Boolean = false
 ) {
     val datePickerState = rememberDatePickerState()
-
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                onDateSelected(datePickerState.selectedDateMillis)
-                onDismiss()
-            }) {
-                Text("OK")
+    if (menuFecha) {
+        DatePickerDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = {
+                    onDateSelected(datePickerState.selectedDateMillis)
+                    onDismiss()
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
+        ) {
+            DatePicker(state = datePickerState)
         }
-    ) {
-        DatePicker(state = datePickerState)
     }
 }
 
