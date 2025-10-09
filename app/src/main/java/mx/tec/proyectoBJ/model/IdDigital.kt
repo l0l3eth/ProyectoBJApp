@@ -1,12 +1,7 @@
 package mx.tec.proyectoBJ.model
 
-class IdDigital(
-    val folio: String = "",
-    var foto: String = "",
-    var nombre: String = "",
-    var imagenQR: String = ""
-) {
-    fun generarQR(): String {
-        return ""
-    }
-}
+data class idDigital(
+    val folio: String,
+    val nombre: String,
+    val imagenQR: String //Aquí no se bien que poner porque aún no se genera QR en ninguna parte
+)
