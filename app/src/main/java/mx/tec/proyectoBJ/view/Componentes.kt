@@ -16,8 +16,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,12 +39,46 @@ import mx.tec.proyectoBJ.R
 import mx.tec.ptoyectobj.blanco
 
 @Composable
-fun BotonCircular(icono: ImageVector, modifier: Modifier = Modifier, texto: String = "") {
+fun CampoDeTexto(texto: String, modifier: Modifier = Modifier) {
+    
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerModal(
+    onDateSelected: (Long?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState()
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onDateSelected(datePickerState.selectedDateMillis)
+                onDismiss()
+            }) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
+    }
+}
+
+@Composable
+fun BotonCircular(icono: ImageVector, modifier: Modifier = Modifier, texto: String = "", tamano: Int = 100) {
     Button(onClick = {},
         shape = CircleShape,
         contentPadding = PaddingValues(0.dp),
-        modifier = modifier.padding(0.dp)
-            .size(110.dp)
+        modifier = modifier
+            .padding(0.dp)
+            .size(tamano.dp)
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -49,12 +88,14 @@ fun BotonCircular(icono: ImageVector, modifier: Modifier = Modifier, texto: Stri
             Icon(
                 icono,
                 contentDescription = null,
-                modifier = modifier.padding(0.dp)
+                modifier = modifier
+                    .padding(0.dp)
                     .size(50.dp)
             )
             Text(
                 texto,
-                modifier = modifier.padding(0.dp)
+                modifier = modifier
+                    .padding(0.dp)
                     .size(55.dp)
             )
         }
@@ -132,4 +173,13 @@ fun LogoYTextoGrande(){
             fontSize = 24.sp
         )
     }
+}
+
+@Composable
+fun TextoTitular(texto: String, modifier: Modifier = Modifier) {
+    Text(texto,
+        modifier = modifier.padding(16.dp),
+        color = blanco,
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold)
 }

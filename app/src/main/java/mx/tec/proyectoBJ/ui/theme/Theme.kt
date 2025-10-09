@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/main/java/mx/tec/proyectoBJ/view/theme/Theme.kt
-package mx.tec.proyectoBJ.view.theme
-========
 package mx.tec.proyectoBJ.ui.theme
->>>>>>>> Registro:app/src/main/java/mx/tec/proyectoBJ/ui/theme/Theme.kt
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

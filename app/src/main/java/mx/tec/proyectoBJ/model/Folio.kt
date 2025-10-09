@@ -1,8 +1,5 @@
-<<<<<<<< HEAD:app/src/main/java/mx/tec/proyectoBJ/view/model/Folio.kt
 package mx.tec.proyectoBJ.view.model
-========
-package mx.tec.proyectoBJ.model
->>>>>>>> Registro:app/src/main/java/mx/tec/proyectoBJ/model/Folio.kt
+
 
 enum class Aceptacion {
     PENDIENTE, VALIDADO, RECHAZADO

@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/main/java/mx/tec/proyectoBJ/view/theme/Type.kt
-package mx.tec.proyectoBJ.view.theme
-========
 package mx.tec.proyectoBJ.ui.theme
->>>>>>>> Registro:app/src/main/java/mx/tec/proyectoBJ/ui/theme/Type.kt
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

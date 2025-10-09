@@ -1,8 +1,5 @@
-<<<<<<<< HEAD:app/src/main/java/mx/tec/proyectoBJ/view/theme/Color.kt
-package mx.tec.proyectoBJ.view.theme
-========
 package mx.tec.proyectoBJ.ui.theme
->>>>>>>> Registro:app/src/main/java/mx/tec/proyectoBJ/ui/theme/Color.kt
+
 
 import androidx.compose.ui.graphics.Color
 

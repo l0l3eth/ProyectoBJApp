@@ -23,11 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-<<<<<<<< HEAD:app/src/main/java/mx/tec/proyectoBJ/view/view/Inicio.kt
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-========
->>>>>>>> Registro:app/src/main/java/mx/tec/proyectoBJ/view/Inicio.kt
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -36,20 +31,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import mx.tec.proyectoBJ.viewmodel.AppVM
-<<<<<<<< HEAD:app/src/main/java/mx/tec/proyectoBJ/view/view/Inicio.kt
-
-// Colores
-val morado = Color(0xFF38156E)
-val rosa = Color(24326138) // Rosa
-val naranja = Color(25077103) // Naranja
-val blanco = Color(0xFFFFFFFF)
-========
 import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.naranja
 import mx.tec.ptoyectobj.rosa
 import mx.tec.ptoyectobj.view.LogoYTextoPequeño
->>>>>>>> Registro:app/src/main/java/mx/tec/proyectoBJ/view/Inicio.kt
 
 @Composable
 fun Inicio(navController: NavController, appVM: AppVM) {
@@ -196,14 +182,9 @@ fun Inicio(navController: NavController, appVM: AppVM) {
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
-<<<<<<<< HEAD:app/src/main/java/mx/tec/proyectoBJ/view/view/Inicio.kt
-fun InicioPreview() {
-    Inicio()
-========
 fun LoginScreenPreview() {
     Inicio(
         navController = NavController(LocalContext.current),
         appVM = AppVM()
     )
->>>>>>>> Registro:app/src/main/java/mx/tec/proyectoBJ/view/Inicio.kt
 }

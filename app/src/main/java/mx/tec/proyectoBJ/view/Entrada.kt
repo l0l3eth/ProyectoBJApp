@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:app/src/main/java/mx/tec/proyectoBJ/view/view/Entrada.kt
-package mx.tec.proyectoBJ.view.view
-========
 package mx.tec.proyectoBJ.view
->>>>>>>> Registro:app/src/main/java/mx/tec/proyectoBJ/view/Entrada.kt
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
