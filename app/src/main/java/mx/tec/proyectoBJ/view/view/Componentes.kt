@@ -1,4 +1,4 @@
-package mx.tec.ptoyectobj.view
+package mx.tec.proyectoBJ.view.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,10 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,7 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import mx.tec.ptoyectobj.blanco
+import blanco
 
 @Composable
 fun BotonCircular(icono: ImageVector,
@@ -110,4 +109,19 @@ fun LogoYTexto(modifier: Modifier = Modifier) {
             fontSize = 20.sp
         )
     }
+}
+
+@Composable
+fun TextoTitular(texto: String, modifier: Modifier = Modifier) {
+    Text(
+        text = texto,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp, horizontal = 64.dp),
+        style = MaterialTheme.typography.titleMedium,
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center,
+        color = blanco
+    )
 }
