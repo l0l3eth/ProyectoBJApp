@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:app/src/test/java/mx/tec/proyectobj/ExampleUnitTest.kt
 package mx.tec.proyectobj
+========
+package mx.tec.proyectoBJ
+>>>>>>>> Registro:app/src/test/java/mx/tec/proyectoBJ/ExampleUnitTest.kt
 
 import org.junit.Test
 

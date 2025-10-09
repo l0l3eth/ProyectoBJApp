@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:app/src/androidTest/java/mx/tec/proyectobj/ExampleInstrumentedTest.kt
 package mx.tec.proyectobj
+========
+package mx.tec.proyectoBJ
+>>>>>>>> Registro:app/src/androidTest/java/mx/tec/proyectoBJ/ExampleInstrumentedTest.kt
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
