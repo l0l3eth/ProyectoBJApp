@@ -13,11 +13,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -40,7 +51,8 @@ fun BotonCircular(icono: ImageVector,
     Button(onClick = {},
         shape = CircleShape,
         contentPadding = PaddingValues(0.dp),
-        modifier = modifier.padding(0.dp)
+        modifier = modifier
+            .padding(0.dp)
             .size(tamano.dp)
     ) {
         Column(
@@ -50,16 +62,66 @@ fun BotonCircular(icono: ImageVector,
             Icon(
                 icono,
                 contentDescription = null,
-                modifier = modifier.padding(0.dp)
+                modifier = modifier
+                    .padding(0.dp)
                     .fillMaxSize(0.45f)
             )
             Text(
                 texto,
-                modifier = modifier.padding(0.dp)
+                modifier = modifier
+                    .padding(0.dp)
                     .fillMaxSize(0.55f),
                 textAlign = TextAlign.Center,
                 fontSize = 18.sp
             )
+        }
+    }
+}
+
+@Composable
+fun CampoDeTexto(etiqueta: String, modifier: Modifier = Modifier) {
+    OutlinedTextField(
+        onValueChange = {},
+        label = { Text(etiqueta) },
+        value = "",
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp)
+            .background(color = blanco, shape = RoundedCornerShape(32.dp)),
+        singleLine = true,
+        shape = RoundedCornerShape(32.dp),
+        colors = OutlinedTextFieldDefaults.colors()
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerModal(
+    onDateSelected: (Long?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val mostrarSeleccionadorFecha = rememberSaveable { mutableStateOf(false) }
+    if (mostrarSeleccionadorFecha.value) {
+        val datePickerState = rememberDatePickerState()
+
+        DatePickerDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = {
+                    onDateSelected(datePickerState.selectedDateMillis)
+                    onDismiss()
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            },
+
+            ) {
+            DatePicker(state = datePickerState)
         }
     }
 }

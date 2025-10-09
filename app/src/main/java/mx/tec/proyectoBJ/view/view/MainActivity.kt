@@ -1,4 +1,4 @@
-package mx.tec.ptoyectobj
+package mx.tec.proyectoBJ.view.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import mx.tec.ptoyectobj.ui.theme.PtoyectoBJTheme
+import mx.tec.proyectoBJ.view.theme.PtoyectoBJTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

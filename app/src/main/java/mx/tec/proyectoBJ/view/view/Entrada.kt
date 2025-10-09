@@ -1,4 +1,4 @@
-package mx.tec.ptoyectobj.view
+package mx.tec.proyectoBJ.view.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
