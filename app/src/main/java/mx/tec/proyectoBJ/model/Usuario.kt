@@ -7,7 +7,7 @@ data class Usuario(
     val apellidos : String,
     val correo : String,
     val telefono : String,
-    val genero : Genero,
+    val genero : Genero? = null,
     val contrasena : String,
     val direccion : String,
     val curp: String,

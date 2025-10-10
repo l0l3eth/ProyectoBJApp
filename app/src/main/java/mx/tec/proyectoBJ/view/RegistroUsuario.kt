@@ -9,14 +9,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,17 +24,24 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import mx.tec.proyectoBJ.model.Genero
+import mx.tec.proyectoBJ.model.EstadoDeRegistro
 import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.view.CampoDeTexto
-import mx.tec.ptoyectobj.view.DatePickerModal
 import mx.tec.ptoyectobj.view.LogoYTextoGrande
 import mx.tec.ptoyectobj.view.TextoTitular
 
 @Composable
-fun IngresoDeDatos(viewModel: AppVM = AppVM(), modifier: Modifier = Modifier) {
+fun IngresoDeDatos(modifier: Modifier = Modifier, viewModel: AppVM = AppVM()) {
+    val totalPantallas = 4
     var pantallaActual by remember { mutableStateOf(0) }
+
+    var registrationState by remember { mutableStateOf(EstadoDeRegistro()) }
+
+    // This function now updates the central state
+    fun onStateChange(newState: EstadoDeRegistro) {
+        registrationState = newState
+    }
 
     fun cambiarPantalla(pantalla: Int = 0) {
         pantallaActual += pantalla
@@ -58,185 +59,228 @@ fun IngresoDeDatos(viewModel: AppVM = AppVM(), modifier: Modifier = Modifier) {
         ) {
             LogoYTextoGrande()
             TextoTitular("Cuéntanos un poco sobre tí")
-            NombreYCurp(mostrarFormulario = pantallaActual == 0,
-                modifier = modifier.padding(horizontal = 32.dp))
-            Correo(mostrarCorreo = pantallaActual == 1)
-            Direccion(mostrarDireccion = pantallaActual == 2)
-            Contrasena(mostrar = pantallaActual == 3)
-            Enviado(mostrar = pantallaActual == 4) {nombre, apellido, correo, contrasena, direccion, fechaNacimiento, curp, numeroTelefono, genero ->
-                viewModel.enviarUsuario(
-                    nombre = nombre,
-                    apellido = apellido,
-                    correo = correo,
-                    contrasena = contrasena,
-                    direccion = direccion,
-                    fechaNacimiento = fechaNacimiento,
-                    curp = curp,
-                    numeroTelefono = numeroTelefono,
-                    sexo = genero)
+
+            // Pass the current state and the update function to each screen
+            DatosPersonales(
+                mostrar = pantallaActual == 0,
+                state = registrationState,
+                onStateChange = ::onStateChange, // Pass the function reference
+                modifier = modifier.padding(horizontal = 32.dp)
+            )
+            Correo(
+                mostrar = pantallaActual == 1,
+                state = registrationState,
+                onStateChange = ::onStateChange
+            )
+            Direccion(
+                mostrar = pantallaActual == 2,
+                state = registrationState,
+                onStateChange = ::onStateChange
+            )
+            Contrasena(
+                mostrar = pantallaActual == 3,
+                state = registrationState,
+                onStateChange = ::onStateChange
+            )
+            if (pantallaActual == 4) {
+                // Here you can add validation before sending
+                val isValid = registrationState.nombre != null &&
+                        registrationState.apellido != null &&
+                        registrationState.correo != null &&
+                        registrationState.contrasena != null &&
+                        registrationState.direccion != null &&
+                        registrationState.fechaNacimiento != null &&
+                        registrationState.curp != null &&
+                        registrationState.numeroTelefono != null
+
+                if (isValid) {
+                    TextoTitular("¡Todo listo! Enviando...")
+                    viewModel.enviarUsuario(
+                        nombre = registrationState.nombre!!,
+                        apellido = registrationState.apellido!!,
+                        correo = registrationState.correo!!,
+                        contrasena = registrationState.contrasena!!,
+                        direccion = registrationState.direccion!!,
+                        fechaNacimiento = registrationState.fechaNacimiento!!,
+                        curp = registrationState.curp!!,
+                        numeroTelefono = registrationState.numeroTelefono!!
+                    )
+                } else {
+                    TextoTitular("Faltan datos por llenar.")
+                    // Optionally, you could show a button to go back
+                }
             }
-            Botones(cambiar = { cambiarPantalla(it) })
+            Botones(pantallaActual = pantallaActual,
+                totalPantallas = totalPantallas,
+                onPantallaCambia = { cambiarPantalla(it) })
         }
     }
 }
 
 @Composable
-fun Botones(modifier: Modifier = Modifier, cambiar: (Int) -> Unit = {}) {
+fun Botones(pantallaActual : Int,
+            modifier: Modifier = Modifier,
+            totalPantallas: Int,
+            onPantallaCambia: (Int) -> Unit = {}) {
     Row {
-        TextButton(
-            onClick = { cambiar(-1) }
-        ) {
-            Text(
-                "Regresar",
-                textAlign = TextAlign.Center,
-                style = TextStyle(color = blanco)
-            )
+        if (pantallaActual > 0) {
+            TextButton(
+                onClick = { onPantallaCambia(-1) }
+            ) {
+                Text(
+                    "Regresar",
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(color = blanco)
+                )
+            }
         }
         Spacer(modifier = modifier.weight(0.8f))
-        Button(
-            onClick = { cambiar(1) }
-        ) {
-            Text(
-                "Siguiente",
-                textAlign = TextAlign.Center
-            )
+        if (pantallaActual < totalPantallas) {
+            Button(
+                onClick = { onPantallaCambia(1) }
+            ) {
+                Text(
+                    "Siguiente",
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
 
 @Composable
-fun Contrasena(mostrar: Boolean = false, modifier: Modifier = Modifier) {
+fun Contrasena(mostrar: Boolean = false,
+               state: EstadoDeRegistro,
+               onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
-        CampoDeTexto("Contraseña")
-        CampoDeTexto("Confirmar contraseña")
+        TextoTitular("Crea una contraseña.")
+        // Resaltar los requerimientos de seguridad de contraseña al usuario
+        CampoDeTexto(label = "Contraseña",
+            value = state.contrasena ?: "",
+            onValueChange = { onStateChange(state.copy(contrasena = it)) })
+        // CampoDeTexto("Confirmar contraseña")
     }
 }
 
 @Composable
-fun Correo(mostrarCorreo: Boolean = true, modifier: Modifier = Modifier) {
-    if (mostrarCorreo) {
-        CampoDeTexto("Correo electrónico")
-    }
-}
-
-@Composable
-fun Direccion(mostrarDireccion: Boolean = false, modifier: Modifier = Modifier) {
-    if (mostrarDireccion) {
-        CampoDeTexto("Calle y número")
-        CampoDeTexto("Colonia o Fraccionamiento")
-        CampoDeTexto("Ciudad")
-        CampoDeTexto("CP")
-    }
-}
-
-@Composable
-fun Enviado(mostrar: Boolean = false,
-            modifier: Modifier = Modifier,
-            enviar: (nombre: String,
-                     apellido: String,
-                     correo: String,
-                     contrasena: String,
-                     direccion: String,
-                     curp: String,
-                     fechaNacimiento: String,
-                     numeroTelefono: String,
-                     genero: Genero) -> Unit =
-                         { nombre, apellido, correo, contrasena, direccion, curp, fechaNacimiento, numeroTelefono, sexo -> }
-) {
+fun Correo(mostrar: Boolean = true,
+           state: EstadoDeRegistro,
+           onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
-        TextoTitular("Enviado")
+        CampoDeTexto(label = "Correo electrónico",
+            value = state.correo ?: "",
+            onValueChange = { onStateChange(state.copy(correo = it)) })
+    }
+}
+
+@Composable
+fun Direccion(mostrar: Boolean = false,
+              state: EstadoDeRegistro,
+              onStateChange: (EstadoDeRegistro) -> Unit = {}) {
+    if (mostrar) {
+        TextoTitular("¿En dónde vives?")
+        TextoTitular("Sólo se aceptan direcciones de Atizapán.")
+        CampoDeTexto(label = "Calle, número y colonia o fraccionamiento",
+            value = state.direccion ?: "",
+            onValueChange = { onStateChange(state.copy(nombre = it)) })
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NombreYCurp(mostrarFormulario: Boolean = true, modifier: Modifier = Modifier) {
-    var menuFecha by remember { mutableStateOf(false) }
-    var nombres by remember { mutableStateOf("") }
-    var apellidoPat by remember { mutableStateOf("") }
-    var apellidoMat by remember { mutableStateOf("") }
-    var fechaNacimiento by remember { mutableStateOf("") }
-    var sexo by remember { mutableStateOf("") }
+fun DatosPersonales(modifier: Modifier = Modifier,
+                    mostrar: Boolean = true,
+                    state: EstadoDeRegistro,
+                    onStateChange: (EstadoDeRegistro) -> Unit = {}) {
+//    var menuFecha by remember { mutableStateOf(false) }
+//    var nombres by remember { mutableStateOf("") }
+//    var apellidos by remember { mutableStateOf("") }
+//    var fechaNacimiento by remember { mutableStateOf("") }
+//    var sexo by remember { mutableStateOf("") }
 
-    if (mostrarFormulario) {
+    if (mostrar) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.fillMaxWidth()
         ) {
-            CampoDeTexto("Nombre(s)") { nombres = it }
-            CampoDeTexto("Apellido Paterno")
-            CampoDeTexto("Apellido Materno")
-            Button(onClick = { menuFecha = true }) {
-                Text(fechaNacimiento.ifEmpty { "Fecha de nacimiento" })
-            }
-            DatePickerModal(onDateSelected = {},
-                onDismiss = { menuFecha = false },
-                menuFecha = menuFecha)
-            MenuSexos(mostrar = menuFecha)
-
+            CampoDeTexto(label = "Nombre(s)",
+                value = state.nombre ?: "",
+                onValueChange = { onStateChange(state.copy(nombre = it)) })
+            CampoDeTexto(label = "Apellidos",
+                value = state.apellido ?: "",
+                onValueChange = { onStateChange(state.copy(apellido = it)) })
+            CampoDeTexto(label = "CURP",
+                value = state.curp ?: "",
+                onValueChange = { onStateChange(state.copy(curp = it)) })
+//            Button(onClick = { menuFecha = true }) {
+//                Text(fechaNacimiento.ifEmpty { "Fecha de nacimiento" })
+//            }
+//            DatePickerModal(onDateSelected = { onStateChange(state.copy(fechaNacimiento = it)) },
+//                onDismiss = { menuFecha = false },
+//                menuFecha = menuFecha)
         }
     }
 
 }
-@Composable
-fun MenuSexos(mostrar: Boolean = false) {
-    var expanded by remember { mutableStateOf(false) }
-    if (mostrar) {
-        Box(
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
-            IconButton(onClick = { expanded = !expanded }) {
-                Row {
-                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More options")
-                    Text("Género")
-                }
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Hombre") },
-                    onClick = { /* Do something... */ }
-                )
-                DropdownMenuItem(
-                    text = { Text("Mujer") },
-                    onClick = { /* Do something... */ }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun MenuEstado() {
-    var expanded by remember { mutableStateOf(false) }
-    Box(
-        modifier = Modifier
-            .padding(16.dp)
-    ) {
-        IconButton(onClick = { expanded = !expanded }) {
-            Row {
-                Text("Estado")
-            }
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Estado de México") },
-                onClick = { /* Do something... */ }
-            )
-            DropdownMenuItem(
-                text = { Text("Ciudad de México") },
-                onClick = { /* Do something... */ }
-            )
-        }
-    }
-}
+//@Composable
+//fun MenuSexos(mostrar: Boolean = false) {
+//    var expanded by remember { mutableStateOf(false) }
+//    if (mostrar) {
+//        Box(
+//            modifier = Modifier
+//                .padding(16.dp)
+//        ) {
+//            IconButton(onClick = { expanded = !expanded }) {
+//                Row {
+//                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More options")
+//                    Text("Género")
+//                }
+//            }
+//            DropdownMenu(
+//                expanded = expanded,
+//                onDismissRequest = { expanded = false }
+//            ) {
+//                DropdownMenuItem(
+//                    text = { Text("Hombre") },
+//                    onClick = { /* Do something... */ }
+//                )
+//                DropdownMenuItem(
+//                    text = { Text("Mujer") },
+//                    onClick = { /* Do something... */ }
+//                )
+//            }
+//        }
+//    }
+//}
+//
+//@Composable
+//fun MenuEstado() {
+//    var expanded by remember { mutableStateOf(false) }
+//    Box(
+//        modifier = Modifier
+//            .padding(16.dp)
+//    ) {
+//        IconButton(onClick = { expanded = !expanded }) {
+//            Row {
+//                Text("Estado")
+//            }
+//        }
+//        DropdownMenu(
+//            expanded = expanded,
+//            onDismissRequest = { expanded = false }
+//        ) {
+//            DropdownMenuItem(
+//                text = { Text("Estado de México") },
+//                onClick = { /* Do something... */ }
+//            )
+//            DropdownMenuItem(
+//                text = { Text("Ciudad de México") },
+//                onClick = { /* Do something... */ }
+//            )
+//        }
+//    }
+//}
 
 
 @Preview(showBackground = true)

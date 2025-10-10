@@ -50,21 +50,20 @@ import java.util.Date
 import mx.tec.ptoyectobj.blanco
 
 @Composable
-fun CampoDeTexto(texto: String, modifier: Modifier = Modifier, guardar: (String) -> Unit = {}) {
+fun CampoDeTexto(value: String,
+                 modifier: Modifier = Modifier,
+                 label: String,
+                 onValueChange: (String) -> Unit) {
     // 1. You need a state to hold the text field's value.
-    val textState = remember { mutableStateOf("") }
 
     OutlinedTextField(
         // 2. The `value` parameter expects the current string to display.
-        value = textState.value,
+        value = value,
         // 3. The `onValueChange` lambda gives you the new string when the user types.
         //    You must update your state here.
-        onValueChange = { newText ->
-            textState.value = newText
-            guardar(textState.value)
-        },
+        onValueChange = onValueChange,
         // The label parameter was already correct!
-        label = { Text(texto) },
+        label = { Text(label) },
         modifier = modifier
             .border(
                 shape = RoundedCornerShape(32.dp),

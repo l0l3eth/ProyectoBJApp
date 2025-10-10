@@ -62,7 +62,6 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.material3)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -74,6 +73,4 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.gson)
-
-    implementation(libs.androidx.material.icons.extended)
 }

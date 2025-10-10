@@ -43,7 +43,6 @@ class AppVM : ViewModel(){
                       direccion: String,
                       fechaNacimiento: String,
                       numeroTelefono: String,
-                      sexo: Genero,
                       curp: String) {
         viewModelScope.launch {
             servicioRemoto.registrarUsuario(
@@ -55,7 +54,6 @@ class AppVM : ViewModel(){
                     direccion = direccion,
                     fechaNacimiento = fechaNacimiento,
                     telefono = numeroTelefono,
-                    genero = sexo,
                     curp = curp
                 )
             )
