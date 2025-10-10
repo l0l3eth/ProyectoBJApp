@@ -17,10 +17,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,31 +30,20 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import mx.tec.proyectoBJ.model.Genero
+import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.view.CampoDeTexto
 import mx.tec.ptoyectobj.view.DatePickerModal
 import mx.tec.ptoyectobj.view.LogoYTextoGrande
-import mx.tec.ptoyectobj.view.LogoYTextoPequeño
 import mx.tec.ptoyectobj.view.TextoTitular
 
 @Composable
-fun IngresoDeDatos(modifier: Modifier = Modifier) {
+fun IngresoDeDatos(viewModel: AppVM = AppVM(), modifier: Modifier = Modifier) {
     var pantallaActual by remember { mutableStateOf(0) }
-    var mostrarFormulario by remember { mutableStateOf(true) }
-    var mostrarCorreo by remember { mutableStateOf(false) }
 
     fun cambiarPantalla(pantalla: Int = 0) {
         pantallaActual += pantalla
-        if (pantalla == 0) {
-            mostrarFormulario = true
-            mostrarCorreo = false
-        } else if (pantalla == 1) {
-            mostrarFormulario = false
-            mostrarCorreo = true
-        } else {
-            mostrarFormulario = false
-            mostrarCorreo = false
-        }
     }
 
     Box(
@@ -71,9 +58,23 @@ fun IngresoDeDatos(modifier: Modifier = Modifier) {
         ) {
             LogoYTextoGrande()
             TextoTitular("Cuéntanos un poco sobre tí")
-            Formulario(mostrarFormulario = mostrarFormulario,
+            NombreYCurp(mostrarFormulario = pantallaActual == 0,
                 modifier = modifier.padding(horizontal = 32.dp))
-            Correo(mostrarCorreo = mostrarCorreo)
+            Correo(mostrarCorreo = pantallaActual == 1)
+            Direccion(mostrarDireccion = pantallaActual == 2)
+            Contrasena(mostrar = pantallaActual == 3)
+            Enviado(mostrar = pantallaActual == 4) {nombre, apellido, correo, contrasena, direccion, fechaNacimiento, curp, numeroTelefono, genero ->
+                viewModel.enviarUsuario(
+                    nombre = nombre,
+                    apellido = apellido,
+                    correo = correo,
+                    contrasena = contrasena,
+                    direccion = direccion,
+                    fechaNacimiento = fechaNacimiento,
+                    curp = curp,
+                    numeroTelefono = numeroTelefono,
+                    sexo = genero)
+            }
             Botones(cambiar = { cambiarPantalla(it) })
         }
     }
@@ -83,7 +84,7 @@ fun IngresoDeDatos(modifier: Modifier = Modifier) {
 fun Botones(modifier: Modifier = Modifier, cambiar: (Int) -> Unit = {}) {
     Row {
         TextButton(
-            onClick = { cambiar(1) }
+            onClick = { cambiar(-1) }
         ) {
             Text(
                 "Regresar",
@@ -93,7 +94,7 @@ fun Botones(modifier: Modifier = Modifier, cambiar: (Int) -> Unit = {}) {
         }
         Spacer(modifier = modifier.weight(0.8f))
         Button(
-            onClick = { cambiar(-1) }
+            onClick = { cambiar(1) }
         ) {
             Text(
                 "Siguiente",
@@ -103,32 +104,12 @@ fun Botones(modifier: Modifier = Modifier, cambiar: (Int) -> Unit = {}) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Formulario(mostrarFormulario: Boolean = true, modifier: Modifier = Modifier) {
-    var menuFecha by remember { mutableStateOf(false) }
-    if (mostrarFormulario) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.fillMaxWidth()
-        ) {
-            CampoDeTexto("Nombre(s)")
-            CampoDeTexto("Apellido Paterno")
-            CampoDeTexto("Apellido Materno")
-            Button(onClick = { menuFecha = !menuFecha }) {
-                Text("Fecha de nacimiento")
-            }
-            DatePickerModal(
-                onDateSelected = {},
-                onDismiss = { menuFecha = !menuFecha },
-                menuFecha = menuFecha
-            )
-            MenuGeneros()
-
-        }
+fun Contrasena(mostrar: Boolean = false, modifier: Modifier = Modifier) {
+    if (mostrar) {
+        CampoDeTexto("Contraseña")
+        CampoDeTexto("Confirmar contraseña")
     }
-
 }
 
 @Composable
@@ -139,7 +120,98 @@ fun Correo(mostrarCorreo: Boolean = true, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun MenuGeneros() {
+fun Direccion(mostrarDireccion: Boolean = false, modifier: Modifier = Modifier) {
+    if (mostrarDireccion) {
+        CampoDeTexto("Calle y número")
+        CampoDeTexto("Colonia o Fraccionamiento")
+        CampoDeTexto("Ciudad")
+        CampoDeTexto("CP")
+    }
+}
+
+@Composable
+fun Enviado(mostrar: Boolean = false,
+            modifier: Modifier = Modifier,
+            enviar: (nombre: String,
+                     apellido: String,
+                     correo: String,
+                     contrasena: String,
+                     direccion: String,
+                     curp: String,
+                     fechaNacimiento: String,
+                     numeroTelefono: String,
+                     genero: Genero) -> Unit =
+                         { nombre, apellido, correo, contrasena, direccion, curp, fechaNacimiento, numeroTelefono, sexo -> }
+) {
+    if (mostrar) {
+        TextoTitular("Enviado")
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NombreYCurp(mostrarFormulario: Boolean = true, modifier: Modifier = Modifier) {
+    var menuFecha by remember { mutableStateOf(false) }
+    var nombres by remember { mutableStateOf("") }
+    var apellidoPat by remember { mutableStateOf("") }
+    var apellidoMat by remember { mutableStateOf("") }
+    var fechaNacimiento by remember { mutableStateOf("") }
+    var sexo by remember { mutableStateOf("") }
+
+    if (mostrarFormulario) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.fillMaxWidth()
+        ) {
+            CampoDeTexto("Nombre(s)") { nombres = it }
+            CampoDeTexto("Apellido Paterno")
+            CampoDeTexto("Apellido Materno")
+            Button(onClick = { menuFecha = true }) {
+                Text(fechaNacimiento.ifEmpty { "Fecha de nacimiento" })
+            }
+            DatePickerModal(onDateSelected = {},
+                onDismiss = { menuFecha = false },
+                menuFecha = menuFecha)
+            MenuSexos(mostrar = menuFecha)
+
+        }
+    }
+
+}
+@Composable
+fun MenuSexos(mostrar: Boolean = false) {
+    var expanded by remember { mutableStateOf(false) }
+    if (mostrar) {
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            IconButton(onClick = { expanded = !expanded }) {
+                Row {
+                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More options")
+                    Text("Género")
+                }
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Hombre") },
+                    onClick = { /* Do something... */ }
+                )
+                DropdownMenuItem(
+                    text = { Text("Mujer") },
+                    onClick = { /* Do something... */ }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MenuEstado() {
     var expanded by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
@@ -147,8 +219,7 @@ fun MenuGeneros() {
     ) {
         IconButton(onClick = { expanded = !expanded }) {
             Row {
-                Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More options")
-                Text("Género")
+                Text("Estado")
             }
         }
         DropdownMenu(
@@ -156,20 +227,17 @@ fun MenuGeneros() {
             onDismissRequest = { expanded = false }
         ) {
             DropdownMenuItem(
-                text = { Text("Hombre") },
+                text = { Text("Estado de México") },
                 onClick = { /* Do something... */ }
             )
             DropdownMenuItem(
-                text = { Text("Mujer") },
-                onClick = { /* Do something... */ }
-            )
-            DropdownMenuItem(
-                text = { Text("No binario") },
+                text = { Text("Ciudad de México") },
                 onClick = { /* Do something... */ }
             )
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

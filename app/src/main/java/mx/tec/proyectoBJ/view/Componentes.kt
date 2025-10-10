@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -44,9 +45,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mx.tec.proyectoBJ.R
 import mx.tec.ptoyectobj.blanco
+import java.text.SimpleDateFormat
+import java.util.Date
+import mx.tec.ptoyectobj.blanco
 
 @Composable
-fun CampoDeTexto(texto: String, modifier: Modifier = Modifier) {
+fun CampoDeTexto(texto: String, modifier: Modifier = Modifier, guardar: (String) -> Unit = {}) {
     // 1. You need a state to hold the text field's value.
     val textState = remember { mutableStateOf("") }
 
@@ -57,6 +61,7 @@ fun CampoDeTexto(texto: String, modifier: Modifier = Modifier) {
         //    You must update your state here.
         onValueChange = { newText ->
             textState.value = newText
+            guardar(textState.value)
         },
         // The label parameter was already correct!
         label = { Text(texto) },
@@ -65,7 +70,8 @@ fun CampoDeTexto(texto: String, modifier: Modifier = Modifier) {
                 shape = RoundedCornerShape(32.dp),
                 border = BorderStroke(1.dp, Color.Black)
             )
-            .background(color = blanco), // It's good practice to apply the modifier.
+            .background(color = blanco,
+                shape = RoundedCornerShape(32.dp)), // It's good practice to apply the modifier.
         shape = RoundedCornerShape(32.dp)
     )
 }
@@ -73,7 +79,7 @@ fun CampoDeTexto(texto: String, modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerModal(
-    onDateSelected: (Long?) -> Unit,
+    onDateSelected: (String) -> Unit,
     onDismiss: () -> Unit,
     menuFecha: Boolean = false
 ) {
@@ -83,7 +89,12 @@ fun DatePickerModal(
             onDismissRequest = onDismiss,
             confirmButton = {
                 TextButton(onClick = {
-                    onDateSelected(datePickerState.selectedDateMillis)
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        // Format the date to YYYY-MM-DD
+                        val sdf = SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                        val formattedDate = sdf.format(Date(millis))
+                        onDateSelected(formattedDate)
+                    }
                     onDismiss()
                 }) {
                     Text("OK")
@@ -101,7 +112,10 @@ fun DatePickerModal(
 }
 
 @Composable
-fun BotonCircular(icono: ImageVector, modifier: Modifier = Modifier, texto: String = "", tamano: Int = 100) {
+fun BotonCircular(icono: ImageVector,
+                  modifier: Modifier = Modifier,
+                  texto: String = "",
+                  tamano: Int = 100) {
     Button(onClick = {},
         shape = CircleShape,
         contentPadding = PaddingValues(0.dp),
