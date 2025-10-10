@@ -11,7 +11,7 @@ data class Usuario(
     val contrasena : String,
     val direccion : String,
     val curp: String,
-    val fechaNacimiento : String,
+    val fechaNacimiento : String? = null,
     @SerializedName("tipo_usuario")
     val tipoUsuario : String = "JOVEN"
 )

@@ -36,11 +36,11 @@ fun IngresoDeDatos(modifier: Modifier = Modifier, viewModel: AppVM = AppVM()) {
     val totalPantallas = 4
     var pantallaActual by remember { mutableStateOf(0) }
 
-    var registrationState by remember { mutableStateOf(EstadoDeRegistro()) }
+    var estadoDeRegistro by remember { mutableStateOf(EstadoDeRegistro()) }
 
     // This function now updates the central state
     fun onStateChange(newState: EstadoDeRegistro) {
-        registrationState = newState
+        estadoDeRegistro = newState
     }
 
     fun cambiarPantalla(pantalla: Int = 0) {
@@ -63,47 +63,45 @@ fun IngresoDeDatos(modifier: Modifier = Modifier, viewModel: AppVM = AppVM()) {
             // Pass the current state and the update function to each screen
             DatosPersonales(
                 mostrar = pantallaActual == 0,
-                state = registrationState,
+                state = estadoDeRegistro,
                 onStateChange = ::onStateChange, // Pass the function reference
                 modifier = modifier.padding(horizontal = 32.dp)
             )
-            Correo(
+            DatosDeContacto(
                 mostrar = pantallaActual == 1,
-                state = registrationState,
+                state = estadoDeRegistro,
                 onStateChange = ::onStateChange
             )
             Direccion(
                 mostrar = pantallaActual == 2,
-                state = registrationState,
+                state = estadoDeRegistro,
                 onStateChange = ::onStateChange
             )
             Contrasena(
                 mostrar = pantallaActual == 3,
-                state = registrationState,
+                state = estadoDeRegistro,
                 onStateChange = ::onStateChange
             )
             if (pantallaActual == 4) {
                 // Here you can add validation before sending
-                val isValid = registrationState.nombre != null &&
-                        registrationState.apellido != null &&
-                        registrationState.correo != null &&
-                        registrationState.contrasena != null &&
-                        registrationState.direccion != null &&
-                        registrationState.fechaNacimiento != null &&
-                        registrationState.curp != null &&
-                        registrationState.numeroTelefono != null
+                val isValid = estadoDeRegistro.nombre != null &&
+                        estadoDeRegistro.apellido != null &&
+                        estadoDeRegistro.correo != null &&
+                        estadoDeRegistro.contrasena != null &&
+                        estadoDeRegistro.direccion != null &&
+                        estadoDeRegistro.curp != null &&
+                        estadoDeRegistro.numeroTelefono != null
 
                 if (isValid) {
                     TextoTitular("¡Todo listo! Enviando...")
                     viewModel.enviarUsuario(
-                        nombre = registrationState.nombre!!,
-                        apellido = registrationState.apellido!!,
-                        correo = registrationState.correo!!,
-                        contrasena = registrationState.contrasena!!,
-                        direccion = registrationState.direccion!!,
-                        fechaNacimiento = registrationState.fechaNacimiento!!,
-                        curp = registrationState.curp!!,
-                        numeroTelefono = registrationState.numeroTelefono!!
+                        nombre = estadoDeRegistro.nombre!!,
+                        apellido = estadoDeRegistro.apellido!!,
+                        correo = estadoDeRegistro.correo!!,
+                        contrasena = estadoDeRegistro.contrasena!!,
+                        direccion = estadoDeRegistro.direccion!!,
+                        curp = estadoDeRegistro.curp!!,
+                        numeroTelefono = estadoDeRegistro.numeroTelefono!!
                     )
                 } else {
                     TextoTitular("Faltan datos por llenar.")
@@ -163,13 +161,16 @@ fun Contrasena(mostrar: Boolean = false,
 }
 
 @Composable
-fun Correo(mostrar: Boolean = true,
-           state: EstadoDeRegistro,
-           onStateChange: (EstadoDeRegistro) -> Unit = {}) {
+fun DatosDeContacto(mostrar: Boolean = true,
+                    state: EstadoDeRegistro,
+                    onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
         CampoDeTexto(label = "Correo electrónico",
             value = state.correo ?: "",
             onValueChange = { onStateChange(state.copy(correo = it)) })
+        CampoDeTexto(label = "Número de teléfono",
+            value = state.numeroTelefono ?: "",
+            onValueChange = { onStateChange(state.copy(numeroTelefono = it)) })
     }
 }
 
@@ -182,7 +183,7 @@ fun Direccion(mostrar: Boolean = false,
         TextoTitular("Sólo se aceptan direcciones de Atizapán.")
         CampoDeTexto(label = "Calle, número y colonia o fraccionamiento",
             value = state.direccion ?: "",
-            onValueChange = { onStateChange(state.copy(nombre = it)) })
+            onValueChange = { onStateChange(state.copy(direccion = it)) })
     }
 }
 

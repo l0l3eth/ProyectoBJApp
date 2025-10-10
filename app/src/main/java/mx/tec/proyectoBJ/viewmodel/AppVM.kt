@@ -41,7 +41,6 @@ class AppVM : ViewModel(){
                       correo: String,
                       contrasena: String,
                       direccion: String,
-                      fechaNacimiento: String,
                       numeroTelefono: String,
                       curp: String) {
         viewModelScope.launch {
@@ -52,7 +51,6 @@ class AppVM : ViewModel(){
                     correo = correo,
                     contrasena = contrasena,
                     direccion = direccion,
-                    fechaNacimiento = fechaNacimiento,
                     telefono = numeroTelefono,
                     curp = curp
                 )
