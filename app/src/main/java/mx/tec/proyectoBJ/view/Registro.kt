@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import mx.tec.proyectoBJ.view.BotonCircular
+import mx.tec.proyectoBJ.view.LogoYTextoPequeño
 
 @Composable
 fun Registro(modifier: Modifier = Modifier) {
@@ -24,12 +26,16 @@ fun Registro(modifier: Modifier = Modifier) {
             modifier = modifier.fillMaxSize()
                 .size(60.dp))
         Row {
-            BotonCircular(icono = Icons.Outlined.AccountCircle,
+            BotonCircular(
+                icono = Icons.Outlined.AccountCircle,
                 modifier = modifier,
-                texto = "Usuario")
-            BotonCircular(icono = Icons.Outlined.ShoppingCart,
+                texto = "Usuario"
+            )
+            BotonCircular(
+                icono = Icons.Outlined.ShoppingCart,
                 modifier = modifier,
-                texto = "Negocio")
+                texto = "Negocio"
+            )
         }
     }
 }

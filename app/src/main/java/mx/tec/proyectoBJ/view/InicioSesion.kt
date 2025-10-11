@@ -1,5 +1,7 @@
 package mx.tec.proyectoBJ.view
 
+import android.R.attr.visibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,20 +33,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lint.kotlin.metadata.Visibility
+import mx.tec.proyectoBJ.R
 import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.degradado
 import mx.tec.ptoyectobj.morado
-import mx.tec.ptoyectobj.view.LogoYTextoGrande
 
 
 @Composable
-fun LoginScreen() {
+fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/) {
     // Estados para los campos de texto
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -60,13 +66,7 @@ fun LoginScreen() {
                 .fillMaxSize()
                 .padding(horizontal = 24.dp)
         ) {
-            // "Iniciar sesión" en la barra superior (Título de la pantalla)
-            Text(
-                text = "Iniciar sesión",
-                color = blanco.copy(alpha = 0f), // Esto se oculta si no quieres título superior
-                fontSize = 18.sp,
-                modifier = Modifier.padding(top = 16.dp, bottom = 32.dp)
-            )
+            Spacer(modifier = Modifier.height(48.dp))
 
             LogoYTextoGrande()
 
@@ -108,6 +108,7 @@ fun LoginScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
+
             // Campo de Contraseña
             OutlinedTextField(
                 value = password,
@@ -115,10 +116,18 @@ fun LoginScreen() {
                 label = { Text("Contraseña") },
                 leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Contraseña") },
                 trailingIcon = {
+                    val painter = if (passwordVisible)
+                        painterResource(id = R.drawable.visibility)
+                    else
+                        painterResource(id = R.drawable.visibility_off)
+
+                    val description = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
-                            imageVector = if (passwordVisible) Icons.Default.Lock else Icons.Default.Lock, // Reemplazar con el ícono de visibilidad (ojo)
-                            contentDescription = "Mostrar Contraseña"
+                            painter = painter,
+                            contentDescription = description,
+                            modifier = Modifier.size(24.dp) // Adjust size as needed
                         )
                     }
                 },
@@ -127,7 +136,6 @@ fun LoginScreen() {
                 colors = outlinedTextFieldColors(),
                 modifier = Modifier.fillMaxWidth()
             )
-
             Spacer(modifier = Modifier.height(20.dp))
 
             // Enlace "Olvidaste tu contraseña?"
@@ -137,8 +145,20 @@ fun LoginScreen() {
                 fontSize = 14.sp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 32.dp)
-                    .clickable { /* TODO: Navegar a recuperación de contraseña */ }
+                    .padding(top = 8.dp, bottom = 16.dp)
+                    .clickable {/*Logica de contraseña*/  } //Navegación a PuntoPartida
+                    .wrapContentWidth(Alignment.End)// Alinear a la derecha
+            )
+
+            //Enlace "¿Eres nuevo? Registrate"
+            Text(
+                text = "¿Eres nuevo? Regístrate",
+                color = blanco,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 0.dp, bottom = 32.dp)
+                    .clickable { onNavigateToRegistro() }
                     .wrapContentWidth(Alignment.End) // Alinear a la derecha
             )
 
@@ -188,5 +208,5 @@ private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen()
+    InicioSesion( onNavigateToRegistro = { })
 }

@@ -1,4 +1,4 @@
-package mx.tec.ptoyectobj.view
+package mx.tec.proyectoBJ.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -34,12 +34,14 @@ import mx.tec.proyectoBJ.R
 import mx.tec.ptoyectobj.blanco
 
 @Composable
-fun BotonCircular(icono: ImageVector, modifier: Modifier = Modifier, texto: String = "") {
+fun BotonCircular(icono: ImageVector,
+                  modifier: Modifier = Modifier,
+                  texto: String = "") {
     Button(onClick = {},
         shape = CircleShape,
         contentPadding = PaddingValues(0.dp),
         modifier = modifier.padding(0.dp)
-            .size(110.dp)
+            .size(160.dp)
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -50,12 +52,12 @@ fun BotonCircular(icono: ImageVector, modifier: Modifier = Modifier, texto: Stri
                 icono,
                 contentDescription = null,
                 modifier = modifier.padding(0.dp)
-                    .size(50.dp)
+                    .size(55.dp)
             )
             Text(
                 texto,
                 modifier = modifier.padding(0.dp)
-                    .size(55.dp)
+                    .size(60.dp)
             )
         }
     }

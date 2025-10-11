@@ -1,6 +1,5 @@
-package mx.tec.ptoyectobj.model
+package mx.tec.proyectoBJ.model
 
-import mx.tec.proyectoBJ.model.Usuario
 import mx.tec.ptoyectobj.URL_BASE
 import retrofit2.HttpException
 import retrofit2.Retrofit
@@ -15,13 +14,13 @@ object ServicioRemoto {
             .build()
     }
 
-    private val servicioUsuario by lazy {
-        retrofit.create(UsuarioAPI::class.java)
+    private val servicio by lazy {
+        retrofit.create(ServicioAPI::class.java)
     }
 
     suspend fun registrarUsuario(usuario: Usuario) {
         try {
-            servicioUsuario.registrarUsuario(usuario)
+            servicio.registrarUsuario(usuario)
         } catch (e: HttpException) {
             println("Error, codigo: ${e.code()}")
             println("Error, mensaje: ${e.message()}")
@@ -29,5 +28,35 @@ object ServicioRemoto {
         } catch (e: Exception) {
             println("Error en la descarga: $e")
         }
+    }
+
+    suspend fun iniciarSesion(correo:String, contrasena:String){
+        try{
+            servicio.iniciarSesion(correo, contrasena)
+        } catch(e: HttpException){
+            println("Error, codigo: ${e.code()}")
+            println("Error, mensaje: ${e.message()}")
+            println("Error, respuesta: ${e.response()}")
+        } catch(e: Exception) {
+            println("Error en la descarga: $e")
+        }
+    }
+
+    suspend fun obtenerNegocio(): List<Negocio> {
+        try {
+            val lista = servicio.obtenerNegocios()
+            return lista
+        } catch (e: HttpException) {
+            println("Error, codigo: ${e.code()}")
+            println("Error, mensaje: ${e.message()}")
+            println("Error, respuesta: ${e.response()}")
+        } catch (e: Exception){
+            println("Error en la descarga: $e")
+        }
+        return listOf()
+    }
+
+    suspend fun obtenerUsuariID(): List<Usuario> {
+        return servicio.obtenerUsuarios()
     }
 }
