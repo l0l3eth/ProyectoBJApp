@@ -33,6 +33,7 @@ import mx.tec.ptoyectobj.view.TextoTitular
 
 @Composable
 fun IngresoDeDatos(modifier: Modifier = Modifier, viewModel: AppVM = AppVM()) {
+    // Pantallas requeridas para el registro.
     val totalPantallas = 4
     var pantallaActual by remember { mutableStateOf(0) }
 
@@ -58,7 +59,6 @@ fun IngresoDeDatos(modifier: Modifier = Modifier, viewModel: AppVM = AppVM()) {
             verticalArrangement = Arrangement.SpaceAround
         ) {
             LogoYTextoGrande()
-            TextoTitular("Cuéntanos un poco sobre tí")
 
             // Pass the current state and the update function to each screen
             DatosPersonales(
@@ -115,6 +115,20 @@ fun IngresoDeDatos(modifier: Modifier = Modifier, viewModel: AppVM = AppVM()) {
     }
 }
 
+/**
+ * Un composable que muestra los botones de navegación "Regresar" y "Siguiente".
+ *
+ * Este componente es parte de un flujo de registro de varias pantallas. Muestra condicionalmente
+ * el botón "Regresar" si el usuario no está en la primera pantalla, y el botón "Siguiente"
+ * si no está en la última. Al hacer clic, estos botones invocan una función de callback para
+ * cambiar a la pantalla anterior o siguiente.
+ *
+ * @param pantallaActual El índice de la pantalla que se está mostrando actualmente en el flujo.
+ * @param modifier El modificador a aplicar al layout de la fila de botones.
+ * @param totalPantallas El número total de pantallas en el flujo de registro.
+ * @param onPantallaCambia Una función de callback que se invoca cuando se hace clic en un botón
+ *                         de navegación. Recibe un entero: `-1` para "Regresar" y `1` para "Siguiente".
+ */
 @Composable
 fun Botones(pantallaActual : Int,
             modifier: Modifier = Modifier,
@@ -146,6 +160,20 @@ fun Botones(pantallaActual : Int,
     }
 }
 
+/**
+ * Un composable que muestra la pantalla para la creación de la contraseña del usuario.
+ *
+ * Esta pantalla es parte de un proceso de registro de varios pasos. Solicita al usuario que
+ * cree una contraseña, que luego se almacena en el estado central del formulario de registro.
+ * La visibilidad de esta pantalla está controlada por el parámetro `mostrar`.
+ *
+ * @param mostrar Una bandera booleana que controla la visibilidad de este composable. Si es `true`,
+ *                la pantalla de contraseña se muestra; de lo contrario, se oculta.
+ * @param state El estado actual del formulario de registro, que contiene todos los datos
+ *              introducidos por el usuario en los pasos anteriores.
+ * @param onStateChange Una función de callback que se invoca cuando el valor del campo de la
+ *                      contraseña cambia. Recibe un objeto `EstadoDeRegistro` actualizado.
+ */
 @Composable
 fun Contrasena(mostrar: Boolean = false,
                state: EstadoDeRegistro,
@@ -160,11 +188,26 @@ fun Contrasena(mostrar: Boolean = false,
     }
 }
 
+/**
+ * Un composable que muestra un formulario para recolectar los datos de contacto del usuario.
+ *
+ * Esta pantalla forma parte de un flujo de registro de varios pasos. Solicita al usuario
+ * su correo electrónico y número de teléfono. Los datos se gestionan a través de un
+ * objeto de estado compartido y se actualizan mediante una función de callback.
+ *
+ * @param mostrar Una bandera booleana que controla la visibilidad de este composable. Si es `true`,
+ *                el formulario se muestra; de lo contrario, se oculta.
+ * @param state El estado actual del formulario de registro, que contiene todos los datos
+ *              introducidos por el usuario hasta el momento.
+ * @param onStateChange Una función de callback que se invoca cada vez que cambia el valor de un
+ *                      campo de entrada. Recibe el objeto `EstadoDeRegistro` actualizado.
+ */
 @Composable
 fun DatosDeContacto(mostrar: Boolean = true,
                     state: EstadoDeRegistro,
                     onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
+        TextoTitular("Ingresa tus datos de contacto.")
         CampoDeTexto(label = "Correo electrónico",
             value = state.correo ?: "",
             onValueChange = { onStateChange(state.copy(correo = it)) })
@@ -181,12 +224,28 @@ fun Direccion(mostrar: Boolean = false,
     if (mostrar) {
         TextoTitular("¿En dónde vives?")
         TextoTitular("Sólo se aceptan direcciones de Atizapán.")
+        // Por hacer: verificar que la dirección pertenezca a Atizapán
         CampoDeTexto(label = "Calle, número y colonia o fraccionamiento",
             value = state.direccion ?: "",
             onValueChange = { onStateChange(state.copy(direccion = it)) })
     }
 }
 
+/**
+ * Un composable que muestra un formulario para recolectar datos personales del usuario.
+ *
+ * Esta pantalla es parte de un proceso de registro de varios pasos. Recolecta el/los nombre(s),
+ * apellidos y CURP del usuario. Los datos recolectados se gestionan a través de un objeto
+ * de estado central.
+ *
+ * @param modifier El modificador a aplicar al layout.
+ * @param mostrar Una bandera booleana que controla la visibilidad de este composable. Si es `true`,
+ *                el formulario se muestra; de lo contrario, se oculta.
+ * @param state El estado actual del formulario de registro, que contiene todos los datos
+ *              introducidos por el usuario.
+ * @param onStateChange Una función de callback que se invoca cuando el valor de cualquiera de los
+ *                      campos de entrada cambia. Recibe un objeto `EstadoDeRegistro` actualizado.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatosPersonales(modifier: Modifier = Modifier,
@@ -205,6 +264,7 @@ fun DatosPersonales(modifier: Modifier = Modifier,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.fillMaxWidth()
         ) {
+            TextoTitular("Cuéntanos un poco sobre tí")
             CampoDeTexto(label = "Nombre(s)",
                 value = state.nombre ?: "",
                 onValueChange = { onStateChange(state.copy(nombre = it)) })
@@ -224,65 +284,6 @@ fun DatosPersonales(modifier: Modifier = Modifier,
     }
 
 }
-//@Composable
-//fun MenuSexos(mostrar: Boolean = false) {
-//    var expanded by remember { mutableStateOf(false) }
-//    if (mostrar) {
-//        Box(
-//            modifier = Modifier
-//                .padding(16.dp)
-//        ) {
-//            IconButton(onClick = { expanded = !expanded }) {
-//                Row {
-//                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More options")
-//                    Text("Género")
-//                }
-//            }
-//            DropdownMenu(
-//                expanded = expanded,
-//                onDismissRequest = { expanded = false }
-//            ) {
-//                DropdownMenuItem(
-//                    text = { Text("Hombre") },
-//                    onClick = { /* Do something... */ }
-//                )
-//                DropdownMenuItem(
-//                    text = { Text("Mujer") },
-//                    onClick = { /* Do something... */ }
-//                )
-//            }
-//        }
-//    }
-//}
-//
-//@Composable
-//fun MenuEstado() {
-//    var expanded by remember { mutableStateOf(false) }
-//    Box(
-//        modifier = Modifier
-//            .padding(16.dp)
-//    ) {
-//        IconButton(onClick = { expanded = !expanded }) {
-//            Row {
-//                Text("Estado")
-//            }
-//        }
-//        DropdownMenu(
-//            expanded = expanded,
-//            onDismissRequest = { expanded = false }
-//        ) {
-//            DropdownMenuItem(
-//                text = { Text("Estado de México") },
-//                onClick = { /* Do something... */ }
-//            )
-//            DropdownMenuItem(
-//                text = { Text("Ciudad de México") },
-//                onClick = { /* Do something... */ }
-//            )
-//        }
-//    }
-//}
-
 
 @Preview(showBackground = true)
 @Composable
