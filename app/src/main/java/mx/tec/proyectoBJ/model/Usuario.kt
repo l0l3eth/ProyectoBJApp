@@ -7,11 +7,8 @@ data class Usuario(
     val apellidos : String,
     val correo : String,
     val telefono : String,
-    val genero : Genero? = null,
     val contrasena : String,
     val direccion : String,
     val curp: String,
-    val fechaNacimiento : String? = null,
-    @SerializedName("tipo_usuario")
-    val tipoUsuario : String = "JOVEN"
+    val tipo_usuario : String = "JOVEN"
 )
