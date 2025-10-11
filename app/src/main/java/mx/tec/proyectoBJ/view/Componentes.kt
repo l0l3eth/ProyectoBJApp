@@ -16,10 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -30,8 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,12 +43,20 @@ import mx.tec.proyectoBJ.R
 import mx.tec.ptoyectobj.blanco
 import java.text.SimpleDateFormat
 import java.util.Date
-import mx.tec.ptoyectobj.blanco
 
+/**
+ * Un composable que muestra un `OutlinedTextField` estilizado con un borde redondeado.
+ * Este componente está diseñado para la entrada de texto dentro de la aplicación.
+ *
+ * @param value El texto actual que se mostrará en el campo de texto.
+ * @param modifier El modificador que se aplicará al `OutlinedTextField`. Por defecto es `Modifier`.
+ * @param etiqueta El texto que se mostrará como etiqueta para el campo de texto.
+ * @param onValueChange Una función callback que se activa cuando el usuario modifica el texto en el campo. Proporciona el nuevo valor de texto como un `String`.
+ */
 @Composable
 fun CampoDeTexto(value: String,
                  modifier: Modifier = Modifier,
-                 label: String,
+                 etiqueta: String,
                  onValueChange: (String) -> Unit) {
     // 1. You need a state to hold the text field's value.
 
@@ -63,7 +67,7 @@ fun CampoDeTexto(value: String,
         //    You must update your state here.
         onValueChange = onValueChange,
         // The label parameter was already correct!
-        label = { Text(label) },
+        label = { Text(etiqueta) },
         modifier = modifier
             .border(
                 shape = RoundedCornerShape(32.dp),
@@ -75,6 +79,7 @@ fun CampoDeTexto(value: String,
     )
 }
 
+// Guardado por si se utiliza para escoger fecha.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerModal(
@@ -110,6 +115,15 @@ fun DatePickerModal(
     }
 }
 
+/**
+ * Un composable que muestra un botón circular con un icono y un texto opcional debajo de él.
+ * El botón tiene una forma de círculo y organiza su contenido (icono y texto) en una columna vertical centrada.
+ *
+ * @param icono El `ImageVector` que se mostrará como el icono principal dentro del botón.
+ * @param modifier El modificador que se aplicará al `Button`. Por defecto es `Modifier`.
+ * @param texto El texto opcional que se mostrará debajo del icono. Por defecto es una cadena vacía.
+ * @param tamano El tamaño (ancho y alto) del botón en dp. Por defecto es 100.
+ */
 @Composable
 fun BotonCircular(icono: ImageVector,
                   modifier: Modifier = Modifier,
@@ -218,10 +232,11 @@ fun LogoYTextoGrande(){
 }
 
 @Composable
-fun TextoTitular(texto: String, modifier: Modifier = Modifier) {
+fun TextoTitularRegistro(texto: String, modifier: Modifier = Modifier) {
     Text(texto,
         modifier = modifier.padding(16.dp),
         color = blanco,
         fontSize = 24.sp,
         fontWeight = FontWeight.Bold)
 }
+

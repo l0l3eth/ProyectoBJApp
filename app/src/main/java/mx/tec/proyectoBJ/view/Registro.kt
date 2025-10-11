@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.view.BotonCircular
 import mx.tec.ptoyectobj.view.LogoYTextoGrande
-import mx.tec.ptoyectobj.view.TextoTitular
+import mx.tec.ptoyectobj.view.TextoTitularRegistro
 
 @Composable
 fun Registro(modifier: Modifier = Modifier) {
@@ -43,7 +43,7 @@ fun Registro(modifier: Modifier = Modifier) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                TextoTitular("¿Eres dueño de algún negocio o eres" +
+                TextoTitularRegistro("¿Eres dueño de algún negocio o eres" +
                         " usuario de Beneficio Joven?")
                 Spacer(modifier = modifier.size(32.dp))
                 Row(

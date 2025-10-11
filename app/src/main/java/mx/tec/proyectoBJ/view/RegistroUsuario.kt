@@ -21,15 +21,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import mx.tec.proyectoBJ.model.EstadoDeRegistro
 import mx.tec.proyectoBJ.viewmodel.AppVM
+import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.view.CampoDeTexto
 import mx.tec.ptoyectobj.view.LogoYTextoGrande
-import mx.tec.ptoyectobj.view.TextoTitular
+import mx.tec.ptoyectobj.view.TextoTitularRegistro
 
 @Composable
 fun IngresoDeDatos(modifier: Modifier = Modifier, viewModel: AppVM = AppVM()) {
@@ -93,7 +96,7 @@ fun IngresoDeDatos(modifier: Modifier = Modifier, viewModel: AppVM = AppVM()) {
                         estadoDeRegistro.numeroTelefono != null
 
                 if (isValid) {
-                    TextoTitular("¡Todo listo! Enviando...")
+                    TextoTitularRegistro("¡Todo listo! Enviando...")
                     viewModel.enviarUsuario(
                         nombre = estadoDeRegistro.nombre!!,
                         apellido = estadoDeRegistro.apellido!!,
@@ -104,7 +107,7 @@ fun IngresoDeDatos(modifier: Modifier = Modifier, viewModel: AppVM = AppVM()) {
                         numeroTelefono = estadoDeRegistro.numeroTelefono!!
                     )
                 } else {
-                    TextoTitular("Faltan datos por llenar.")
+                    TextoTitularRegistro("Faltan datos por llenar.")
                     // Optionally, you could show a button to go back
                 }
             }
@@ -179,9 +182,9 @@ fun Contrasena(mostrar: Boolean = false,
                state: EstadoDeRegistro,
                onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
-        TextoTitular("Crea una contraseña.")
+        TextoTitularRegistro("Crea una contraseña.")
         // Resaltar los requerimientos de seguridad de contraseña al usuario
-        CampoDeTexto(label = "Contraseña",
+        CampoDeTexto(etiqueta = "Contraseña",
             value = state.contrasena ?: "",
             onValueChange = { onStateChange(state.copy(contrasena = it)) })
         // CampoDeTexto("Confirmar contraseña")
@@ -207,11 +210,11 @@ fun DatosDeContacto(mostrar: Boolean = true,
                     state: EstadoDeRegistro,
                     onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
-        TextoTitular("Ingresa tus datos de contacto.")
-        CampoDeTexto(label = "Correo electrónico",
+        TextoTitularRegistro("Ingresa tus datos de contacto.")
+        CampoDeTexto(etiqueta = "Correo electrónico",
             value = state.correo ?: "",
             onValueChange = { onStateChange(state.copy(correo = it)) })
-        CampoDeTexto(label = "Número de teléfono",
+        CampoDeTexto(etiqueta = "Número de teléfono",
             value = state.numeroTelefono ?: "",
             onValueChange = { onStateChange(state.copy(numeroTelefono = it)) })
     }
@@ -222,10 +225,10 @@ fun Direccion(mostrar: Boolean = false,
               state: EstadoDeRegistro,
               onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
-        TextoTitular("¿En dónde vives?")
-        TextoTitular("Sólo se aceptan direcciones de Atizapán.")
+        TextoTitularRegistro("¿En dónde vives?")
+        TextoTitularRegistro("Sólo se aceptan direcciones de Atizapán.")
         // Por hacer: verificar que la dirección pertenezca a Atizapán
-        CampoDeTexto(label = "Calle, número y colonia o fraccionamiento",
+        CampoDeTexto(etiqueta = "Calle, número y colonia o fraccionamiento",
             value = state.direccion ?: "",
             onValueChange = { onStateChange(state.copy(direccion = it)) })
     }
@@ -264,14 +267,14 @@ fun DatosPersonales(modifier: Modifier = Modifier,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.fillMaxWidth()
         ) {
-            TextoTitular("Cuéntanos un poco sobre tí")
-            CampoDeTexto(label = "Nombre(s)",
+            TextoTitularRegistro("Cuéntanos un poco sobre tí")
+            CampoDeTexto(etiqueta = "Nombre(s)",
                 value = state.nombre ?: "",
                 onValueChange = { onStateChange(state.copy(nombre = it)) })
-            CampoDeTexto(label = "Apellidos",
+            CampoDeTexto(etiqueta = "Apellidos",
                 value = state.apellido ?: "",
                 onValueChange = { onStateChange(state.copy(apellido = it)) })
-            CampoDeTexto(label = "CURP",
+            CampoDeTexto(etiqueta = "CURP",
                 value = state.curp ?: "",
                 onValueChange = { onStateChange(state.copy(curp = it)) })
 //            Button(onClick = { menuFecha = true }) {
