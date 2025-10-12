@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import mx.tec.proyectoBJ.model.Genero
+import mx.tec.proyectoBJ.model.Usuario
+import mx.tec.ptoyectobj.model.ServicioRemoto
 
 /**
  * AppVM (App ViewModel) es el ViewModel principal de la aplicación.
@@ -19,6 +22,7 @@ sealed class PantallaSplash {
 }
 
 class AppVM : ViewModel(){
+    private val servicioRemoto = ServicioRemoto
     private val _NavegarAInicio = MutableSharedFlow<PantallaSplash>()
     val NavegarAInicio: SharedFlow<PantallaSplash> = _NavegarAInicio.asSharedFlow()
 
@@ -31,4 +35,27 @@ class AppVM : ViewModel(){
             _NavegarAInicio.emit(PantallaSplash.NavegarAInicio)
         }
     }
+
+    fun enviarUsuario(nombre: String,
+                      apellido: String,
+                      correo: String,
+                      contrasena: String,
+                      direccion: String,
+                      numeroTelefono: String,
+                      curp: String) {
+        viewModelScope.launch {
+            servicioRemoto.registrarUsuario(
+                Usuario(
+                    nombre = nombre,
+                    apellidos = apellido,
+                    correo = correo,
+                    contrasena = contrasena,
+                    direccion = direccion,
+                    telefono = numeroTelefono,
+                    curp = curp
+                )
+            )
+        }
+    }
+
 }

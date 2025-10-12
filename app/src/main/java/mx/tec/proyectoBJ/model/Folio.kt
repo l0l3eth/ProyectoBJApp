@@ -1,4 +1,5 @@
-package mx.tec.proyectoBJ.model
+package mx.tec.proyectoBJ.view.model
+
 
 enum class Aceptacion {
     PENDIENTE, VALIDADO, RECHAZADO

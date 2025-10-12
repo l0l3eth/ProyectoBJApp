@@ -1,41 +1,69 @@
-package mx.tec.ptoyectobj.view
+package mx.tec.proyectoBJ.view
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.ShoppingCart
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import mx.tec.proyectoBJ.view.BotonCircular
-import mx.tec.proyectoBJ.view.LogoYTextoPequeño
+import mx.tec.ptoyectobj.morado
+import mx.tec.ptoyectobj.view.BotonCircular
+import mx.tec.ptoyectobj.view.LogoYTextoGrande
+import mx.tec.ptoyectobj.view.TextoTitularRegistro
 
 @Composable
 fun Registro(modifier: Modifier = Modifier) {
-    Column() {
-        LogoYTextoPequeño()
-        Text("¿Eres dueño de algún negocio o eres" +
-                " usuario de Beneficio Joven?",
-            textAlign = TextAlign.Center,
-            modifier = modifier.fillMaxSize()
-                .size(60.dp))
-        Row {
-            BotonCircular(
-                icono = Icons.Outlined.AccountCircle,
-                modifier = modifier,
-                texto = "Usuario"
-            )
-            BotonCircular(
-                icono = Icons.Outlined.ShoppingCart,
-                modifier = modifier,
-                texto = "Negocio"
-            )
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(morado)
+    ){
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceAround
+        ) {
+            LogoYTextoGrande()
+            Spacer(modifier = modifier.size(64.dp))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                TextoTitularRegistro("¿Eres dueño de algún negocio o eres" +
+                        " usuario de Beneficio Joven?")
+                Spacer(modifier = modifier.size(32.dp))
+                Row(
+                    modifier = modifier.fillMaxHeight()
+                ) {
+                    BotonCircular(
+                        icono = Icons.Outlined.AccountCircle,
+                        modifier = modifier,
+                        texto = "Usuario",
+                        tamano = 150,
+                    )
+                    Spacer(modifier = modifier.size(16.dp))
+                    BotonCircular(
+                        icono = Icons.Outlined.ShoppingCart,
+                        modifier = modifier,
+                        texto = "Negocio",
+                        tamano = 150
+                    )
+                }
+            }
         }
     }
 }
