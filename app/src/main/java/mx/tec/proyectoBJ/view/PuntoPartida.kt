@@ -24,11 +24,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.tec.proyectoBJ.model.Usuario
 import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.morado
 
 @Composable
-fun PuntoPartida() {
+fun PuntoPartida(onNavigateToUsuario: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -97,5 +98,5 @@ fun PuntoPartida() {
 @Preview(showBackground = true)
 @Composable
 fun PuntoPartidaPreview() {
-    PuntoPartida()
+    PuntoPartida( onNavigateToUsuario = { })
 }

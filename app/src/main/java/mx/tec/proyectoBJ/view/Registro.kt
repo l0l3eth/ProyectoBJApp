@@ -19,9 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import mx.tec.ptoyectobj.morado
-import mx.tec.ptoyectobj.view.BotonCircular
-import mx.tec.ptoyectobj.view.LogoYTextoGrande
-import mx.tec.ptoyectobj.view.TextoTitularRegistro
 
 @Composable
 fun Registro(modifier: Modifier = Modifier) {

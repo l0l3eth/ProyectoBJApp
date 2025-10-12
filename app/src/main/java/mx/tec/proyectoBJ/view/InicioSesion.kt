@@ -41,15 +41,17 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lint.kotlin.metadata.Visibility
 import mx.tec.proyectoBJ.R
+import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.degradado
 import mx.tec.ptoyectobj.morado
 
 
 @Composable
-fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/) {
+fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
+                  appVM: AppVM
+) {
     // Estados para los campos de texto
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -208,5 +210,5 @@ private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    InicioSesion( onNavigateToRegistro = { })
+    InicioSesion( onNavigateToRegistro = { }, appVM = AppVM())
 }

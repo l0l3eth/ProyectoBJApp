@@ -34,19 +34,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             // Contenedor principal que configura el NavController y el tema.
-            AppPrincipal()
+            AppPrincipal(viewModel)
         }
     }
 }
 
 @Composable
-fun AppPrincipal() {
+fun AppPrincipal(appVM: AppVM) {
     val navController = rememberNavController()
     PtoyectoBJTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             // Host de navegación que gestiona las pantallas de la app.
             AppNavHost(
                 navController,
+                appVM,
                 modifier = Modifier
                     .padding(innerPadding)
                     .background(Color(0xFFFFF9ED)) // Color de fondo general
@@ -58,11 +59,9 @@ fun AppPrincipal() {
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    appVM: AppVM,
     modifier: Modifier
 ) {
-    val navController = rememberNavController()
-    val appVM: AppVM = viewModel()
-
     // NavHost define el grafo de navegación de la aplicación.
     NavHost(
         navController = navController,
@@ -88,13 +87,21 @@ fun AppNavHost(
         composable("InicioSesion") {
             InicioSesion(
                 onNavigateToRegistro = { navController.navigate("PuntoPartida") },
+                appVM = appVM
             )
         }
 
         // Define la ruta "PuntoPartida" y le asigna el Composable 'PuntoPartida' (de PuntoPartida.kt).
         composable("PuntoPartida") {
             PuntoPartida(
-                //onNavigateToRegistro = { navController.navigate("InicioSesion") },
+                onNavigateToUsuario = { navController.navigate("registro_usuario") },
+            )
+        }
+
+        // Define la ruta "RegistroUsuario" y le asigna el Composable 'RegistroUsuario' (de RegistroUsuario.kt).
+        composable("registro_usuario") {
+            IngresoDeDatos(
+                appVM = appVM
             )
         }
     }

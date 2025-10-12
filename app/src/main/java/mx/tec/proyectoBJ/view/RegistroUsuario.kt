@@ -21,21 +21,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import mx.tec.proyectoBJ.model.EstadoDeRegistro
 import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.morado
-import mx.tec.ptoyectobj.view.CampoDeTexto
-import mx.tec.ptoyectobj.view.LogoYTextoGrande
-import mx.tec.ptoyectobj.view.TextoTitularRegistro
 
 @Composable
-fun IngresoDeDatos(modifier: Modifier = Modifier, viewModel: AppVM = AppVM()) {
+fun IngresoDeDatos(appVM: AppVM, modifier: Modifier = Modifier) {
     // Pantallas requeridas para el registro.
     val totalPantallas = 4
     var pantallaActual by remember { mutableStateOf(0) }
@@ -97,7 +92,7 @@ fun IngresoDeDatos(modifier: Modifier = Modifier, viewModel: AppVM = AppVM()) {
 
                 if (isValid) {
                     TextoTitularRegistro("¡Todo listo! Enviando...")
-                    viewModel.enviarUsuario(
+                    appVM.enviarUsuario(
                         nombre = estadoDeRegistro.nombre!!,
                         apellido = estadoDeRegistro.apellido!!,
                         correo = estadoDeRegistro.correo!!,
@@ -288,8 +283,8 @@ fun DatosPersonales(modifier: Modifier = Modifier,
 
 }
 
-@Preview(showBackground = true)
-@Composable
-fun IngresoDeDatosPreview() {
-    IngresoDeDatos()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun IngresoDeDatosPreview() {
+//    IngresoDeDatos()
+//}

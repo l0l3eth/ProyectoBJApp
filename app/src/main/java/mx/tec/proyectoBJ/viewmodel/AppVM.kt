@@ -7,13 +7,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import mx.tec.proyectoBJ.model.Genero
+import mx.tec.proyectoBJ.model.ServicioRemoto
 import mx.tec.proyectoBJ.model.Usuario
-import mx.tec.ptoyectobj.model.ServicioRemoto
 
 /**
  * AppVM (App ViewModel) es el ViewModel principal de la aplicación.
- * Gestiona el estado de autenticación del usuario (login/logout) utilizando Firebase Authentication.
  * Se encarga de la lógica  relacionada con el inicio y cierre de sesión.
  */
 
@@ -30,7 +28,7 @@ class AppVM : ViewModel(){
         // Ejecuta la lógica de retardo y navegación al iniciar el ViewModel
         viewModelScope.launch {
             // Retraso de menos de un segundo
-            delay(100L)
+            delay(3000L)
             // Envía el evento de navegación
             _NavegarAInicio.emit(PantallaSplash.NavegarAInicio)
         }

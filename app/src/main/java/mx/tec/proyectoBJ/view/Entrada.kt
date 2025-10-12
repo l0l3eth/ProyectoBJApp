@@ -40,7 +40,11 @@ fun Entrada(navController: NavController, appVM: AppVM)
     LaunchedEffect(eventoNavegacion) {
         if (eventoNavegacion == PantallaSplash.NavegarAInicio) {
             // 3. Realizar la navegación al destino (Pantalla 2: Inicio)
-            navController.navigate("InicioRoute")
+            navController.navigate("Inicio"){
+                popUpTo("Entrada") {
+                    inclusive = true // This also removes "Entrada" itself.
+                }
+            }
         }
     }
 

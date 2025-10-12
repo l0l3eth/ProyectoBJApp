@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.gson)
 
+
     //Imágenes. Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
@@ -62,7 +63,6 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.ui.graphics.lint)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -71,9 +71,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    implementation(libs.retrofit)
-    implementation(libs.gson)
 
     implementation(libs.logging.interceptor)
 }
