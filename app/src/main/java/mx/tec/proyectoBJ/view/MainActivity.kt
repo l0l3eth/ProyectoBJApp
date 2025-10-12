@@ -25,6 +25,7 @@ import mx.tec.proyectoBJ.viewmodel.AppVM
  * MainActivity es la actividad principal y el punto de entrada de la aplicación.
  * Configura la navegación y el tema general.
  */
+
 class MainActivity : ComponentActivity() {
     val viewModel: AppVM by viewModels()
 
@@ -59,6 +60,7 @@ fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier
 ) {
+    val navController = rememberNavController()
     val appVM: AppVM = viewModel()
 
     // NavHost define el grafo de navegación de la aplicación.
@@ -75,11 +77,24 @@ fun AppNavHost(
             )
         }
 
-        // Define la ruta "Inicio" y le asigna el Composable 'Inicio' (de Inicio.kt).
         composable("Inicio") {
             Inicio(
-                navController = navController,
+                onNavigateToInicioSesion = { navController.navigate("InicioSesion")},
                 appVM = appVM
+            )
+        }
+
+        // Define la ruta "Inicio" y le asigna el Composable 'Inicio' (de Inicio.kt).
+        composable("InicioSesion") {
+            InicioSesion(
+                onNavigateToRegistro = { navController.navigate("PuntoPartida") },
+            )
+        }
+
+        // Define la ruta "PuntoPartida" y le asigna el Composable 'PuntoPartida' (de PuntoPartida.kt).
+        composable("PuntoPartida") {
+            PuntoPartida(
+                //onNavigateToRegistro = { navController.navigate("InicioSesion") },
             )
         }
     }

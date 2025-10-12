@@ -35,10 +35,10 @@ import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.naranja
 import mx.tec.ptoyectobj.rosa
-import mx.tec.ptoyectobj.view.LogoYTextoPequeño
+import mx.tec.proyectoBJ.view.LogoYTextoPequeño
 
 @Composable
-fun Inicio(navController: NavController, appVM: AppVM) {
+fun Inicio(onNavigateToInicioSesion: () -> Unit, appVM: AppVM) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -131,7 +131,7 @@ fun Inicio(navController: NavController, appVM: AppVM) {
             // Botón "Iniciar sesión"
             Button(
                 //Modificar cuando se tenga lo de inicio
-                onClick = { /* TODO: Navegar a la pantalla de inicio de sesión */ },
+                onClick = { onNavigateToInicioSesion() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
@@ -184,7 +184,7 @@ fun Inicio(navController: NavController, appVM: AppVM) {
 @Composable
 fun LoginScreenPreview() {
     Inicio(
-        navController = NavController(LocalContext.current),
+        onNavigateToInicioSesion = {},
         appVM = AppVM()
     )
 }

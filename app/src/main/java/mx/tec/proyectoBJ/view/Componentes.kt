@@ -1,4 +1,4 @@
-package mx.tec.ptoyectobj.view
+package mx.tec.proyectoBJ.view
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
