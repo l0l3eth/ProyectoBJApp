@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
@@ -41,6 +44,18 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppPrincipal(appVM: AppVM) {
     val navController = rememberNavController()
+    val usuarioLogeado by appVM.usuarioLogeado.observeAsState()
+
+    LaunchedEffect(usuarioLogeado) {
+        if (usuarioLogeado != null) {
+            // ÉXITO: Navegar a la pantalla principal de la app
+            navController.navigate("PromocionesScreen") { // <-- Define el nombre de tu pantalla principal
+                // Limpia la pila para que no se pueda volver al login con el botón de atrás
+                popUpTo("InicioSesion") { inclusive = true }
+            }
+        }
+    }
+
     PtoyectoBJTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             // Host de navegación que gestiona las pantallas de la app.
@@ -78,6 +93,7 @@ fun AppNavHost(
         composable("Inicio") {
             Inicio(
                 onNavigateToInicioSesion = { navController.navigate("InicioSesion")},
+                onNavigateToRegistro = { navController.navigate("Registro") },
                 appVM = appVM
             )
         }
@@ -102,6 +118,13 @@ fun AppNavHost(
             IngresoDeDatos(
                 appVM = appVM
             )
+        }
+
+        composable("PromocionesScreen") {
+            // Aquí iría el Composable de tu vista principal de la app
+            // (La vista que muestra las tarjetas de negocios/promociones)
+            // Por ahora, usamos un Text simple para probar:
+            Text("Vista Principal de Promociones", modifier = Modifier.fillMaxSize())
         }
     }
 }

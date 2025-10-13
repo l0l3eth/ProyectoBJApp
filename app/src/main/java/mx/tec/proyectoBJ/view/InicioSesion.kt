@@ -169,7 +169,7 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
 
             // Botón "Iniciar sesión" (con degradado)
             Button(
-                onClick = { /* TODO: Lógica de boton */ },
+                onClick = { appVM.iniciarSesion(email, password) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
