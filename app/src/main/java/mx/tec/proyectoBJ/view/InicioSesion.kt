@@ -38,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -145,6 +146,7 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
                 text = "¿Olvidaste tu contraseña?",
                 color = blanco,
                 fontSize = 14.sp,
+                textDecoration = TextDecoration.Underline,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp, bottom = 16.dp)
@@ -157,6 +159,7 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
                 text = "¿Eres nuevo? Regístrate",
                 color = blanco,
                 fontSize = 14.sp,
+                textDecoration = TextDecoration.Underline,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 0.dp, bottom = 32.dp)

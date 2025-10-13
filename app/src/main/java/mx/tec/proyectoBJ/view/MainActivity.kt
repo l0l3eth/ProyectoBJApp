@@ -13,7 +13,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -94,7 +93,7 @@ fun AppNavHost(
         // Define la ruta "Registro" y le asigna el Composable 'Registro' (de Registro.kt).
         composable("Registro") {
             Registro(
-                onNavigateToUsuario = { navController.navigate("registro_usuario") },
+                onNavigateToRegistroUsuario = { navController.navigate("registro_usuario") },
             )
         }
 

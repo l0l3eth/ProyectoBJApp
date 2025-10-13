@@ -1,6 +1,7 @@
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +39,7 @@ import mx.tec.ptoyectobj.rosa
 import mx.tec.proyectoBJ.view.LogoYTextoPequeño
 
 @Composable
-fun Inicio(onNavigateToInicioSesion: () -> Unit, appVM: AppVM) {
+fun Inicio(onNavigateToInicioSesion: () -> Unit, onNavigateToRegistro: () -> Unit ,appVM: AppVM) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -164,13 +165,12 @@ fun Inicio(onNavigateToInicioSesion: () -> Unit, appVM: AppVM) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ){
-                // Usamos un Text simple para "Regístrate" para que parezca un enlace
-                // Puedes envolverlo en un ClickableText si necesitas una acción de click
                 Text(
                     text = "Regístrate",
                     color = blanco,
                     fontSize = 16.sp,
-                    textDecoration = TextDecoration.Underline
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { onNavigateToRegistro() }
                 )
             }
 
@@ -185,6 +185,7 @@ fun Inicio(onNavigateToInicioSesion: () -> Unit, appVM: AppVM) {
 fun LoginScreenPreview() {
     Inicio(
         onNavigateToInicioSesion = {},
+        onNavigateToRegistro = {},
         appVM = AppVM()
     )
 }

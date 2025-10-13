@@ -1,6 +1,7 @@
 package mx.tec.proyectoBJ.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import mx.tec.proyectoBJ.model.Usuario
 import mx.tec.ptoyectobj.morado
 
 @Composable
-fun Registro(onNavigateToUsuario: () -> Unit, modifier: Modifier = Modifier) {
+fun Registro(onNavigateToRegistroUsuario: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -49,7 +49,7 @@ fun Registro(onNavigateToUsuario: () -> Unit, modifier: Modifier = Modifier) {
                 ) {
                     BotonCircular(
                         icono = Icons.Outlined.AccountCircle,
-                        modifier = modifier,
+                        modifier = modifier.clickable { onNavigateToRegistroUsuario() },
                         texto = "Usuario",
                         tamano = 150,
                     )
@@ -69,5 +69,5 @@ fun Registro(onNavigateToUsuario: () -> Unit, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun RegistroPreview() {
-    Registro( onNavigateToUsuario = { })
+    Registro( onNavigateToRegistroUsuario = { })
 }
