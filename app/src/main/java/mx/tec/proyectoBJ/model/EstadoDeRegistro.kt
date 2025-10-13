@@ -1,6 +1,5 @@
 package mx.tec.proyectoBJ.model
 
-// You can place this in the same file or a dedicated `state` package
 data class EstadoDeRegistro(
     val nombre: String? = null,
     val apellido: String? = null,

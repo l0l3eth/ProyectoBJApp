@@ -18,10 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import mx.tec.proyectoBJ.model.Usuario
 import mx.tec.ptoyectobj.morado
 
 @Composable
-fun Registro(modifier: Modifier = Modifier) {
+fun Registro(onNavigateToUsuario: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -68,5 +69,5 @@ fun Registro(modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun RegistroPreview() {
-    Registro()
+    Registro( onNavigateToUsuario = { })
 }

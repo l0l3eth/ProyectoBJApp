@@ -86,14 +86,14 @@ fun AppNavHost(
         // Define la ruta "Inicio" y le asigna el Composable 'Inicio' (de Inicio.kt).
         composable("InicioSesion") {
             InicioSesion(
-                onNavigateToRegistro = { navController.navigate("PuntoPartida") },
+                onNavigateToRegistro = { navController.navigate("Registro") },
                 appVM = appVM
             )
         }
 
-        // Define la ruta "PuntoPartida" y le asigna el Composable 'PuntoPartida' (de PuntoPartida.kt).
-        composable("PuntoPartida") {
-            PuntoPartida(
+        // Define la ruta "Registro" y le asigna el Composable 'Registro' (de Registro.kt).
+        composable("Registro") {
+            Registro(
                 onNavigateToUsuario = { navController.navigate("registro_usuario") },
             )
         }
