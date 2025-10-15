@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import mx.tec.proyectoBJ.model.EstadoDeRegistro
 import mx.tec.proyectoBJ.viewmodel.AppVM
@@ -94,7 +93,7 @@ fun IngresoDeDatos(appVM: AppVM, modifier: Modifier = Modifier) {
                     TextoTitularRegistro("¡Todo listo! Enviando...")
                     appVM.enviarUsuario(
                         nombre = estadoDeRegistro.nombre!!,
-                        apellido = estadoDeRegistro.apellido!!,
+                        apellidos = estadoDeRegistro.apellido!!,
                         correo = estadoDeRegistro.correo!!,
                         contrasena = estadoDeRegistro.contrasena!!,
                         direccion = estadoDeRegistro.direccion!!,

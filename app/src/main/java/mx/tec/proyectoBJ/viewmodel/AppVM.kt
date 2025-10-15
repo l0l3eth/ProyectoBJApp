@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import mx.tec.proyectoBJ.model.ServicioRemoto
 import mx.tec.proyectoBJ.model.Usuario
@@ -19,10 +21,21 @@ sealed class PantallaSplash {
     object NavegarAInicio : PantallaSplash()
 }
 
+// A new sealed class to represent the state of the registration
+sealed class EstadoRegistroUI {
+    object Idle : EstadoRegistroUI() // Initial state
+    object Loading : EstadoRegistroUI() // When the request is in progress
+    object Success : EstadoRegistroUI() // On success
+    data class Error(val message: String?) : EstadoRegistroUI() // On failure
+}
+
 class AppVM : ViewModel(){
     private val servicioRemoto = ServicioRemoto
     private val _NavegarAInicio = MutableSharedFlow<PantallaSplash>()
     val NavegarAInicio: SharedFlow<PantallaSplash> = _NavegarAInicio.asSharedFlow()
+
+    private val _estatusRegistro = MutableStateFlow<EstadoRegistroUI>(EstadoRegistroUI.Idle)
+    val estatusRegistro = _estatusRegistro.asStateFlow()
 
     init {
         // Ejecuta la lógica de retardo y navegación al iniciar el ViewModel
@@ -35,17 +48,20 @@ class AppVM : ViewModel(){
     }
 
     fun enviarUsuario(nombre: String,
-                      apellido: String,
+                      apellidos: String,
                       correo: String,
                       contrasena: String,
                       direccion: String,
                       numeroTelefono: String,
                       curp: String) {
         viewModelScope.launch {
-            servicioRemoto.registrarUsuario(
+
+            _estatusRegistro.value = EstadoRegistroUI.Loading
+
+            val resultado = servicioRemoto.registrarUsuario(
                 Usuario(
                     nombre = nombre,
-                    apellidos = apellido,
+                    apellidos = apellidos,
                     correo = correo,
                     contrasena = contrasena,
                     direccion = direccion,
@@ -53,6 +69,12 @@ class AppVM : ViewModel(){
                     curp = curp
                 )
             )
+
+            if (resultado.isSuccess) {
+                _estatusRegistro.value = EstadoRegistroUI.Success
+            } else {
+                _estatusRegistro.value = EstadoRegistroUI.Error(resultado.exceptionOrNull()?.message)
+            }
         }
     }
 

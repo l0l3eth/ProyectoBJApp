@@ -27,15 +27,18 @@ object ServicioRemoto {
         retrofit.create(ServicioAPI::class.java)
     }
 
-    suspend fun registrarUsuario(usuario: Usuario) {
-        try {
+    suspend fun registrarUsuario(usuario: Usuario): Result<Unit> {
+        return try {
             servicio.registrarUsuario(usuario)
+            Result.success(Unit)
         } catch (e: HttpException) {
             println("Error, codigo: ${e.code()}")
             println("Error, mensaje: ${e.message()}")
             println("Error, respuesta: ${e.response()}")
+            Result.failure(e)
         } catch (e: Exception) {
             println("Error en la descarga: $e")
+            Result.failure(e)
         }
     }
 

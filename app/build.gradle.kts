@@ -65,6 +65,10 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test) // For testing coroutines
+    testImplementation(libs.mockk) // Mocking library
+
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

@@ -1,6 +1,10 @@
 package mx.tec.proyectoBJ
 
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import mx.tec.proyectoBJ.model.Usuario
+import mx.tec.proyectoBJ.viewmodel.AppVM
 import org.junit.Test
 
 /**
@@ -8,9 +12,4 @@ import org.junit.Test
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-class ExampleUnitTest {
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
-    }
-}
+
