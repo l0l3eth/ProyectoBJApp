@@ -121,10 +121,11 @@ fun AppNavHost(
         }
 
         composable("PromocionesScreen") {
+            PantallaPrincipalUsuario()
             // Aquí iría el Composable de tu vista principal de la app
             // (La vista que muestra las tarjetas de negocios/promociones)
             // Por ahora, usamos un Text simple para probar:
-            Text("Vista Principal de Promociones", modifier = Modifier.fillMaxSize())
+            //Text("Vista Principal de Promociones", modifier = Modifier.fillMaxSize())
         }
     }
 }

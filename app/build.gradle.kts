@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.foundation)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
