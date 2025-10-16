@@ -7,10 +7,10 @@ import retrofit2.http.POST
 
 interface ServicioAPI {
     //Iniciar Sesión
-    @POST("api/usuario") //falta cambiar el endpoint
+    @POST("/api/auth/login")
     suspend fun iniciarSesion(
-        @Body correo: String, contrasena: String
-    );
+        @Body credenciales: Map<String, String>
+    ): Response<Usuario>
 
     //Registrar Usuario
     @POST("/api/auth/registrar")
@@ -23,5 +23,10 @@ interface ServicioAPI {
     //Datos Usuario para el ID digital
     @GET("/api/usuarios")
     suspend fun obtenerUsuarios(): List<Usuario>
+
+    //Lista de Productos
+    @GET("/api/productos")
+    suspend fun obtenerProductos(): List<Producto>
+
 
 }
