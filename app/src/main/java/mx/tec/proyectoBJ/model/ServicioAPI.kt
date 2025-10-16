@@ -9,8 +9,8 @@ interface ServicioAPI {
     //Iniciar Sesión
     @POST("api/usuario") //falta cambiar el endpoint
     suspend fun iniciarSesion(
-        @Body correo: String, contrasena: String
-    );
+        @Body loginRequest: LoginRequest
+    ): Response <AuthResponse>
 
     //Registrar Usuario
     @POST("/api/auth/registrar")

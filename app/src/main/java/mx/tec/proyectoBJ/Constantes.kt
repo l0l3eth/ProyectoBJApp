@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 // Modelo
 
-const val URL_BASE = "http://54.144.192.111:8080"
+const val URL_BASE = "httpsis://54.144.192.111:8080"
 
 // Vista
 

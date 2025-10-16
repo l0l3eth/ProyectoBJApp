@@ -17,7 +17,7 @@ object ServicioRemoto {
         .build()
     private val retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(URL_BASE)
+            .baseUrl(URL_BASE) //Cambiar a HTTPS
             .client(cliente)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -39,15 +39,29 @@ object ServicioRemoto {
         }
     }
 
-    suspend fun iniciarSesion(correo:String, contrasena:String){
+    suspend fun iniciarSesion(correo:String, contrasena:String):String?{
+
+        val request= LoginRequest(correo=correo, contrasena=contrasena)
         try{
-            servicio.iniciarSesion(correo, contrasena)
-        } catch(e: HttpException){
-            println("Error, codigo: ${e.code()}")
-            println("Error, mensaje: ${e.message()}")
-            println("Error, respuesta: ${e.response()}")
+
+            val response=servicio.iniciarSesion(request)
+            if(response.isSuccessful){
+                val authResponse=response.body()
+                if(authResponse!=null){
+                    println("Inicio de sesión exitoso, token: ${authResponse.token}")
+                    return authResponse.token
+                } else{
+                    println("Respuesta exitosa, cuerpo vacío")
+                    return null
+                }
+            }else{
+                val errBody=response.errorBody()?.string()
+                println("Error de inicio de sesión: ${response.code()}. Mensaje del server: $errBody")
+                return null
+            }
         } catch(e: Exception) {
             println("Error en la descarga: $e")
+            return null
         }
     }
 
