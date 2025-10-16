@@ -32,9 +32,12 @@ val samplePromotions = listOf(
 // --- Composable Principal de la Pantalla ---
 @Composable
 fun PantallaPrincipalUsuario(/*Logica de navegación*/
-                             /*appVM: AppVM*/) {
+                             appVM: AppVM) {
     Scaffold(
-        bottomBar = { BarraNavegacion() },
+        bottomBar = { BarraNavegacion( onNavigateToInicio = {},
+                                        onNavigateToMapa = {},
+                                        onNavigateToPromociones = {},
+                                        onNavigateToID = {}) },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         // Usamos LazyColumn para que el contenido sea desplazable (scrollable)
@@ -69,5 +72,5 @@ fun PantallaPrincipalUsuario(/*Logica de navegación*/
 @Preview(showBackground = true)
 @Composable
 fun UserHomeScreenPreview() {
-    PantallaPrincipalUsuario( /*appVM = AppVM()*/ )
+    PantallaPrincipalUsuario( appVM = AppVM() )
 }

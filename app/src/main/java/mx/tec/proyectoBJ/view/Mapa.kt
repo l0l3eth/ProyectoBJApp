@@ -13,9 +13,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
@@ -39,7 +44,6 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import mx.tec.ptoyectobj.fondoGris
-import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.rosa
 
 data class NegocioUbicacion(
@@ -50,7 +54,7 @@ data class NegocioUbicacion(
     val latLng: LatLng
 )
 
-val sampleLocations = listOf(
+val NegociosUbicacion = listOf(
     NegocioUbicacion(
         "AV. RUIZ CORTINES",
         "LASHER SPA",
@@ -65,20 +69,22 @@ val sampleLocations = listOf(
         "1.38 km de ti",
         LatLng(19.4300, -99.1300)
     )
-    // Más negocios...
 )
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun MapaScreen(
-    // Aquí podrías inyectar un ViewModel si manejaras la ubicación real y los datos
+    //appVM: AppVM,
     modifier: Modifier = Modifier
 ) {
-    // Para la demo, el texto de búsqueda no afecta el mapa, solo la lista de negocios
+
     var searchText by remember { mutableStateOf("") }
 
     Scaffold(
-        bottomBar = { BarraNavegacion() },
+        bottomBar = { BarraNavegacion( onNavigateToInicio = {},
+                                        onNavigateToMapa = {},
+                                        onNavigateToPromociones = {},
+                                        onNavigateToID = {}) },
         modifier = modifier.fillMaxSize()
     ) { paddingValues ->
 
@@ -92,9 +98,6 @@ fun MapaScreen(
             item {
                 ParteSuperior(
                     userName = "Usuario",
-//                    searchText = searchText,
-//                    onSearchTextChange = { searchText = it },
-                    // Usamos padding(bottom = 0.dp) para que la barra de búsqueda quede pegada al borde
                     modifier = Modifier.padding(bottom = 0.dp)
                 )
             }
@@ -111,7 +114,7 @@ fun MapaScreen(
             }
 
             item {
-                // --- Google Map Composables ---
+                // Google Map Composables
                 // Simulación de la ubicación del usuario (puedes cambiar LatLng por la ubicación real)
                 val userLocation = LatLng(19.4326, -99.1332)
 
@@ -129,7 +132,7 @@ fun MapaScreen(
                     GoogleMap(
                         modifier = Modifier.fillMaxSize(),
                         cameraPositionState = cameraPositionState,
-                        uiSettings = MapUiSettings(zoomControlsEnabled = false) // Ocultar controles de zoom
+                        uiSettings = MapUiSettings(zoomControlsEnabled = true)
                     ) {
                         // Marcador de ubicación del usuario (el punto azul)
                         Marker(
@@ -139,7 +142,7 @@ fun MapaScreen(
                         )
 
                         // Añadir marcadores para los negocios
-                        sampleLocations.forEach { location ->
+                        NegociosUbicacion.forEach { location ->
                             Marker(
                                 state = MarkerState(position = location.latLng),
                                 title = location.name
@@ -165,7 +168,7 @@ fun MapaScreen(
             }
 
             // --- Lista de Negocios Cercanos ---
-            items(sampleLocations.filter {
+            items(NegociosUbicacion.filter {
                 // Filtrado simple por nombre del negocio
                 it.name.contains(searchText, ignoreCase = true)
             }) { location ->
@@ -215,14 +218,14 @@ fun BusinessLocationItem(location: NegocioUbicacion) {
                 )
             }
             // Icono de información/detalle (el pequeño círculo con la "i")
-//            Icon(
-//                imageVector = Icons.Default.Info,
-//                contentDescription = "Detalle del negocio",
-//                tint = Color.Gray,
-//                modifier = Modifier
-//                    .size(20.dp)
-//                    .align(Alignment.CenterVertically)
-//            )
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "Detalle del negocio",
+                tint = Color.Gray,
+                modifier = Modifier
+                    .size(20.dp)
+                    .align(Alignment.CenterVertically)
+            )
         }
         Spacer(modifier = Modifier.height(8.dp))
         Divider(color = Color.LightGray, thickness = 1.dp)

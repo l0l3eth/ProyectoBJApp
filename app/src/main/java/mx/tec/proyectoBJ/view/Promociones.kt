@@ -66,7 +66,8 @@ val categories = listOf("Todo", "Comida", "Salud", "Belleza", "Entretenimiento")
 
 @Composable
 fun PromocionesScreen(
-    //appVM: AppVM = viewModel() // Si quieres integrarlo con MVVM
+    //appVM: AppVM
+
 ) {
     // 1. Estados de la pantalla
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -85,7 +86,10 @@ fun PromocionesScreen(
     }
 
     Scaffold(
-        bottomBar = { BarraNavegacion() },
+        bottomBar = { BarraNavegacion( onNavigateToInicio = {},
+                                        onNavigateToMapa = {},
+                                        onNavigateToPromociones = {},
+                                        onNavigateToID = {}) },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
 

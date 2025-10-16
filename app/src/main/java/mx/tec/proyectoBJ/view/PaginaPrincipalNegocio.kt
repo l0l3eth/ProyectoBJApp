@@ -18,22 +18,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.tec.ptoyectobj.fondoGris
+import mx.tec.ptoyectobj.morado
+import mx.tec.ptoyectobj.rosa
 
-// Reemplaza esto con tu import real si usas resources
-// import androidx.compose.ui.res.painterResource
-// import mx.tec.proyectoBJ.R
-
-// --- Definición de Colores ---
-val DarkPurple = Color(0xFF38156E)
-val PrimaryPink = Color(0xFFF06292) // Rosa para detalles
-val GrayBackground = Color(0xFFF5F5F5)
-val White = Color(0xFFFFFFFF)
-val BlackPlaceholder = Color(0xFF000000) // Para el fondo del logo
 
 // --- Modelo de Datos de Horarios ---
 data class DailySchedule(
@@ -57,14 +52,17 @@ fun NegocioProfileScreen(
     // Aquí iría el ViewModel si fuera necesario
 ) {
     Scaffold(
-        bottomBar = { BarraNavegacion() },
+        bottomBar = { BarraNavegacion( onNavigateToInicio = {},
+                                        onNavigateToMapa = {},
+                                        onNavigateToPromociones = {},
+                                        onNavigateToID = {}) },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
 
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(GrayBackground)
+                .background(fondoGris)
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally // Centra el contenido horizontalmente
         ) {
@@ -87,7 +85,7 @@ fun NegocioProfileScreen(
                 // Botón/Enlace "Editar perfil"
                 Text(
                     text = "Editar perfil",
-                    color = PrimaryPink,
+                    color = rosa,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp,
                     modifier = Modifier
@@ -109,7 +107,7 @@ fun HeaderNegocio(userName: String) {
         modifier = Modifier
             .fillMaxWidth()
             // No tiene las esquinas redondeadas en la parte inferior de la captura
-            .background(DarkPurple)
+            .background(morado)
             .padding(bottom = 0.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -142,7 +140,7 @@ fun HeaderNegocio(userName: String) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(100.dp) // Altura del espacio negro
-                    .background(BlackPlaceholder)
+                    .background(Black)
             )
         }
 
@@ -193,7 +191,7 @@ fun BusinessInfoSection(name: String, description: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
-            .background(GrayBackground) // Asegura que el fondo sea gris
+            .background(fondoGris) // Asegura que el fondo sea gris
     ) {
         Text(
             text = name,
@@ -242,7 +240,7 @@ fun ScheduleSection(schedule: List<DailySchedule>) {
                     text = item.schedule,
                     fontSize = 14.sp,
                     fontWeight = if (item.isToday) FontWeight.Bold else FontWeight.Normal,
-                    color = if (item.isToday) PrimaryPink else Color.Black,
+                    color = if (item.isToday) rosa else Color.Black,
                     textAlign = TextAlign.End
                 )
             }
