@@ -19,9 +19,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -424,9 +427,9 @@ data class NavItem(val label: String, val icon: ImageVector)
 
 val navItems = listOf(
     NavItem("Inicio", Icons.Default.Home),
-    NavItem("Mapa", Icons.Default.Menu), // Sustituto para ícono de Mapa
-    NavItem("Promociones", Icons.Default.Star), // Sustituto para ícono de %
-    NavItem("ID digital", Icons.Default.Menu), // Sustituto para ícono de ID
+    NavItem("Mapa", Icons.Default.LocationOn),
+    NavItem("Promociones", Icons.Default.ShoppingBag),
+    NavItem("ID digital", Icons.Default.CreditCard),
 )
 
 @Composable

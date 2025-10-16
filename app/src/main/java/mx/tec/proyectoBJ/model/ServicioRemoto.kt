@@ -77,6 +77,10 @@ object ServicioRemoto {
         return listOf()
     }
 
+    suspend fun obtenerProductos(): List<Producto> {
+        return servicio.obtenerProductos()
+    }
+
     suspend fun obtenerUsuariID(): List<Usuario> {
         return servicio.obtenerUsuarios()
     }

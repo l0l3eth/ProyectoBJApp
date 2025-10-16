@@ -54,7 +54,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.gson)
 
-
     //Imágenes. Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
@@ -65,6 +64,14 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.foundation)
+
+    //Google Maps
+    implementation(libs.maps.compose)
+    implementation(libs.play.services.location)
+    implementation(libs.play.services.maps)
+
+    //Acceso a los iconos
+    implementation(libs.androidx.material.icons.extended)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
