@@ -1,12 +1,14 @@
 package mx.tec.proyectoBJ.model
 
+import com.google.gson.annotations.SerializedName
+
 data class Usuario(
     val nombre : String,
+    val apellidos : String,
     val correo : String,
-    val numeroTelefono : String,
-    val curp : String,
-    val foto : String,
-    val genero : String,
+    val telefono : String,
     val contrasena : String,
     val direccion : String,
+    val curp: String,
+    val tipo_usuario : String = "JOVEN"
 )
