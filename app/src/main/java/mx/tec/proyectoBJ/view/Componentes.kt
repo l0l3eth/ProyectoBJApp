@@ -68,28 +68,23 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 /**
- * Un composable que muestra un `OutlinedTextField` estilizado con un borde redondeado.
- * Este componente está diseñado para la entrada de texto dentro de la aplicación.
+ * Un composable que muestra un `OutlinedTextField` estilizado para la entrada de texto.
+ * Presenta esquinas redondeadas y un fondo de color `blanco`.
  *
- * @param value El texto actual que se mostrará en el campo de texto.
- * @param modifier El modificador que se aplicará al `OutlinedTextField`. Por defecto es `Modifier`.
- * @param etiqueta El texto que se mostrará como etiqueta para el campo de texto.
- * @param onValueChange Una función callback que se activa cuando el usuario modifica el texto en el campo. Proporciona el nuevo valor de texto como un `String`.
+ * @param value El texto actual a mostrar en el campo.
+ * @param modifier Modificador para personalizar el layout y la apariencia.
+ * @param etiqueta El texto que se muestra como placeholder o etiqueta flotante.
+ * @param onValueChange Callback que se invoca cuando el valor del texto cambia.
  */
 @Composable
 fun CampoDeTexto(value: String,
                  modifier: Modifier = Modifier,
                  etiqueta: String,
                  onValueChange: (String) -> Unit) {
-    // 1. You need a state to hold the text field's value.
 
     OutlinedTextField(
-        // 2. The `value` parameter expects the current string to display.
         value = value,
-        // 3. The `onValueChange` lambda gives you the new string when the user types.
-        //    You must update your state here.
         onValueChange = onValueChange,
-        // The label parameter was already correct!
         label = { Text(etiqueta) },
         modifier = modifier
             .border(
@@ -97,12 +92,19 @@ fun CampoDeTexto(value: String,
                 border = BorderStroke(1.dp, Color.Black)
             )
             .background(color = blanco,
-                shape = RoundedCornerShape(32.dp)), // It's good practice to apply the modifier.
+                shape = RoundedCornerShape(32.dp)),
         shape = RoundedCornerShape(32.dp)
     )
 }
 
-// Guardado por si se utiliza para escoger fecha.
+/**
+ * Un diálogo modal que muestra un selector de fechas (`DatePicker`).
+ * Permite al usuario elegir una fecha y devuelve la fecha seleccionada en formato "yyyy-MM-dd".
+ *
+ * @param onDateSelected Callback que se invoca con la fecha seleccionada como un String.
+ * @param onDismiss Callback que se invoca cuando el diálogo se cierra sin seleccionar una fecha.
+ * @param menuFecha Controla la visibilidad del diálogo. Si es `true`, el diálogo se muestra.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerModal(
@@ -117,7 +119,6 @@ fun DatePickerModal(
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let { millis ->
-                        // Format the date to YYYY-MM-DD
                         val sdf = SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
                         val formattedDate = sdf.format(Date(millis))
                         onDateSelected(formattedDate)
@@ -139,20 +140,20 @@ fun DatePickerModal(
 }
 
 /**
- * Un composable que muestra un botón circular con un icono y un texto opcional debajo de él.
- * El botón tiene una forma de círculo y organiza su contenido (icono y texto) en una columna vertical centrada.
+ * Un composable que muestra un botón de forma circular con un icono y un texto opcional debajo.
+ * El `onClick` actualmente no tiene una acción definida.
  *
- * @param icono El `ImageVector` que se mostrará como el icono principal dentro del botón.
- * @param modifier El modificador que se aplicará al `Button`. Por defecto es `Modifier`.
- * @param texto El texto opcional que se mostrará debajo del icono. Por defecto es una cadena vacía.
- * @param tamano El tamaño (ancho y alto) del botón en dp. Por defecto es 100.
+ * @param icono El [ImageVector] a mostrar dentro del botón.
+ * @param modifier Modificador para personalizar el layout y la apariencia.
+ * @param texto Texto opcional que se muestra debajo del icono.
+ * @param tamano El diámetro del botón en `dp`.
  */
 @Composable
 fun BotonCircular(icono: ImageVector,
                   modifier: Modifier = Modifier,
                   texto: String = "",
                   tamano: Int = 100) {
-    Button(onClick = {},
+    Button(onClick = { /* TODO: Implementar acción de clic */ },
         shape = CircleShape,
         contentPadding = PaddingValues(0.dp),
         modifier = modifier
@@ -166,7 +167,7 @@ fun BotonCircular(icono: ImageVector,
         ) {
             Icon(
                 icono,
-                contentDescription = null,
+                contentDescription = null, // Descripción de contenido decorativa
                 modifier = modifier
                     .padding(0.dp)
                     .size(50.dp)
@@ -175,35 +176,36 @@ fun BotonCircular(icono: ImageVector,
                 texto,
                 modifier = modifier
                     .padding(0.dp)
-                    .size(55.dp)
+                    .size(55.dp) // Este tamaño podría causar que el texto se corte si es muy largo
             )
         }
     }
 }
 
+/**
+ * Muestra el logo de la aplicación junto al nombre "BENEFICIO JOVEN" en un tamaño pequeño.
+ * Diseñado para cabeceras o espacios reducidos.
+ */
 @Composable
 fun LogoYTextoPequeño() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp), // Padding superior para el logo
+            .padding(top = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        // Contenedor circular blanco para el logo 'b'
         Box(
             modifier = Modifier
                 .size(50.dp)
                 .background(Color.White, shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            //logo de beneficio
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo de Beneficio Joven",
                 modifier = Modifier.size(55.dp)
             )
-
         }
         Spacer(modifier = Modifier.width(8.dp))
         Text(
@@ -211,7 +213,7 @@ fun LogoYTextoPequeño() {
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                     append("BENEFICIO")
                 }
-                    append("JOVEN")
+                append("JOVEN")
             },
             color = blanco,
             fontSize = 20.sp,
@@ -219,21 +221,22 @@ fun LogoYTextoPequeño() {
     }
 }
 
+/**
+ * Muestra el logo de la aplicación junto al nombre "BENEFICIO JOVEN" en un tamaño grande.
+ * Ideal para pantallas de bienvenida o de inicio de sesión.
+ */
 @Composable
 fun LogoYTextoGrande(){
-    // Logo y texto "BENEFICIO JOVEN" (Centrado en la parte superior)
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Contenedor circular blanco para el logo 'b'
         Box(
             modifier = Modifier
                 .size(80.dp)
                 .background(Color.White, shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            //logo de beneficio
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo de Beneficio Joven",
@@ -254,6 +257,13 @@ fun LogoYTextoGrande(){
     }
 }
 
+/**
+ * Un `Text` composable estilizado para ser usado como título principal en secciones,
+ * como en las pantallas de registro.
+ *
+ * @param texto El texto a mostrar.
+ * @param modifier Modificador para personalizar el layout.
+ */
 @Composable
 fun TextoTitularRegistro(texto: String, modifier: Modifier = Modifier) {
     Text(texto,
@@ -263,10 +273,13 @@ fun TextoTitularRegistro(texto: String, modifier: Modifier = Modifier) {
         fontWeight = FontWeight.Bold)
 }
 
-// ---------------------------------------------------------------------
-// 1. BARRA SUPERIOR (HEADER)
-// ---------------------------------------------------------------------
-
+/**
+ * Header o parte superior principal de la aplicación, que incluye un saludo al usuario,
+ * un botón de menú, la foto de perfil y una barra de búsqueda.
+ *
+ * @param userName El nombre del usuario a mostrar en el saludo.
+ * @param modifier Modificador para personalizar el layout del contenedor principal.
+ */
 @Composable
 fun ParteSuperior(userName: String, modifier: Modifier = Modifier) {
     Box(
@@ -274,7 +287,7 @@ fun ParteSuperior(userName: String, modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
             .background(morado)
-            .padding(bottom = 16.dp) // Padding dentro del morado
+            .padding(bottom = 16.dp)
     ) {
         Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
             // Fila del Título y Foto de Perfil
@@ -303,46 +316,38 @@ fun ParteSuperior(userName: String, modifier: Modifier = Modifier) {
                         )
                     }
                 }
-
-                // Foto de Perfil
-                FotoPerfil(
-                    // Aquí se usaría un recurso de imagen real (R.drawable.profile_pic)
-                    modifier = Modifier.size(50.dp)
-                )
+                FotoPerfil(modifier = Modifier.size(50.dp))
             }
-
             Spacer(modifier = Modifier.height(24.dp))
-
-            // Barra de Búsqueda
-            BarraBusqueda(
-                modifier = Modifier.fillMaxWidth()
-            )
+            BarraBusqueda(modifier = Modifier.fillMaxWidth())
         }
     }
 }
 
+/**
+ * Muestra un placeholder circular para la foto de perfil de un usuario.
+ * Incluye un borde blanco para destacar sobre fondos oscuros.
+ *
+ * @param modifier Modificador para personalizar el tamaño y la apariencia.
+ */
 @Composable
 fun FotoPerfil(modifier: Modifier = Modifier) {
-    // Placeholder para la imagen de perfil (usando un Box circular)
     Box(
         modifier = modifier
             .clip(CircleShape)
-            // Se puede simular la foto con un color o un icono
-            .background(Color.LightGray)
+            .background(Color.LightGray) // Placeholder de color
             .border(2.dp, White, CircleShape)
     ) {
-        // Si tuvieras un recurso de imagen, lo usarías aquí:
-        /*
-        Image(
-            painter = painterResource(id = R.drawable.tu_foto_perfil),
-            contentDescription = "Foto de perfil",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-        */
+        // Aquí se podría cargar una imagen real usando Coil o Glide.
     }
 }
 
+/**
+ * Un `OutlinedTextField` estilizado para funcionar como una barra de búsqueda.
+ * Tiene fondo blanco, esquinas redondeadas y un icono de búsqueda.
+ *
+ * @param modifier Modificador para personalizar el layout.
+ */
 @Composable
 fun BarraBusqueda(modifier: Modifier = Modifier) {
     var searchText by remember { mutableStateOf("") }
@@ -352,7 +357,7 @@ fun BarraBusqueda(modifier: Modifier = Modifier) {
         onValueChange = { searchText = it },
         placeholder = { Text("Busca tu negocio favorito") },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
-        shape = RoundedCornerShape(28.dp), // Esquinas muy redondeadas
+        shape = RoundedCornerShape(28.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = White,
             unfocusedContainerColor = White,
@@ -366,12 +371,15 @@ fun BarraBusqueda(modifier: Modifier = Modifier) {
     )
 }
 
-// ---------------------------------------------------------------------
-// 2. TARJETAS DE PROMOCIÓN
-// ---------------------------------------------------------------------
-
+/**
+ * Un `Card` que muestra la información de una promoción.
+ * Incluye un título, una descripción y un icono para marcar como favorito.
+ * Está estilizada con colores específicos de la marca (`morado` y `naranja`).
+ *
+ * @param promo El objeto `Promotion` (se asume que es una data class) que contiene los datos a mostrar.
+ */
 @Composable
-fun TarjetasPromocion(promo: Promotion) {
+fun TarjetasPromocion(promo: Promotion) { // Se asume la existencia de data class Promotion(val title: String, val description: String)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -383,7 +391,7 @@ fun TarjetasPromocion(promo: Promotion) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(2.dp, naranja, RoundedCornerShape(12.dp)) // Borde punteado simulado
+                .border(2.dp, naranja, RoundedCornerShape(12.dp))
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -403,17 +411,15 @@ fun TarjetasPromocion(promo: Promotion) {
                     color = naranja
                 )
             }
-
-            // Icono de corazón (Favorito)
             Icon(
-                imageVector = Icons.Default.Star, // Usamos Star como sustituto de corazón simple
+                imageVector = Icons.Default.Star,
                 contentDescription = "Favorito",
                 tint = naranja.copy(alpha = 0.8f),
                 modifier = Modifier
                     .size(36.dp)
                     .padding(8.dp)
                     .clip(CircleShape)
-                    .background(naranja.copy(alpha = 0.1f)) // Fondo sutil para el corazón
+                    .background(naranja.copy(alpha = 0.1f))
             )
         }
     }
