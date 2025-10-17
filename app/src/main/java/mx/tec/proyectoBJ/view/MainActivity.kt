@@ -78,6 +78,7 @@ fun AppNavHost(
         composable("Inicio") {
             Inicio(
                 onNavigateToInicioSesion = { navController.navigate("InicioSesion")},
+                onNavigateToRegistro = { navController.navigate("Registro") },
                 appVM = appVM
             )
         }

@@ -21,6 +21,7 @@ credentialsPlayServicesAuth = "1.5.0"
 googleid = "1.1.1"
 navigationRuntimeKtx = "2.9.5"
 navigationCompose = "2.9.5"
+robolectric = "4.16"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -50,6 +51,7 @@ androidx-credentials-play-services-auth = { group = "androidx.credentials", name
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
 
 

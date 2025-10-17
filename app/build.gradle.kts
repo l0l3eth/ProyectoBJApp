@@ -8,6 +8,13 @@ android {
     namespace = "mx.tec.proyectoBJ"
     compileSdk = 36
 
+    // Solución provisional para pruebas
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+
     defaultConfig {
         applicationId = "mx.tec.proyectobj"
         minSdk = 24
@@ -68,6 +75,9 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test) // For testing coroutines
     testImplementation(libs.mockk) // Mocking library
 
+
+    // Android testing
+    testImplementation(libs.robolectric)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

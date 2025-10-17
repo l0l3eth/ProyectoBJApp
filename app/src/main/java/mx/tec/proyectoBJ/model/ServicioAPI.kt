@@ -7,7 +7,7 @@ import retrofit2.http.POST
 
 interface ServicioAPI {
     //Iniciar Sesión
-    @POST("api/usuario") //falta cambiar el endpoint
+    @POST("/api/auth/login") //falta cambiar el endpoint
     suspend fun iniciarSesion(
         @Body correo: String, contrasena: String
     );

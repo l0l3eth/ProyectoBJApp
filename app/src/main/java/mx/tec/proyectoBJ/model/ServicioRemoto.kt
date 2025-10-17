@@ -42,15 +42,18 @@ object ServicioRemoto {
         }
     }
 
-    suspend fun iniciarSesion(correo:String, contrasena:String){
-        try{
+    suspend fun iniciarSesion(correo:String, contrasena:String): Result<Unit>{
+        return try{
             servicio.iniciarSesion(correo, contrasena)
+            Result.success(Unit)
         } catch(e: HttpException){
             println("Error, codigo: ${e.code()}")
             println("Error, mensaje: ${e.message()}")
             println("Error, respuesta: ${e.response()}")
+            Result.failure(e)
         } catch(e: Exception) {
             println("Error en la descarga: $e")
+            Result.failure(e)
         }
     }
 

@@ -54,6 +54,14 @@ class AppVM : ViewModel(){
                       direccion: String,
                       numeroTelefono: String,
                       curp: String) {
+        if (!correoValido(correo)) {
+            _estatusRegistro.value = EstadoRegistroUI.Error("El correo no es válido")
+            return
+        }
+        if (!contrasenaValida(contrasena)) {
+            _estatusRegistro.value = EstadoRegistroUI.Error("La contraseña no es válida")
+            return
+        }
         viewModelScope.launch {
 
             _estatusRegistro.value = EstadoRegistroUI.Loading
@@ -62,11 +70,11 @@ class AppVM : ViewModel(){
                 Usuario(
                     nombre = nombre,
                     apellidos = apellidos,
-                    correo = correo,
+                    correo = correo.lowercase(),
                     contrasena = contrasena,
                     direccion = direccion,
                     telefono = numeroTelefono,
-                    curp = curp
+                    curp = curp.uppercase()
                 )
             )
 
@@ -78,4 +86,29 @@ class AppVM : ViewModel(){
         }
     }
 
+    fun iniciarSesion(correo: String, contrasena: String) {
+        if (!correoValido(correo)) {
+            _estatusRegistro.value = EstadoRegistroUI.Error("El correo no es válido")
+            return
+        }
+        viewModelScope.launch {
+            _estatusRegistro.value = EstadoRegistroUI.Loading
+            val resultado = servicioRemoto.iniciarSesion(correo, contrasena)
+            if (resultado.isSuccess) {
+                _estatusRegistro.value = EstadoRegistroUI.Success
+            } else {
+                _estatusRegistro.value = EstadoRegistroUI.Error(resultado.exceptionOrNull()?.message)
+            }
+        }
+    }
+
+    fun correoValido(correo: String): Boolean {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()
+    }
+
+    fun contrasenaValida(contrasena: String): Boolean {
+        // Si alguno de los caracteres no es ni letra ni dígito, debe de ser un símbolo
+        val tieneSimbolo = contrasena.any { !it.isLetterOrDigit() }
+        return (contrasena.length >= 8) and contrasena.any { it.isUpperCase() } and contrasena.any { it.isDigit() } and tieneSimbolo
+    }
 }
