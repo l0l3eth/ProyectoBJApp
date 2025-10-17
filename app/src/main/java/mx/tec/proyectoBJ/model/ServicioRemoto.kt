@@ -11,10 +11,18 @@ object ServicioRemoto {
     // Para obtener el mensaje completo HTTP del servidor
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
+    if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
     }
+    private val certificatePinner = CertificatePinner.Builder()
+        .add("*.example.com", "sha256/ZC3lTYTDBJQVf1P2V7+)
+        .build()
+
+
     private val cliente = okhttp3.OkHttpClient.Builder()
         .addInterceptor(logging)
+        .certificatePinner(certificatePinner)
         .build()
+
     private val retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(URL_BASE) //Cambiar a HTTPS
@@ -28,22 +36,27 @@ object ServicioRemoto {
     }
 
     suspend fun registrarUsuario(usuario: Usuario) {
-        try {
-            servicio.registrarUsuario(usuario)
-        } catch (e: HttpException) {
-            println("Error, codigo: ${e.code()}")
-            println("Error, mensaje: ${e.message()}")
-            println("Error, respuesta: ${e.response()}")
-        } catch (e: Exception) {
-            println("Error en la descarga: $e")
-        }
+       return try {
+            val response= servicio.registrarUsuario(usuario)
+            println("Registro de usuario exitoso")
+            if (response.isSuccessful){
+                Log.d("Registro de usuario", "Registro exitoso")
+                true
+            }else{
+                Log.e("Registro",
+                    "Error al registrar usuario, código: ${response.errorBody()?.string()}")
+                false
+            }")
+            }
+              catch (e: Exception) {
+                  Log.e("Registro", "Error en la conexión: ${e.message}")
+                  false
+       }
     }
 
     suspend fun iniciarSesion(correo:String, contrasena:String):String?{
-
         val request= LoginRequest(correo=correo, contrasena=contrasena)
-        try{
-
+        return try{
             val response=servicio.iniciarSesion(request)
             if(response.isSuccessful){
                 val authResponse=response.body()
@@ -67,19 +80,31 @@ object ServicioRemoto {
 
     suspend fun obtenerNegocio(): List<Negocio> {
         try {
-            val lista = servicio.obtenerNegocios()
-            return lista
-        } catch (e: HttpException) {
-            println("Error, codigo: ${e.code()}")
-            println("Error, mensaje: ${e.message()}")
-            println("Error, respuesta: ${e.response()}")
+            val response=servicio.obtenerNegocios()
+            if (response.isSuccessful){
+                return response.body() ?: listOf()
+            } else{
+                println("Error al obtener negocios, codigo: ${response.code()}")
+            }
         } catch (e: Exception){
-            println("Error en la descarga: $e")
+            println("Error en la conexión al obtener negocios: $e")
         }
         return listOf()
     }
 
+
     suspend fun obtenerUsuariID(): List<Usuario> {
-        return servicio.obtenerUsuarios()
+        try{
+            val usuarios=servicio.obtenerUsuarios()
+            return usuarios
+            if(response.isSuccessful){
+                return response.body() ?: listOf()
+            }else{
+                println("Error al obtener usuarios, codigo: ${response.code()}")
+            }
+        }catch(e: Exception){
+            println("Fallo de conexión al obtener usuarios: $e")
+        }
+        return listOf()
     }
 }
