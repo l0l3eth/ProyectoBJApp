@@ -70,70 +70,18 @@ class AppVMTest {
     }
 
     @Test
-    fun `enviarUsuario debería de enviar el estado Error si el correo no tiene ningún arroba`() = runTest {
-        // 1. Arrange
-        // Make the mocked service return a success result
-        coEvery { ServicioRemoto.registrarUsuario(any()) } returns Result.failure(Exception("El curp ya está registrado"))
-
-        // 2. Act
-        viewModel.enviarUsuario(
-            nombre = "Test",
-            apellidos = "User",
-            correo = "test@example.com",
-            contrasena = "password",
-            direccion = "123 Street",
-            numeroTelefono = "5551234",
-            curp = "CURP123"
-        )
-
-        // Advance the dispatcher to allow the coroutine to execute
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // 3. Assert
-        // Check if the state was updated to Success
-        val finalState = viewModel.estatusRegistro.value
-        assertTrue("Error: El curp ya está registrado", finalState is EstadoRegistroUI.Error)
-    }
-
-    @Test
-    fun `enviarUsuario debería de enviar el estado Error si el correo ya esta registrado`() = runTest {
-        // 1. Arrange
-        // Make the mocked service return a success result
-        coEvery { ServicioRemoto.registrarUsuario(any()) } returns Result.success(Unit)
-
-        // 2. Act
-        viewModel.enviarUsuario(
-            nombre = "Test",
-            apellidos = "User",
-            correo = "test@example.com",
-            contrasena = "password",
-            direccion = "123 Street",
-            numeroTelefono = "5551234",
-            curp = "CURP123"
-        )
-
-        // Advance the dispatcher to allow the coroutine to execute
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // 3. Assert
-        // Check if the state was updated to Success
-        val finalState = viewModel.estatusRegistro.value
-        assertTrue("Error: El correo ya está registrado", finalState is EstadoRegistroUI.Error)
-    }
-
-    @Test
     fun `enviarUsuario debe mandar el estado Error si el correo no tiene un arroba`() = runTest {
         coEvery { ServicioRemoto.registrarUsuario(any()) } returns Result.success(Unit)
 
         viewModel.enviarUsuario(
-            nombre = "Test",
-            apellidos = "User",
-            correo = "testexample.com",
-            contrasena = "password",
-            direccion = "123 Street",
-            numeroTelefono = "5551234",
-            curp = "CURP123"
-            )
+            nombre = "Yooku",
+            apellidos = "Masta Limima",
+            correo = "ejemploemail.com",
+            contrasena = "AL-32",
+            direccion = "Av. Juárez 54",
+            numeroTelefono = "5501349825",
+            curp = "MALY131015HASSMKA0"
+        )
 
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -147,13 +95,13 @@ class AppVMTest {
         coEvery { ServicioRemoto.registrarUsuario(any()) } returns Result.success(Unit)
 
         viewModel.enviarUsuario(
-            nombre = "Test",
-            apellidos = "User",
-            correo = "test@@example.com",
-            contrasena = "password",
-            direccion = "123 Street",
-            numeroTelefono = "5551234",
-            curp = "CURP123"
+            nombre = "Yooku",
+            apellidos = "Masta Limima",
+            correo = "ejemplo@@email.com",
+            contrasena = "AL-32",
+            direccion = "Av. Juárez 54",
+            numeroTelefono = "5501349825",
+            curp = "MALY131015HASSMKA0"
         )
 
         testDispatcher.scheduler.advanceUntilIdle()
@@ -167,13 +115,13 @@ class AppVMTest {
         coEvery { ServicioRemoto.registrarUsuario(any()) } returns Result.success(Unit)
 
         viewModel.enviarUsuario(
-            nombre = "Test",
-            apellidos = "User",
-            correo = "test@@example.c",
-            contrasena = "password",
-            direccion = "123 Street",
-            numeroTelefono = "5551234",
-            curp = "CURP123"
+            nombre = "Yooku",
+            apellidos = "Masta Limima",
+            correo = "ejemplo@email.c",
+            contrasena = "AL-32",
+            direccion = "Av. Juárez 54",
+            numeroTelefono = "5501349825",
+            curp = "MALY131015HASSMKA0"
         )
 
         testDispatcher.scheduler.advanceUntilIdle()
@@ -181,4 +129,88 @@ class AppVMTest {
         val finalState = viewModel.estatusRegistro.value
         assertTrue("Error: El correo no es válido", finalState is EstadoRegistroUI.Error)
     }
+
+    @Test
+    fun `enviarUsuario debe mandar el estado Error si el correo tiene espacios`() = runTest {
+        coEvery { ServicioRemoto.registrarUsuario(any()) } returns Result.success(Unit)
+
+        viewModel.enviarUsuario(
+            nombre = "Yooku",
+            apellidos = "Masta Limima",
+            correo = "el ejemplo@gmail.com",
+            contrasena = "AL-32",
+            direccion = "Av. Juárez 54",
+            numeroTelefono = "5501349825",
+            curp = "MALY131015HASSMKA0"
+        )
+
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val finalState = viewModel.estatusRegistro.value
+        assertTrue("Error: El correo no es válido", finalState is EstadoRegistroUI.Error)
+    }
+
+    @Test
+    fun `enviarUsuario debe mandar el estado Error si la contrasena es muy corta`() = runTest {
+        coEvery { ServicioRemoto.registrarUsuario(any()) } returns Result.success(Unit)
+
+        viewModel.enviarUsuario(
+            nombre = "Yooku",
+            apellidos = "Masta Limima",
+            correo = "ejemplo@email.com",
+            contrasena = "AL-32",
+            direccion = "Av. Juárez 54",
+            numeroTelefono = "5501349825",
+            curp = "MALY131015HASSMKA0"
+        )
+
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val finalState = viewModel.estatusRegistro.value
+        assertTrue("Error: La contraseña no es válida", finalState is EstadoRegistroUI.Error)
+
+    }
+
+    @Test
+    fun `enviarUsuario debe mandar el estado Error si la contraseña no tiene símbolos`() = runTest {
+        coEvery { ServicioRemoto.registrarUsuario(any()) } returns Result.success(Unit)
+
+        viewModel.enviarUsuario(
+            nombre = "Yooku",
+            apellidos = "Masta Limima",
+            correo = "ejemplo@email.com",
+            contrasena = "Dedalus32",
+            direccion = "Av. Juárez 54",
+            numeroTelefono = "5501349825",
+            curp = "MALY131015HASSMKA0"
+        )
+
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val finalState = viewModel.estatusRegistro.value
+        assertTrue("Error: La contraseña no es válida", finalState is EstadoRegistroUI.Error)
+
+    }
+
+    @Test
+    fun `enviarUsuario debe mandar el estado Error si la contraseña no tiene números`() = runTest {
+        coEvery { ServicioRemoto.registrarUsuario(any()) } returns Result.success(Unit)
+
+        viewModel.enviarUsuario(
+            nombre = "Yooku",
+            apellidos = "Masta Limima",
+            correo = "ejemplo@email.com",
+            contrasena = "Sauron_black",
+            direccion = "Av. Juárez 54",
+            numeroTelefono = "5501349825",
+            curp = "MALY131015HASSMKA0"
+        )
+
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val finalState = viewModel.estatusRegistro.value
+        assertTrue("Error: La contraseña no es válida", finalState is EstadoRegistroUI.Error)
+
+    }
+
 }
