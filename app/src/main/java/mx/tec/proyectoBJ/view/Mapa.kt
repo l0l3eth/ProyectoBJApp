@@ -98,7 +98,9 @@ fun MapaScreen(
             item {
                 ParteSuperior(
                     userName = "Usuario",
-                    modifier = Modifier.padding(bottom = 0.dp)
+                    modifier = Modifier.padding(bottom = 0.dp),
+                    onClick = {}
+
                 )
             }
 

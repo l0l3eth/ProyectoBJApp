@@ -282,7 +282,7 @@ fun TextoTitularRegistro(texto: String, modifier: Modifier = Modifier) {
  * @param modifier Modificador para personalizar el layout del contenedor principal.
  */
 @Composable
-fun ParteSuperior(userName: String, modifier: Modifier = Modifier) {
+fun ParteSuperior(userName: String, modifier: Modifier = Modifier, onClick: () -> Unit,) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -299,7 +299,7 @@ fun ParteSuperior(userName: String, modifier: Modifier = Modifier) {
             ) {
                 // Icono de Menú y Título
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { /* TODO: Abrir Drawer de Navegación */ }) {
+                    IconButton(onClick = { onClick }) {
                         Icon(
                             imageVector = Icons.Default.Menu,
                             contentDescription = "Menú",
@@ -435,14 +435,14 @@ fun TarjetasPromocion(promo: Promotion) { // Se asume la existencia de data clas
  */
 @Composable
 fun ConfirmarSalida(
-    viewModel: AppVM, // 1. Recibimos el ViewModel como parámetro
+    appVM: AppVM, // 1. Recibimos el ViewModel como parámetro
     onDismissRequest: () -> Unit
 ) {
     // --- Lógica para obtener el ID del usuario ---
     // 2. Observamos el LiveData del usuario logueado para obtener su ID.
     // Usamos ?.id para manejar de forma segura el caso en que no haya usuario (aunque
     // en esta pantalla siempre debería haber uno).
-    val usuarioId = viewModel.usuarioLogeado.observeAsState().value?.id ?: -1
+    val usuarioId = appVM.usuarioLogeado.observeAsState().value?.id ?: -1
 
     Dialog(onDismissRequest = onDismissRequest) {
         Card(
@@ -497,7 +497,7 @@ fun ConfirmarSalida(
                         onClick = {
                             // 3. Llamamos a la función del ViewModel con el ID del usuario
                             if (usuarioId != -1) {
-                                viewModel.eliminarUsuario(usuarioId)
+                                appVM.eliminarUsuario(usuarioId)
                             }
                             onDismissRequest() // Cierra el diálogo después de iniciar la acción
                         },

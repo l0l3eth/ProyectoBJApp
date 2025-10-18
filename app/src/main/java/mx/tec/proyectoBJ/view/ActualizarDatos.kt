@@ -1,5 +1,6 @@
 package mx.tec.proyectoBJ.view
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -53,24 +54,8 @@ data class UserOption(
     val action: () -> Unit = {}
 )
 
-// Los datos del usuario ahora deberían venir del ViewModel
-/*
-val userOptions = listOf(
-    UserOption("USUARIO", true),
-    UserOption("CORREO", true),
-    UserOption("FOLIO", false),
-    UserOption("CONTRASEÑA", false)
-)
-*/
-
-// ---------------------------------------------------------------------
-// COMPOSABLE PRINCIPAL
-// ---------------------------------------------------------------------
-
 @Composable
-fun ActualizarDatos(
-    // El ViewModel se convierte en la fuente principal de datos y acciones
-    viewModel: AppVM = viewModel(),
+fun ActualizarDatos( appVM: AppVM,
     // onBack ahora es para navegación simple, no para un logout completo
     onBack: () -> Unit = {},
     // onLogoutSuccess nos permite navegar fuera después de que el VM confirme el borrado
@@ -80,11 +65,11 @@ fun ActualizarDatos(
     var mostrarDialogo by remember { mutableStateOf(false) }
 
     // 2. Observamos el estado de carga desde el ViewModel
-    val estaBorrando by viewModel.estaBorrando.collectAsState()
+    val estaBorrando by appVM.estaBorrando.collectAsState()
 
     // 3. Efecto para reaccionar cuando el usuario ha sido borrado con éxito
     LaunchedEffect(Unit) {
-        viewModel.borradoExitoso.collect { exito ->
+        appVM.borradoExitoso.collect { exito ->
             if (exito) {
                 // Si el borrado fue exitoso, navegamos a la pantalla de inicio
                 onLogoutSuccess()
@@ -93,7 +78,7 @@ fun ActualizarDatos(
     }
 
     // Obtenemos los datos del usuario logeado desde el ViewModel
-    val usuario by viewModel.usuarioLogeado.observeAsState()
+    val usuario by appVM.usuarioLogeado.observeAsState()
 
     // Creamos la lista de opciones dinámicamente con los datos del usuario
     val userOptions = listOfNotNull(
@@ -232,7 +217,7 @@ fun ActualizarDatos(
     // 6. Si el estado es true, se muestra el diálogo
     if (mostrarDialogo) {
         ConfirmarSalida(
-            viewModel = viewModel,
+            appVM = appVM,
             onDismissRequest = {
                 // Permite cerrar el diálogo solo si no está en proceso de borrado
                 if (!estaBorrando) {
@@ -289,9 +274,10 @@ fun UserSettingItem(option: UserOption) {
 // PREVIEW
 // ---------------------------------------------------------------------
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun UserSettingsScreenPreview() {
-    ActualizarDatos()
+    ActualizarDatos( appVM = AppVM())
 }
 

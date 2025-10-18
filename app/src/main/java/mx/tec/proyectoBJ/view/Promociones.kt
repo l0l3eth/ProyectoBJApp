@@ -105,7 +105,8 @@ fun PromocionesScreen(
                 Column {
                     ParteSuperior(
                         userName = "Usuario",
-                        modifier = Modifier.padding(bottom = 0.dp)
+                        modifier = Modifier.padding(bottom = 0.dp),
+                        onClick = {}
                     )
 
                     // --- Pestañas de Categorías ---

@@ -52,7 +52,8 @@ fun PantallaPrincipalUsuario(/*Logica de navegación*/
             item {
                 ParteSuperior(
                     userName = "Usuario",
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    onClick = {}
                 )
             }
             //Solo es para verlos, necesito reemplazarlo por algo sacado de la base de datos.

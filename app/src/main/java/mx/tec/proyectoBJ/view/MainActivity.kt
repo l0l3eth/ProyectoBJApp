@@ -92,7 +92,7 @@ fun AppNavHost(
 
         composable("Inicio") {
             Inicio(
-                onNavigateToInicioSesion = { navController.navigate("InicioSesion")},
+                onNavigateToInicioSesion = { navController.navigate("InicioSesion") },
                 onNavigateToRegistro = { navController.navigate("Registro") },
                 appVM = appVM
             )
@@ -122,6 +122,33 @@ fun AppNavHost(
 
         composable("PromocionesScreen") {
             PantallaPrincipalUsuario(
+                appVM = appVM
+            )
+        }
+
+        composable("ActualizarDatos") {
+            ActualizarDatos(
+                appVM = appVM
+            )
+        }
+
+        composable("ConfirmarSalida") {
+            ConfirmarSalida(
+                appVM = appVM,
+                onDismissRequest = { navController.navigate("PromocionesScreen") },
+            )
+        }
+
+        composable("MenuLateralParteSuperior"){
+            ParteSuperior(
+                userName = "Usuario",
+                onClick = { navController.navigate("MenuLateral") }
+            )
+        }
+
+        composable("MenuLateral"){
+            AppMenuLateral(
+                navController = navController,
                 appVM = appVM
             )
         }
