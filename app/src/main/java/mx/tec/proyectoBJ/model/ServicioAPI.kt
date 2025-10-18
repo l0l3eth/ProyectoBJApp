@@ -2,8 +2,10 @@ package mx.tec.proyectoBJ.model
 
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ServicioAPI {
     //Iniciar Sesión
@@ -14,7 +16,11 @@ interface ServicioAPI {
 
     //Registrar Usuario
     @POST("/api/auth/registrar")
-    suspend fun registrarUsuario(@Body usuario: Usuario);
+    suspend fun registrarUsuario(@Body usuario: Usuario): Response<Unit> // Es buena práctica esperar una respuesta
+
+    //Borrar Usuario por ID
+    @DELETE("/api/auth/usuario/{id}")
+    suspend fun borrarUsuario(@Path("id") idUsuario: Int): Response<Unit>
 
     //Lista de Negocios
     @GET("/api/negocios")
@@ -27,6 +33,4 @@ interface ServicioAPI {
     //Lista de Productos
     @GET("/api/productos")
     suspend fun obtenerProductos(): List<Producto>
-
-
 }

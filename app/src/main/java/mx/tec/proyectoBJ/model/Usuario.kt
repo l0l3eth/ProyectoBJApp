@@ -10,5 +10,5 @@ data class Usuario(
     val contrasena : String,
     val direccion : String,
     val curp: String,
-    val tipo_usuario : String = "JOVEN"
+    val tipoUsuario : String = "JOVEN"
 )
