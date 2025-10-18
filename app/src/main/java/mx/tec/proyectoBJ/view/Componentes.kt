@@ -39,6 +39,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import mx.tec.proyectoBJ.R
+import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.degradado
 import mx.tec.ptoyectobj.morado
@@ -424,93 +426,91 @@ fun TarjetasPromocion(promo: Promotion) { // Se asume la existencia de data clas
     }
 }
 
+/**
+ * Muestra un diálogo de confirmación para una acción destructiva, como borrar un usuario.
+ *
+ * @param viewModel La instancia del ViewModel (AppVM) para poder llamar a sus funciones.
+ * @param onDismissRequest La acción a ejecutar cuando el diálogo se cierra (ya sea
+ *   presionando fuera o usando el botón de cancelar).
+ */
 @Composable
 fun ConfirmarSalida(
-    onDismissRequest: () -> Unit, // Acción para cerrar el diálogo (ej. al presionar fuera)
-    onConfirmExit: () -> Unit,    // Acción al presionar "Sí, totalmente segur@"
-    onCancel: () -> Unit          // Acción al presionar "No, regresar"
+    viewModel: AppVM, // 1. Recibimos el ViewModel como parámetro
+    onDismissRequest: () -> Unit
 ) {
-    // El componente Dialog coloca su contenido en una nueva ventana modal
+    // --- Lógica para obtener el ID del usuario ---
+    // 2. Observamos el LiveData del usuario logueado para obtener su ID.
+    // Usamos ?.id para manejar de forma segura el caso en que no haya usuario (aunque
+    // en esta pantalla siempre debería haber uno).
+    val usuarioId = viewModel.usuarioLogeado.observeAsState().value?.id ?: -1
+
     Dialog(onDismissRequest = onDismissRequest) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            shape = RoundedCornerShape(16.dp), // Esquinas redondeadas del diálogo
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = morado // Color de fondo de la tarjeta
+            )
         ) {
             Column(
                 modifier = Modifier
-                    .padding(32.dp),
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Título del Diálogo
                 Text(
-                    text = "¿Seguro quieres irte?",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black.copy(alpha = 0.8f),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 24.dp)
+                    text = "¿ESTÁS SEGURO?",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
                 )
-
-                // 1. Botón de Confirmación (con degradado)
-                Button(
-                    onClick = onConfirmExit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .clip(RoundedCornerShape(28.dp))
-                        .background(degradado, RoundedCornerShape(28.dp)),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                    contentPadding = PaddingValues(),
-                    shape = RoundedCornerShape(28.dp)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Esta acción no se puede deshacer.",
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Box(
+                    // Botón de Cancelar
+                    Button(
+                        onClick = onDismissRequest, // Cierra el diálogo
+                        shape = RoundedCornerShape(50),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent
+                        ),
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(degradado, RoundedCornerShape(28.dp)),
-                        contentAlignment = Alignment.Center
+                            .weight(1f)
+                            .border(1.dp, Color.White, RoundedCornerShape(50))
                     ) {
-                        Text(
-                            text = "Sí, totalmente segur@",
-                            color = White,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Text("CANCELAR", color = Color.White)
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    // Botón de Confirmar (Sí, borrar)
+                    Button(
+                        onClick = {
+                            // 3. Llamamos a la función del ViewModel con el ID del usuario
+                            if (usuarioId != -1) {
+                                viewModel.eliminarUsuario(usuarioId)
+                            }
+                            onDismissRequest() // Cierra el diálogo después de iniciar la acción
+                        },
+                        shape = RoundedCornerShape(50),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = naranja // Color destacado para la acción
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("SI, TOTALMENTE SEGUR@", color = Color.White)
                     }
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // 2. Opción de Cancelar/Regresar
-                Text(
-                    text = "No, regresar",
-                    color = Color.Gray,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier
-                        .clickable(onClick = onCancel)
-                        .padding(vertical = 8.dp)
-                )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewConfirmExitDialog() {
-    // Para mostrar el diálogo en el preview, lo envolvemos en un Box simple
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.LightGray.copy(alpha = 0.5f)),
-        contentAlignment = Alignment.Center
-    ) {
-        ConfirmarSalida(
-            onDismissRequest = {}, // Dummy actions for preview
-            onConfirmExit = {},
-            onCancel = {}
-        )
     }
 }

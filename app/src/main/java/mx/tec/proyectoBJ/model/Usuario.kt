@@ -3,6 +3,7 @@ package mx.tec.proyectoBJ.model
 import com.google.gson.annotations.SerializedName
 
 data class Usuario(
+    val id : Int? = null,
     val nombre : String,
     val apellidos : String,
     val correo : String,

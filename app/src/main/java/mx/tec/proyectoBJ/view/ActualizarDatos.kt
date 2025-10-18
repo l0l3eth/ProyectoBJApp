@@ -3,28 +3,48 @@ package mx.tec.proyectoBJ.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Divider
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.naranja
 import mx.tec.ptoyectobj.rosa
-
 
 // --- Modelo de Datos para las Opciones ---
 data class UserOption(
@@ -33,12 +53,15 @@ data class UserOption(
     val action: () -> Unit = {}
 )
 
+// Los datos del usuario ahora deberían venir del ViewModel
+/*
 val userOptions = listOf(
     UserOption("USUARIO", true),
     UserOption("CORREO", true),
     UserOption("FOLIO", false),
-    UserOption("CONTRASEÑA", false) // El botón de edición de contraseña se gestionaría en la acción
+    UserOption("CONTRASEÑA", false)
 )
+*/
 
 // ---------------------------------------------------------------------
 // COMPOSABLE PRINCIPAL
@@ -46,16 +69,47 @@ val userOptions = listOf(
 
 @Composable
 fun ActualizarDatos(
-    // Aquí puedes pasar acciones reales desde el ViewModel o el NavController
+    // El ViewModel se convierte en la fuente principal de datos y acciones
+    viewModel: AppVM = viewModel(),
+    // onBack ahora es para navegación simple, no para un logout completo
     onBack: () -> Unit = {},
-    onLogout: () -> Unit = {}
+    // onLogoutSuccess nos permite navegar fuera después de que el VM confirme el borrado
+    onLogoutSuccess: () -> Unit = {}
 ) {
+    // 1. Estado para controlar la visibilidad del diálogo de confirmación
+    var mostrarDialogo by remember { mutableStateOf(false) }
+
+    // 2. Observamos el estado de carga desde el ViewModel
+    val estaBorrando by viewModel.estaBorrando.collectAsState()
+
+    // 3. Efecto para reaccionar cuando el usuario ha sido borrado con éxito
+    LaunchedEffect(Unit) {
+        viewModel.borradoExitoso.collect { exito ->
+            if (exito) {
+                // Si el borrado fue exitoso, navegamos a la pantalla de inicio
+                onLogoutSuccess()
+            }
+        }
+    }
+
+    // Obtenemos los datos del usuario logeado desde el ViewModel
+    val usuario by viewModel.usuarioLogeado.observeAsState()
+
+    // Creamos la lista de opciones dinámicamente con los datos del usuario
+    val userOptions = listOfNotNull(
+        usuario?.nombre?.let { UserOption("USUARIO: $it", true) },
+        usuario?.correo?.let { UserOption("CORREO: $it", true) },
+        usuario?.id?.let { UserOption("FOLIO: $it", false) },
+        UserOption("CONTRASEÑA", false) // Asumimos que esto lleva a otra pantalla
+    )
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(morado) // Fondo principal morado
     ) {
-        // Formas de fondo
+        // Formas de fondo (sin cambios)
         //Forma rosa inferior de arriba
         Box(
             modifier = Modifier
@@ -94,7 +148,7 @@ fun ActualizarDatos(
 
         )
 
-        // Líneas blancas decorativas
+        // Líneas blancas decorativas (sin cambios)
         // Línea superior
         Box(
             modifier = Modifier
@@ -102,7 +156,7 @@ fun ActualizarDatos(
                 .offset(x = 8.dp, y = (-170).dp)
                 .size(400.dp)
                 .clip(CircleShape)
-                .border(1.dp, Color.White, CircleShape)
+                .border(1.dp, White, CircleShape)
         )
         // Línea inferior
         Box(
@@ -121,10 +175,8 @@ fun ActualizarDatos(
         ) {
 
             // Opciones del perfil (Usuario, Correo, Folio, Contraseña)
-            userOptions.forEach { option ->
-                item {
-                    UserSettingItem(option = option)
-                }
+            items(userOptions.size) { index ->
+                UserSettingItem(option = userOptions[index])
             }
 
             // Espacio de separación
@@ -145,18 +197,49 @@ fun ActualizarDatos(
                             .padding(vertical = 8.dp)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "Cerrar sesión",
-                        color = naranja,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
+
+                    // 4. Se envuelve el texto en un Row para mostrar el indicador de carga
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .clickable(onClick = onLogout)
+                            .clickable(
+                                enabled = !estaBorrando, // Deshabilita el click mientras carga
+                                onClick = { mostrarDialogo = true } // 5. Al hacer click, muestra el diálogo
+                            )
                             .padding(vertical = 8.dp)
-                    )
+                    ) {
+                        Text(
+                            text = "Cerrar sesión",
+                            color = naranja,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        // Muestra el indicador de carga si se está borrando el usuario
+                        if (estaBorrando) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                color = naranja,
+                                strokeWidth = 2.dp
+                            )
+                        }
+                    }
                 }
             }
         }
+    }
+
+    // 6. Si el estado es true, se muestra el diálogo
+    if (mostrarDialogo) {
+        ConfirmarSalida(
+            viewModel = viewModel,
+            onDismissRequest = {
+                // Permite cerrar el diálogo solo si no está en proceso de borrado
+                if (!estaBorrando) {
+                    mostrarDialogo = false
+                }
+            }
+        )
     }
 }
 
@@ -187,7 +270,7 @@ fun UserSettingItem(option: UserOption) {
                 fontWeight = FontWeight.SemiBold
             )
 
-            // Icono de Edición (solo para Usuario y Correo en la captura)
+            // Icono de Edición (solo para Usuario y Correo)
             if (option.hasEditIcon) {
                 Icon(
                     imageVector = Icons.Default.Edit,
@@ -198,7 +281,7 @@ fun UserSettingItem(option: UserOption) {
             }
         }
         // Divisor (Línea)
-        Divider(color = White.copy(alpha = 0.3f), thickness = 1.dp)
+        HorizontalDivider(thickness = 1.dp, color = White.copy(alpha = 0.3f))
     }
 }
 
