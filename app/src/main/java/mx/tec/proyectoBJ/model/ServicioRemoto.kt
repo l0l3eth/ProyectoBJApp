@@ -68,13 +68,16 @@ object ServicioRemoto {
      */
     suspend fun registrarUsuario(usuario: Usuario) {
         try {
-            servicio.registrarUsuario(usuario)
+            // Se ajusta para usar el Response y poder verificar el resultado
+            val response = servicio.registrarUsuario(usuario)
+            if (!response.isSuccessful) {
+                println("Error al registrar. Código: ${response.code()}")
+            }
         } catch (e: HttpException) {
-            println("Error, codigo: ${e.code()}")
-            println("Error, mensaje: ${e.message()}")
-            println("Error, respuesta: ${e.response()}")
+            println("Error HTTP, codigo: ${e.code()}")
+            println("Error HTTP, mensaje: ${e.message()}")
         } catch (e: Exception) {
-            println("Error en la descarga: $e")
+            println("Error en la conexión: $e")
         }
     }
 
@@ -90,22 +93,41 @@ object ServicioRemoto {
         val credenciales = mapOf("correo" to correo, "contrasena" to contrasena)
 
         return try {
-            // Llama a la función del proxy de Retrofit
             val response = servicio.iniciarSesion(credenciales)
-
-            // Verifica el código HTTP
             if (response.isSuccessful) {
-                // Si es 2xx, devuelve el cuerpo (el objeto Usuario)
                 response.body()
             } else {
-                // Código HTTP 4xx o 5xx (ej: credenciales incorrectas)
                 println("Error de login. Código: ${response.code()}")
                 null
             }
         } catch (e: Exception) {
-            // Errores de red (ej: sin internet)
             println("Error de conexión al intentar iniciar sesión: $e")
             null
+        }
+    }
+
+    /**
+     * Envía una petición a la API para eliminar un usuario por su ID.
+     * @param idUsuario El ID del usuario que se desea eliminar.
+     * @return `true` si el usuario fue eliminado exitosamente (código 2xx),
+     *         `false` en caso contrario (error del servidor o de conexión).
+     */
+    suspend fun borrarUsuario(idUsuario: Int): Boolean {
+        return try {
+            val response = servicio.borrarUsuario(idUsuario)
+            if (response.isSuccessful) {
+                println("Usuario con ID $idUsuario borrado exitosamente.")
+                true
+            } else {
+                println("Error al borrar el usuario. Código: ${response.code()}, Mensaje: ${response.message()}")
+                false
+            }
+        } catch (e: HttpException) {
+            println("Error HTTP al borrar usuario: ${e.message()}")
+            false
+        } catch (e: Exception) {
+            println("Error de conexión al intentar borrar usuario: $e")
+            false
         }
     }
 
@@ -114,16 +136,14 @@ object ServicioRemoto {
      * @return Una `List<Negocio>` con los negocios obtenidos. Si ocurre un error
      *         (de red o HTTP), devuelve una lista vacía y registra el error en consola.
      */
-    suspend fun obtenerNegocio(): List<Negocio> {
+    suspend fun obtenerNegocios(): List<Negocio> {
         try {
-            val lista = servicio.obtenerNegocios()
-            return lista
+            return servicio.obtenerNegocios()
         } catch (e: HttpException) {
-            println("Error, codigo: ${e.code()}")
-            println("Error, mensaje: ${e.message()}")
-            println("Error, respuesta: ${e.response()}")
+            println("Error HTTP, codigo: ${e.code()}")
+            println("Error HTTP, mensaje: ${e.message()}")
         } catch (e: Exception) {
-            println("Error en la descarga: $e")
+            println("Error en la descarga de negocios: $e")
         }
         return listOf()
     }
@@ -134,7 +154,13 @@ object ServicioRemoto {
      * @return Una `List<Producto>` con todos los productos.
      */
     suspend fun obtenerProductos(): List<Producto> {
-        return servicio.obtenerProductos()
+        // Se añade manejo de errores para mayor robustez
+        return try {
+            servicio.obtenerProductos()
+        } catch (e: Exception) {
+            println("Error al obtener productos: $e")
+            emptyList()
+        }
     }
 
     /**
@@ -142,7 +168,13 @@ object ServicioRemoto {
      * En caso de error, la excepción será propagada a quien llame a esta función.
      * @return Una `List<Usuario>` con todos los usuarios.
      */
-    suspend fun obtenerUsuarioID(): List<Usuario> {
-        return servicio.obtenerUsuarios()
+    suspend fun obtenerUsuarios(): List<Usuario> {
+        // Se añade manejo de errores para mayor robustez
+        return try {
+            servicio.obtenerUsuarios()
+        } catch (e: Exception) {
+            println("Error al obtener usuarios: $e")
+            emptyList()
+        }
     }
 }

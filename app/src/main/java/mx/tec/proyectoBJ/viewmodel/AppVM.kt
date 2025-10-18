@@ -16,8 +16,16 @@ import mx.tec.proyectoBJ.model.ServicioRemoto
 import mx.tec.proyectoBJ.model.Usuario
 
 /**
- * AppVM (App ViewModel) es el ViewModel principal de la aplicación.
- * Se encarga de la lógica  relacionada con el inicio y cierre de sesión.
+ * ViewModel principal de la aplicación (`AppVM`).
+ *
+ * Se encarga de la lógica de negocio y de gestionar el estado de la UI para
+ * funcionalidades clave como:
+ * - Control de la pantalla de bienvenida (splash screen).
+ * - Registro e inicio de sesión de usuarios.
+ * - Eliminación de usuarios.
+ *
+ * Comunica el resultado de las operaciones a la UI a través de LiveData y StateFlow,
+ * permitiendo una arquitectura reactiva y desacoplada.
  */
 
 sealed class PantallaSplash {
@@ -26,27 +34,58 @@ sealed class PantallaSplash {
 
 class AppVM : ViewModel(){
     private val servicioRemoto = ServicioRemoto
+
+    /**
+     * Objeto `SharedFlow` para gestionar eventos de navegación de un solo uso,
+     * como la transición desde la pantalla de bienvenida.
+     */
     private val _NavegarAInicio = MutableSharedFlow<PantallaSplash>()
     val NavegarAInicio: SharedFlow<PantallaSplash> = _NavegarAInicio.asSharedFlow()
 
-    // Estado para la UI: almacena el usuario si el login es exitoso
+    /**
+     * Almacena los datos del usuario autenticado.
+     * La UI observa este `LiveData` para reaccionar a los cambios en el estado de la sesión.
+     * Es nulo si no hay ningún usuario logueado.
+     */
     private val _usuarioLogeado = MutableLiveData<Usuario?>(null)
     val usuarioLogeado: LiveData<Usuario?> = _usuarioLogeado
 
-    // Estado para mostrar errores en la UI (ej: "Credenciales incorrectas")
+    /**
+     * Contiene mensajes de error para ser mostrados en la UI.
+     * Se actualiza cuando una operación (como el login) falla.
+     */
     private val _errorMensaje = MutableLiveData<String?>(null)
     val errorMensaje: LiveData<String?> = _errorMensaje
+
+    /**
+     * `StateFlow` que indica si una operación de borrado está en progreso.
+     * Útil para mostrar indicadores de carga en la UI.
+     */
+    private val _estaBorrando = MutableStateFlow(false)
+    val estaBorrando: StateFlow<Boolean> = _estaBorrando.asStateFlow()
+
+    /**
+     * `SharedFlow` para emitir un evento de una sola vez cuando un usuario
+     * ha sido eliminado con éxito. La UI puede escuchar este evento para
+     * refrescar listas o navegar a otra pantalla.
+     */
+    private val _borradoExitoso = MutableSharedFlow<Boolean>()
+    val borradoExitoso: SharedFlow<Boolean> = _borradoExitoso.asSharedFlow()
 
     init {
         // Ejecuta la lógica de retardo y navegación al iniciar el ViewModel
         viewModelScope.launch {
-            // Retraso de menos de un segundo
+            // Retraso para la pantalla de bienvenida
             delay(3000L)
-            // Envía el evento de navegación
+            // Envía el evento de navegación para pasar a la siguiente pantalla
             _NavegarAInicio.emit(PantallaSplash.NavegarAInicio)
         }
     }
 
+    /**
+     * Llama al servicio remoto para registrar un nuevo usuario en el sistema.
+     * Los parámetros corresponden a los datos del formulario de registro.
+     */
     fun enviarUsuario(nombre: String,
                       apellido: String,
                       correo: String,
@@ -69,24 +108,51 @@ class AppVM : ViewModel(){
         }
     }
 
+    /**
+     * Intenta autenticar a un usuario con su correo y contraseña.
+     * Actualiza `usuarioLogeado` si la autenticación es exitosa, o
+     * `errorMensaje` en caso de fallo.
+     *
+     * @param correo El correo electrónico del usuario.
+     * @param contrasena La contraseña del usuario.
+     */
     fun iniciarSesion(correo: String, contrasena: String) {
-        // Ejecutamos la llamada de red en un scope de coroutines
         viewModelScope.launch {
-
-            // 1. Llamar al Servicio Remoto
             val resultadoUsuario = ServicioRemoto.iniciarSesion(correo, contrasena)
-
-            // 2. Manejar el resultado
             if (resultadoUsuario != null) {
-                // Éxito: Guardar el usuario y notificar a la UI
                 _usuarioLogeado.value = resultadoUsuario
                 _errorMensaje.value = null
             } else {
-                // Fallo: Mostrar un mensaje de error genérico (o uno más específico si el servicio lo permite)
                 _usuarioLogeado.value = null
                 _errorMensaje.value = "Correo o contraseña incorrectos. Inténtalo de nuevo."
             }
         }
     }
 
+    /**
+     * Llama al servicio remoto para eliminar un usuario por su ID.
+     * Gestiona el estado de carga (`estaBorrando`) y notifica el resultado
+     * a través de `borradoExitoso` o `errorMensaje`.
+     *
+     * @param idUsuario El ID numérico del usuario a eliminar.
+     */
+    fun eliminarUsuario(idUsuario: Int) {
+        viewModelScope.launch {
+            // Indicar que la operación ha comenzado
+            _estaBorrando.value = true
+            _errorMensaje.value = null // Limpiar errores previos
+
+            val exito = servicioRemoto.borrarUsuario(idUsuario)
+
+            if (exito) {
+                // Notificar a la UI que el borrado fue exitoso
+                _borradoExitoso.emit(true)
+            } else {
+                // Notificar a la UI que hubo un error
+                _errorMensaje.value = "No se pudo eliminar el usuario. Inténtalo de nuevo."
+            }
+            // Indicar que la operación ha terminado
+            _estaBorrando.value = false
+        }
+    }
 }
