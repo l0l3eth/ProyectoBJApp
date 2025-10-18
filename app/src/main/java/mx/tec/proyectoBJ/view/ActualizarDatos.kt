@@ -294,3 +294,4 @@ fun UserSettingItem(option: UserOption) {
 fun UserSettingsScreenPreview() {
     ActualizarDatos()
 }
+

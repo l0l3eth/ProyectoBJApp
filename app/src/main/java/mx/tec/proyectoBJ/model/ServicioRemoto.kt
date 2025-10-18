@@ -177,4 +177,24 @@ object ServicioRemoto {
             emptyList()
         }
     }
+
+    suspend fun actualizarUsuario(idUsuario: Int, usuario: Usuario): Boolean {
+        return try {
+            val response = servicio.actualizarUsuario(idUsuario, usuario)
+            if (response.isSuccessful) {
+                println("Usuario actualizado correctamente (ID: $idUsuario).")
+                true
+            } else {
+                println("Error al actualizar usuario. Código: ${response.code()}, mensaje: ${response.message()}")
+                false
+            }
+        } catch (e: HttpException) {
+            println("Error HTTP al actualizar usuario: ${e.message()}")
+            false
+        } catch (e: Exception) {
+            println("Error de conexión al intentar actualizar usuario: $e")
+            false
+        }
+    }
+
 }

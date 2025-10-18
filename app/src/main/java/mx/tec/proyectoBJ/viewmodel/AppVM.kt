@@ -155,4 +155,19 @@ class AppVM : ViewModel(){
             _estaBorrando.value = false
         }
     }
+    fun actualizarUsuario(idUsuario: Int, usuario: Usuario) {
+        if (!usuario.nombre.matches(Regex("^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$"))) {
+            _errorMensaje.value = "Error, el nombre solo puede tener letras"
+            return
+        }
+        viewModelScope.launch {
+            val exito = servicioRemoto.actualizarUsuario(idUsuario, usuario)
+            if (exito) {
+                println("Usuario actualizado con éxito.")
+                _usuarioLogeado.postValue(usuario)
+            } else {
+                _errorMensaje.value = "No se pudo actualizar el usuario. Inténtalo de nuevo."
+            }
+        }
+    }
 }
