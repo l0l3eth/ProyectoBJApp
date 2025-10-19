@@ -183,8 +183,6 @@ fun AppNavHost(
             )
         }
 
-        // Ya no necesitas las rutas "MenuLateralParteSuperior" y "MenuLateral"
-        // porque ahora se gestionan directamente y no por navegación.
     }
 }
 
