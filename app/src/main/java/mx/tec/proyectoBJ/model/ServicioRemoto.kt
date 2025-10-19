@@ -1,6 +1,7 @@
 package mx.tec.proyectoBJ.model
 
 import mx.tec.ptoyectobj.URL_BASE
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.HttpException
 import retrofit2.Retrofit
@@ -195,6 +196,10 @@ object ServicioRemoto {
             println("Error de conexión al intentar actualizar usuario: $e")
             false
         }
+    }
+
+    suspend fun generarQR(idUsuario: Int): retrofit2.Response<ResponseBody> {
+        return servicio.generarQR(idUsuario)
     }
 
 }

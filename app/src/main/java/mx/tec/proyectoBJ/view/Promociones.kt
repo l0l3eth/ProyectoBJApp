@@ -1,5 +1,6 @@
 package mx.tec.proyectoBJ.view
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -65,8 +66,8 @@ val sampleDetailedPromotions = listOf(
 val categories = listOf("Todo", "Comida", "Salud", "Belleza", "Entretenimiento")
 
 @Composable
-fun PromocionesScreen(
-    //appVM: AppVM
+fun Promociones(
+    appVM: AppVM
 
 ) {
     // 1. Estados de la pantalla
@@ -86,10 +87,6 @@ fun PromocionesScreen(
     }
 
     Scaffold(
-        bottomBar = { BarraNavegacion( onNavigateToInicio = {},
-                                        onNavigateToMapa = {},
-                                        onNavigateToPromociones = {},
-                                        onNavigateToID = {}) },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
 
@@ -239,8 +236,9 @@ fun PromotionDetailCard(promo: PromotionDetail) {
 // PREVIEW
 // ---------------------------------------------------------------------
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun PromocionesScreenPreview() {
-    PromocionesScreen()
+    Promociones( appVM = AppVM() )
 }

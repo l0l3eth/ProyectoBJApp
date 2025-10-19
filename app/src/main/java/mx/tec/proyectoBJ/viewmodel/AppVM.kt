@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import mx.tec.proyectoBJ.model.ServicioRemoto
 import mx.tec.proyectoBJ.model.Usuario
+import android.graphics.BitmapFactory
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 
 /**
  * ViewModel principal de la aplicación (`AppVM`).
@@ -71,6 +74,21 @@ class AppVM : ViewModel(){
      */
     private val _borradoExitoso = MutableSharedFlow<Boolean>()
     val borradoExitoso: SharedFlow<Boolean> = _borradoExitoso.asSharedFlow()
+
+    /**
+     * StateFlow que almacena la imagen del código QR como un ImageBitmap.
+     * Es nulo inicialmente o si ocurre un error. La UI observa este estado
+     * para mostrar el QR cuando esté disponible.
+     */
+    private val _qrBitmap = MutableStateFlow<ImageBitmap?>(null)
+    val qrBitmap: StateFlow<ImageBitmap?> = _qrBitmap.asStateFlow()
+
+    /**
+     * StateFlow que indica si el código QR se está cargando.
+     * Útil para mostrar un indicador de progreso en la UI.
+     */
+    private val _cargandoQR = MutableStateFlow(false)
+    val cargandoQR: StateFlow<Boolean> = _cargandoQR.asStateFlow()
 
     init {
         // Ejecuta la lógica de retardo y navegación al iniciar el ViewModel
@@ -196,6 +214,49 @@ class AppVM : ViewModel(){
                 _usuarioLogeado.postValue(usuario)
             } else {
                 _errorMensaje.value = "No se pudo actualizar el usuario. Inténtalo de nuevo."
+            }
+        }
+    }
+
+    /**
+     * Solicita la generación de un código QR para el usuario actualmente logueado.
+     * Gestiona los estados de carga y actualiza el `qrBitmap` con la imagen recibida,
+     * o `errorMensaje` si la operación falla.
+     */
+    fun generarQR() {
+        // Obtenemos el ID del usuario que ya inició sesión.
+        val idUsuario = _usuarioLogeado.value?.id ?: return
+
+        viewModelScope.launch {
+            // 1. Iniciar estado de carga y limpiar datos anteriores
+            _cargandoQR.value = true
+            _qrBitmap.value = null
+            _errorMensaje.value = null
+
+            try {
+                // 2. Llamar al servicio remoto
+                val response = servicioRemoto.generarQR(idUsuario)
+
+                if (response.isSuccessful && response.body() != null) {
+                    // 3. Procesar la respuesta exitosa
+                    val responseBody = response.body()!!
+                    // Convertir los bytes de la respuesta en un array
+                    val bytes = responseBody.bytes()
+                    // Decodificar el array de bytes a un Bitmap y luego a un ImageBitmap
+                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    _qrBitmap.value = bitmap?.asImageBitmap() // Actualizar el StateFlow
+
+                } else {
+                    // 4. Manejar respuesta de error del servidor
+                    _errorMensaje.value = "Error al generar el QR. Código: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                // 5. Manejar errores de red u otras excepciones
+                _errorMensaje.value = "Error de conexión: ${e.message}"
+                e.printStackTrace()
+            } finally {
+                // 6. Finalizar estado de carga
+                _cargandoQR.value = false
             }
         }
     }
