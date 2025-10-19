@@ -31,8 +31,7 @@ val samplePromotions = listOf(
 
 // --- Composable Principal de la Pantalla ---
 @Composable
-fun PantallaPrincipalUsuario(/*Logica de navegación*/
-                             appVM: AppVM) {
+fun PantallaPrincipalUsuario(appVM: AppVM, onMenuClick: () -> Unit = {}) {
     Scaffold(
         bottomBar = { BarraNavegacion( onNavigateToInicio = {},
                                         onNavigateToMapa = {},

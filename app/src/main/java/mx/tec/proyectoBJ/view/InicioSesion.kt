@@ -49,6 +49,7 @@ import mx.tec.ptoyectobj.morado
 
 @Composable
 fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
+                  onNavigateToPrincipal: () -> Unit /*Logica de navegación*/,
                   appVM: AppVM
 ) {
     // Estados para los campos de texto
@@ -167,7 +168,7 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
 
             // Botón "Iniciar sesión" (con degradado)
             Button(
-                onClick = { appVM.iniciarSesion(email, password) },
+                onClick = { /*appVM.iniciarSesion(email, password)*/ onNavigateToPrincipal() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
@@ -212,5 +213,5 @@ private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    InicioSesion( onNavigateToRegistro = { }, appVM = AppVM())
+    InicioSesion( onNavigateToRegistro = { }, onNavigateToPrincipal = { }, appVM = AppVM())
 }

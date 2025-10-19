@@ -30,7 +30,7 @@ import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.morado
 
 @Composable
-fun IngresoDeDatos(appVM: AppVM, modifier: Modifier = Modifier) {
+fun IngresoDeDatos(appVM: AppVM, onNavigateToLogin: () -> Unit ,modifier: Modifier = Modifier) {
     // Pantallas requeridas para el registro.
     val totalPantallas = 4
     var pantallaActual by remember { mutableStateOf(0) }

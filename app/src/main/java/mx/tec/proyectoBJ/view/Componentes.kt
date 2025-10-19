@@ -299,7 +299,7 @@ fun ParteSuperior(userName: String, modifier: Modifier = Modifier, onClick: () -
             ) {
                 // Icono de Menú y Título
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { onClick }) {
+                    IconButton(onClick = onClick ) {
                         Icon(
                             imageVector = Icons.Default.Menu,
                             contentDescription = "Menú",

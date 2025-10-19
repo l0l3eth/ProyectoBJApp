@@ -56,6 +56,7 @@ data class UserOption(
 
 @Composable
 fun ActualizarDatos( appVM: AppVM,
+    onMenuClick: () -> Unit = {},
     // onBack ahora es para navegación simple, no para un logout completo
     onBack: () -> Unit = {},
     // onLogoutSuccess nos permite navegar fuera después de que el VM confirme el borrado
