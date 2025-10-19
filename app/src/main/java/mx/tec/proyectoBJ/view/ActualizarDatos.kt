@@ -21,9 +21,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,12 +40,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.naranja
@@ -56,17 +60,25 @@ data class UserOption(
 
 @Composable
 fun ActualizarDatos( appVM: AppVM,
-    onMenuClick: () -> Unit = {},
+                     onMenuClick: () -> Unit = {},
     // onBack ahora es para navegación simple, no para un logout completo
-    onBack: () -> Unit = {},
+                     onBack: () -> Unit = {},
     // onLogoutSuccess nos permite navegar fuera después de que el VM confirme el borrado
-    onLogoutSuccess: () -> Unit = {}
+                     onLogoutSuccess: () -> Unit = {}
 ) {
-    // 1. Estado para controlar la visibilidad del diálogo de confirmación
-    var mostrarDialogo by remember { mutableStateOf(false) }
+    // 1. Estado para controlar la visibilidad del diálogo de confirmación de salida
+    var mostrarDialogoSalida by remember { mutableStateOf(false) }
 
     // 2. Observamos el estado de carga desde el ViewModel
     val estaBorrando by appVM.estaBorrando.collectAsState()
+
+    // --- NUEVOS ESTADOS PARA LA EDICIÓN ---
+    // Estado para saber qué campo estamos editando. Null si no hay ninguno.
+    var campoEnEdicion by remember { mutableStateOf<String?>(null) }
+    // Estado para almacenar el valor actual del campo que se edita.
+    var valorActual by remember { mutableStateOf("") }
+    //errores
+    val errorMensaje by appVM.errorMensaje.observeAsState()
 
     // 3. Efecto para reaccionar cuando el usuario ha sido borrado con éxito
     LaunchedEffect(Unit) {
@@ -81,14 +93,52 @@ fun ActualizarDatos( appVM: AppVM,
     // Obtenemos los datos del usuario logeado desde el ViewModel
     val usuario by appVM.usuarioLogeado.observeAsState()
 
-    // Creamos la lista de opciones dinámicamente con los datos del usuario
+    // --- MODIFICACIÓN CLAVE: Creamos la lista de opciones con acciones de edición ---
     val userOptions = listOfNotNull(
-        usuario?.nombre?.let { UserOption("USUARIO: $it", true) },
-        usuario?.correo?.let { UserOption("CORREO: $it", true) },
-        usuario?.id?.let { UserOption("FOLIO: $it", false) },
-        UserOption("CONTRASEÑA", false) // Asumimos que esto lleva a otra pantalla
+        usuario?.nombre?.let { nombre ->
+            UserOption(
+                label = "NOMBRE: $nombre",
+                hasEditIcon = true,
+                action = {
+                    // Al hacer click, guardamos el tipo y el valor actual
+                    campoEnEdicion = "nombre"
+                    valorActual = nombre
+                }
+            )
+        },
+        usuario?.apellidos?.let { apellidos ->
+            UserOption(
+                label = "APELLIDO: $apellidos",
+                hasEditIcon = true,
+                action = {
+                    campoEnEdicion = "apellidos"
+                    valorActual = apellidos
+                }
+            )
+        },
+        usuario?.correo?.let { correo ->
+            UserOption(
+                label = "Correo: $correo",
+                hasEditIcon = true,
+                action = {
+                    campoEnEdicion = "correo"
+                    valorActual = correo
+                }
+            )
+        },
+        usuario?.id?.let {
+            UserOption(
+                label = "FOLIO: $it",
+                hasEditIcon = false,
+                action = {} // No hace nada al hacer click
+            )
+        },
+        UserOption(
+            label = "CONTRASEÑA",
+            hasEditIcon = false,
+            action = { /* TODO: Navegar a la pantalla de cambiar contraseña */ }
+        )
     )
-
 
     Box(
         modifier = Modifier
@@ -99,7 +149,7 @@ fun ActualizarDatos( appVM: AppVM,
         //Forma rosa inferior de arriba
         Box(
             modifier = Modifier
-                .offset(x = (-40).dp, y = (-120).dp) // El offset negativo mueve el óvalo hacia arriba, fuera de la pantalla
+                .offset(x = (-40).dp, y = (-120).dp)
                 .size(400.dp)
                 .clip(CircleShape)
                 .background(rosa)
@@ -109,12 +159,10 @@ fun ActualizarDatos( appVM: AppVM,
         Box(
             modifier = Modifier
                 .offset(x = 5.dp, y = (-190).dp)
-                .size(width = 800.dp, height = 400.dp) // Define un tamaño de óvalo (casi un círculo en este caso)
-                .clip(CircleShape) // La forma circular crea un óvalo al ajustar el tamaño
+                .size(width = 800.dp, height = 400.dp)
+                .clip(CircleShape)
                 .background(naranja)
-
         )
-
         //Forma rosa inferior de abajo
         Box(
             modifier = Modifier
@@ -122,7 +170,6 @@ fun ActualizarDatos( appVM: AppVM,
                 .size(400.dp)
                 .clip(CircleShape)
                 .background(rosa)
-
         )
         //Forma naranja superior de abajo
         Box(
@@ -131,9 +178,7 @@ fun ActualizarDatos( appVM: AppVM,
                 .size(400.dp)
                 .clip(CircleShape)
                 .background(naranja)
-
         )
-
         // Líneas blancas decorativas (sin cambios)
         // Línea superior
         Box(
@@ -159,17 +204,14 @@ fun ActualizarDatos( appVM: AppVM,
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(top = 100.dp, bottom = 48.dp) // Ajuste para evitar el header
         ) {
-
             // Opciones del perfil (Usuario, Correo, Folio, Contraseña)
             items(userOptions.size) { index ->
                 UserSettingItem(option = userOptions[index])
             }
-
             // Espacio de separación
             item {
                 Spacer(modifier = Modifier.height(32.dp))
             }
-
             // Opciones de acción (Regresar, Cerrar sesión)
             item {
                 Column(modifier = Modifier.padding(horizontal = 32.dp)) {
@@ -183,14 +225,14 @@ fun ActualizarDatos( appVM: AppVM,
                             .padding(vertical = 8.dp)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-
-                    // 4. Se envuelve el texto en un Row para mostrar el indicador de carga
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .clickable(
                                 enabled = !estaBorrando, // Deshabilita el click mientras carga
-                                onClick = { mostrarDialogo = true } // 5. Al hacer click, muestra el diálogo
+                                onClick = {
+                                    mostrarDialogoSalida = true
+                                } // Al hacer click, muestra el diálogo de salida
                             )
                             .padding(vertical = 8.dp)
                     ) {
@@ -200,7 +242,6 @@ fun ActualizarDatos( appVM: AppVM,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
-                        // Muestra el indicador de carga si se está borrando el usuario
                         if (estaBorrando) {
                             Spacer(modifier = Modifier.width(8.dp))
                             CircularProgressIndicator(
@@ -210,20 +251,59 @@ fun ActualizarDatos( appVM: AppVM,
                             )
                         }
                     }
+                    if (errorMensaje != null) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = errorMensaje!!, // Usamos !! porque ya comprobamos que no es nulo
+                            color = Color(0xFFD32F2F), // Un color rojo para errores
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
+
         }
     }
 
-    // 6. Si el estado es true, se muestra el diálogo
-    if (mostrarDialogo) {
+    // --- DIÁLOGOS ---
+
+    // 1. Diálogo para confirmar la salida/borrado de cuenta
+    if (mostrarDialogoSalida) {
         ConfirmarSalida(
             appVM = appVM,
             onDismissRequest = {
-                // Permite cerrar el diálogo solo si no está en proceso de borrado
                 if (!estaBorrando) {
-                    mostrarDialogo = false
+                    mostrarDialogoSalida = false
                 }
+            }
+        )
+    }
+
+    // 2. Diálogo para editar un campo
+    if (campoEnEdicion != null) {
+        EditDialog(
+            valorActual = valorActual,
+            onDismiss = {
+                // Al cerrar el diálogo, reseteamos el estado de edición
+                campoEnEdicion = null
+            },
+            onSave = { nuevoValor ->
+                // Lógica de guardado
+                usuario?.let { usr ->
+                    usr.id?.let { idSeguro ->
+                        val usuarioActualizado = when (campoEnEdicion) {
+                            // Al hacer la copia, nos aseguramos de pasar un valor válido para la contraseña
+                            "nombre" -> usr.copy(nombre = nuevoValor, contrasena = usr.contrasena ?: "")
+                            "apellidos" -> usr.copy(apellidos = nuevoValor, contrasena = usr.contrasena ?: "")
+                            "correo" -> usr.copy(correo = nuevoValor, contrasena = usr.contrasena ?: "")
+                            else -> usr
+                        }
+                        appVM.actualizarUsuario(idSeguro, usuarioActualizado)
+                    }
+                }
+                // Cierra el diálogo después de guardar
+                campoEnEdicion = null
             }
         )
     }
@@ -256,7 +336,7 @@ fun UserSettingItem(option: UserOption) {
                 fontWeight = FontWeight.SemiBold
             )
 
-            // Icono de Edición (solo para Usuario y Correo)
+            // Icono de Edición (solo si se especifica)
             if (option.hasEditIcon) {
                 Icon(
                     imageVector = Icons.Default.Edit,
@@ -272,6 +352,45 @@ fun UserSettingItem(option: UserOption) {
 }
 
 // ---------------------------------------------------------------------
+// NUEVO COMPONENTE DE DIÁLOGO DE EDICIÓN
+// ---------------------------------------------------------------------
+@Composable
+fun EditDialog(
+    valorActual: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var nuevoValor by remember { mutableStateOf(valorActual) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Actualizar Información") },
+        text = {
+            OutlinedTextField(
+                value = nuevoValor,
+                onValueChange = { nuevoValor = it },
+                label = { Text("Nuevo valor") },
+                singleLine = true
+            )
+        },
+        confirmButton = {
+            Button(onClick = { onSave(nuevoValor) }) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+            ) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+
+// ---------------------------------------------------------------------
 // PREVIEW
 // ---------------------------------------------------------------------
 
@@ -281,4 +400,3 @@ fun UserSettingItem(option: UserOption) {
 fun UserSettingsScreenPreview() {
     ActualizarDatos( appVM = AppVM())
 }
-

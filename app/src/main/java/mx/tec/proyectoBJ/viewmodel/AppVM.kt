@@ -155,19 +155,50 @@ class AppVM : ViewModel(){
             _estaBorrando.value = false
         }
     }
+    // En tu archivo AppVM.kt
+
     fun actualizarUsuario(idUsuario: Int, usuario: Usuario) {
+        // validaciones ALGUIEN HAGA MEJOR ESTO PORFA ESTA HORRIBLE COMO LA HICE XD
         if (!usuario.nombre.matches(Regex("^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$"))) {
-            _errorMensaje.value = "Error, el nombre solo puede tener letras"
+            _errorMensaje.value = "Error, el nombre solo puede contener letras."
+            return // Detiene la ejecución si el nombre es inválido
+        }
+        if (usuario.nombre == "") {
+            _errorMensaje.value = "Error, el nombre no puede estar vacío."
             return
         }
+
+        if (!usuario.apellidos.matches(Regex("^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$"))) {
+            _errorMensaje.value = "Error, el apellido solo puede contener letras."
+            return // Detiene la ejecución si el nombre es inválido
+        }
+        if (usuario.apellidos == "") {
+            _errorMensaje.value = "Error, el apellido no puede estar vacío."
+            return
+        }
+        // Esta Regex es un estándar común para validar el formato de un email.
+        val emailRegex = Regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$")
+        if (!usuario.correo.matches(emailRegex)) {
+            _errorMensaje.value = "Error, el formato del correo no es válido."
+            return // Detiene la ejecución si el correo es inválido
+        }
+        // ---------------------------------------------------
+
+        // Si todas las validaciones pasan, se ejecuta la actualización.
         viewModelScope.launch {
+            // Limpiamos cualquier mensaje de error previo antes de intentar la operación
+            _errorMensaje.postValue(null)
+
             val exito = servicioRemoto.actualizarUsuario(idUsuario, usuario)
             if (exito) {
                 println("Usuario actualizado con éxito.")
+                // Actualiza el LiveData con el nuevo objeto de usuario para que la UI reaccione
                 _usuarioLogeado.postValue(usuario)
             } else {
                 _errorMensaje.value = "No se pudo actualizar el usuario. Inténtalo de nuevo."
             }
         }
     }
+
+
 }
