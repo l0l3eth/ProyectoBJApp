@@ -37,10 +37,6 @@ fun NegocioProfileScreen(
     // Aquí iría el ViewModel si fuera necesario
 ) {
     Scaffold(
-        bottomBar = { BarraNavegacion( onNavigateToInicio = {},
-                                        onNavigateToMapa = {},
-                                        onNavigateToPromociones = {},
-                                        onNavigateToID = {}) },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
 

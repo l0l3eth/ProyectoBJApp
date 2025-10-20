@@ -61,6 +61,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import mx.tec.proyectoBJ.R
+import mx.tec.proyectoBJ.model.Producto
+import mx.tec.proyectoBJ.view.outlinedTextFieldColors
 import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.morado
@@ -76,6 +78,8 @@ import java.util.Date
  * @param modifier Modificador para personalizar el layout y la apariencia.
  * @param etiqueta El texto que se muestra como placeholder o etiqueta flotante.
  * @param onValueChange Callback que se invoca cuando el valor del texto cambia.
+ * Autores: Estrella Lolbeth Téllez Rivas A01750496
+ *          Allan Mauricio Brenes Castro  A01750747
  */
 @Composable
 fun CampoDeTexto(value: String,
@@ -87,16 +91,22 @@ fun CampoDeTexto(value: String,
         value = value,
         onValueChange = onValueChange,
         label = { Text(etiqueta) },
-        modifier = modifier
-            .border(
-                shape = RoundedCornerShape(32.dp),
-                border = BorderStroke(1.dp, Color.Black)
-            )
-            .background(color = blanco,
-                shape = RoundedCornerShape(32.dp)),
-        shape = RoundedCornerShape(32.dp)
+        shape = RoundedCornerShape(28.dp),
+        colors = outlinedTextFieldColors(),
+        modifier = modifier.fillMaxWidth()
     )
 }
+
+@Composable
+private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedContainerColor = blanco.copy(alpha = 0.9f),
+    unfocusedContainerColor = blanco.copy(alpha = 0.9f),
+    focusedBorderColor = Color.Transparent,
+    unfocusedBorderColor = Color.Transparent,
+    focusedLabelColor = blanco,
+    unfocusedLabelColor = morado.copy(alpha = 0.7f),
+    cursorColor = morado
+)
 
 /**
  * Un diálogo modal que muestra un selector de fechas (`DatePicker`).
@@ -317,29 +327,10 @@ fun ParteSuperior(userName: String, modifier: Modifier = Modifier, onClick: () -
                         )
                     }
                 }
-                FotoPerfil(modifier = Modifier.size(50.dp))
             }
             Spacer(modifier = Modifier.height(24.dp))
             BarraBusqueda(modifier = Modifier.fillMaxWidth())
         }
-    }
-}
-
-/**
- * Muestra un placeholder circular para la foto de perfil de un usuario.
- * Incluye un borde blanco para destacar sobre fondos oscuros.
- *
- * @param modifier Modificador para personalizar el tamaño y la apariencia.
- */
-@Composable
-fun FotoPerfil(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(Color.LightGray) // Placeholder de color
-            .border(2.dp, White, CircleShape)
-    ) {
-        // Aquí se podría cargar una imagen real usando Coil o Glide.
     }
 }
 
@@ -380,7 +371,7 @@ fun BarraBusqueda(modifier: Modifier = Modifier) {
  * @param promo El objeto `Promotion` (se asume que es una data class) que contiene los datos a mostrar.
  */
 @Composable
-fun TarjetasPromocion(promo: Promotion) { // Se asume la existencia de data class Promotion(val title: String, val description: String)
+fun TarjetasPromocion(promo: Producto) { // Se asume la existencia de data class Promotion(val title: String, val description: String)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -399,18 +390,18 @@ fun TarjetasPromocion(promo: Promotion) { // Se asume la existencia de data clas
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = promo.title.uppercase(),
+                    text = promo.nombre.uppercase(),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = morado
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = promo.description,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = naranja
-                )
+//                Spacer(modifier = Modifier.height(4.dp))
+//                Text(
+//                    text = promo.esta_activo,
+//                    fontSize = 14.sp,
+//                    fontWeight = FontWeight.SemiBold,
+//                    color = naranja
+//                )
             }
             Icon(
                 imageVector = Icons.Default.Star,
@@ -432,6 +423,7 @@ fun TarjetasPromocion(promo: Promotion) { // Se asume la existencia de data clas
  * @param viewModel La instancia del ViewModel (AppVM) para poder llamar a sus funciones.
  * @param onDismissRequest La acción a ejecutar cuando el diálogo se cierra (ya sea
  *   presionando fuera o usando el botón de cancelar).
+ *
  */
 @Composable
 fun ConfirmarSalida(

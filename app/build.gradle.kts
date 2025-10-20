@@ -72,6 +72,22 @@ dependencies {
 
     //Acceso a los iconos
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.material3)
+
+    // ML Kit Barcode Scanning
+    implementation(libs.barcode.scanning)
+
+    // CameraX
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.accompanist.permissions)
+    implementation(libs.androidx.camera.extensions)
+    implementation(libs.androidx.camera.core.v150)
+    implementation(libs.androidx.camera.camera2.v150)
+    implementation(libs.androidx.camera.lifecycle.v150)
+    implementation(libs.androidx.camera.view.v150)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

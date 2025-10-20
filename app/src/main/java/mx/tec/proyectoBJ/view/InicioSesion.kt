@@ -49,7 +49,6 @@ import mx.tec.ptoyectobj.morado
 
 @Composable
 fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
-                  onNavigateToPrincipal: () -> Unit /*Logica de navegación*/,
                   appVM: AppVM
 ) {
     // Estados para los campos de texto
@@ -149,7 +148,7 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp, bottom = 16.dp)
-                    .clickable {/*Logica de contraseña*/  } //Navegación a PuntoPartida
+                    .clickable {/* TODO Logica de contraseña*/  } //Navegación a PuntoPartida
                     .wrapContentWidth(Alignment.End)// Alinear a la derecha
             )
 
@@ -168,13 +167,13 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
 
             // Botón "Iniciar sesión" (con degradado)
             Button(
-                onClick = { appVM.iniciarSesion(email, password) },
+                onClick = {appVM.iniciarSesion(email, password) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
                     .background(degradado, RoundedCornerShape(28.dp)),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                contentPadding = PaddingValues(), // El degradado cubre todo
+                contentPadding = PaddingValues(),
                 shape = RoundedCornerShape(28.dp)
             ) {
                 Box(
@@ -202,7 +201,7 @@ private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
     unfocusedContainerColor = blanco.copy(alpha = 0.9f),
     focusedBorderColor = Color.Transparent,
     unfocusedBorderColor = Color.Transparent,
-    focusedLabelColor = morado,
+    focusedLabelColor = blanco,
     unfocusedLabelColor = morado.copy(alpha = 0.7f),
     focusedLeadingIconColor = morado,
     unfocusedLeadingIconColor = morado.copy(alpha = 0.7f),
@@ -213,5 +212,5 @@ private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    InicioSesion( onNavigateToRegistro = { }, onNavigateToPrincipal = { }, appVM = AppVM())
+    InicioSesion( onNavigateToRegistro = { }, appVM = AppVM())
 }

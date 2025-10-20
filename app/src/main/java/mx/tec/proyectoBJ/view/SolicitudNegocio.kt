@@ -1,5 +1,6 @@
 package mx.tec.proyectoBJ.view
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,10 +10,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -22,12 +28,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.request.colorSpace
 import mx.tec.proyectoBJ.model.EstadoDeRegistro
 import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.blanco
@@ -35,14 +42,11 @@ import mx.tec.ptoyectobj.degradado
 import mx.tec.ptoyectobj.morado
 
 @Composable
-fun IngresoDeDatos(appVM: AppVM, onNavigateToLogin: () -> Unit ,modifier: Modifier = Modifier) {
-    // Pantallas requeridas para el registro.
+fun RellenoDeSolicitud(appVM: AppVM, modifier: Modifier = Modifier){
     val totalPantallas = 4
     var pantallaActual by remember { mutableStateOf(0) }
-
     var estadoDeRegistro by remember { mutableStateOf(EstadoDeRegistro()) }
 
-    // This function now updates the central state
     fun onStateChange(newState: EstadoDeRegistro) {
         estadoDeRegistro = newState
     }
@@ -59,28 +63,26 @@ fun IngresoDeDatos(appVM: AppVM, onNavigateToLogin: () -> Unit ,modifier: Modifi
                 .fillMaxSize()
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceAround
         ) {
             LogoYTextoGrande()
 
-            // Pass the current state and the update function to each screen
-            DatosPersonales(
+            DatosDeNegocio(
                 mostrar = pantallaActual == 0,
                 state = estadoDeRegistro,
                 onStateChange = ::onStateChange, // Pass the function reference
                 modifier = modifier.padding(horizontal = 32.dp)
             )
-            DatosDeContacto(
+            DatosDeContactoNegocio(
                 mostrar = pantallaActual == 1,
                 state = estadoDeRegistro,
                 onStateChange = ::onStateChange
             )
-            Direccion(
+            DireccionNegocio(
                 mostrar = pantallaActual == 2,
                 state = estadoDeRegistro,
                 onStateChange = ::onStateChange
             )
-            Contrasena(
+            ContrasenaNegocio(
                 mostrar = pantallaActual == 3,
                 state = estadoDeRegistro,
                 onStateChange = ::onStateChange
@@ -110,13 +112,12 @@ fun IngresoDeDatos(appVM: AppVM, onNavigateToLogin: () -> Unit ,modifier: Modifi
                     // Optionally, you could show a button to go back
                 }
             }
-            Botones(pantallaActual = pantallaActual,
+            BotonesNegocio(pantallaActual = pantallaActual,
                 totalPantallas = totalPantallas,
                 onPantallaCambia = { cambiarPantalla(it) })
         }
     }
 }
-
 /**
  * Un composable que muestra los botones de navegación "Regresar" y "Siguiente".
  *
@@ -132,7 +133,7 @@ fun IngresoDeDatos(appVM: AppVM, onNavigateToLogin: () -> Unit ,modifier: Modifi
  *                         de navegación. Recibe un entero: `-1` para "Regresar" y `1` para "Siguiente".
  */
 @Composable
-fun Botones(pantallaActual : Int,
+fun BotonesNegocio(pantallaActual : Int,
             modifier : Modifier = Modifier,
             totalPantallas: Int,
             onPantallaCambia: (Int) -> Unit = {}) {
@@ -183,7 +184,7 @@ fun Botones(pantallaActual : Int,
  *                      contraseña cambia. Recibe un objeto `EstadoDeRegistro` actualizado.
  */
 @Composable
-fun Contrasena(mostrar: Boolean = false,
+fun ContrasenaNegocio(mostrar: Boolean = false,
                state: EstadoDeRegistro,
                onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
@@ -211,7 +212,7 @@ fun Contrasena(mostrar: Boolean = false,
  *                      campo de entrada. Recibe el objeto `EstadoDeRegistro` actualizado.
  */
 @Composable
-fun DatosDeContacto(mostrar: Boolean = true,
+fun DatosDeContactoNegocio(mostrar: Boolean = true,
                     state: EstadoDeRegistro,
                     onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
@@ -226,7 +227,7 @@ fun DatosDeContacto(mostrar: Boolean = true,
 }
 
 @Composable
-fun Direccion(mostrar: Boolean = false,
+fun DireccionNegocio(mostrar: Boolean = false,
               state: EstadoDeRegistro,
               onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
@@ -256,15 +257,10 @@ fun Direccion(mostrar: Boolean = false,
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatosPersonales(modifier: Modifier = Modifier,
+fun DatosDeNegocio(modifier: Modifier = Modifier,
                     mostrar: Boolean = true,
                     state: EstadoDeRegistro,
                     onStateChange: (EstadoDeRegistro) -> Unit = {}) {
-//    var menuFecha by remember { mutableStateOf(false) }
-//    var nombres by remember { mutableStateOf("") }
-//    var apellidos by remember { mutableStateOf("") }
-//    var fechaNacimiento by remember { mutableStateOf("") }
-//    var sexo by remember { mutableStateOf("") }
 
     if (mostrar) {
         Column(
@@ -273,28 +269,96 @@ fun DatosPersonales(modifier: Modifier = Modifier,
             modifier = modifier.fillMaxWidth()
         ) {
             TextoTitularRegistro("Cuéntanos un poco sobre tí")
-            CampoDeTexto(etiqueta = "Nombre(s)",
+            CampoDeTexto(etiqueta = "Nombre del negocio",
                 value = state.nombre ?: "",
                 onValueChange = { onStateChange(state.copy(nombre = it)) })
-            CampoDeTexto(etiqueta = "Apellidos",
-                value = state.apellido ?: "",
-                onValueChange = { onStateChange(state.copy(apellido = it)) })
-            CampoDeTexto(etiqueta = "CURP",
-                value = state.curp ?: "",
-                onValueChange = { onStateChange(state.copy(curp = it)) })
-//            Button(onClick = { menuFecha = true }) {
-//                Text(fechaNacimiento.ifEmpty { "Fecha de nacimiento" })
-//            }
-//            DatePickerModal(onDateSelected = { onStateChange(state.copy(fechaNacimiento = it)) },
-//                onDismiss = { menuFecha = false },
-//                menuFecha = menuFecha)
+            TipoEstablecimientoDropdown(onSelectionChange = {})
         }
     }
-
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun IngresoDeDatosPreview() {
-//    IngresoDeDatos()
-//}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TipoEstablecimientoDropdown(
+    modifier: Modifier = Modifier,
+    // Lista de opciones a mostrar en el menú
+    options: List<String> = listOf("Entretenimiento", "Comida", "Salud", "Belleza", "Educación", "Moda y Accesorios", "Servicios"),
+    // Valor inicial o seleccionado
+    initialSelection: String = "Tipo de establecimiento",
+    // Callback para devolver la opción seleccionada
+    onSelectionChange: (String) -> Unit
+) {
+    // 1. Estado para controlar si el menú está expandido
+    var isExpanded by remember { mutableStateOf(false) }
+
+    // 2. Estado para el texto seleccionado que se muestra en el campo
+    var selectedText by remember { mutableStateOf(initialSelection) }
+
+    // Utiliza ExposedDropdownMenuBox para manejar la lógica de apertura/cierre
+    ExposedDropdownMenuBox(
+        expanded = isExpanded,
+        onExpandedChange = { isExpanded = !isExpanded },
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(28.dp)) // Esquinas redondeadas
+    ) {
+        // 3. Campo de Texto (simula el input)
+        // Usamos un OutlinedTextField para la apariencia de tu pantalla
+        OutlinedTextField(
+            // El modificador 'menuAnchor()' es OBLIGATORIO en el TextField
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor()
+                .height(56.dp),
+            readOnly = true, // No permite que el usuario escriba, solo selecciona
+            value = selectedText,
+            onValueChange = {}, // No hace nada ya que es de solo lectura
+            label = null, // No se usa etiqueta flotante en tu diseño
+            placeholder = {
+                // Muestra un placeholder solo si el texto es el inicial
+                if (selectedText == initialSelection) {
+                    Text(text = initialSelection, color = Color.Gray)
+                }
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = White,
+                unfocusedContainerColor = White,
+                disabledContainerColor = White,
+                focusedBorderColor = Color.Transparent, // Sin borde visible
+                unfocusedBorderColor = Color.Transparent, // Sin borde visible
+                cursorColor = Color.Transparent,
+                focusedLeadingIconColor = morado,
+                unfocusedLeadingIconColor = morado,
+                focusedTrailingIconColor = morado,
+                unfocusedTrailingIconColor = morado,
+                focusedTextColor = Color.Black.copy(alpha = 0.8f),
+                unfocusedTextColor = Color.Black.copy(alpha = 0.8f)
+            ),
+            shape = RoundedCornerShape(28.dp) // Esquinas redondeadas del campo
+        )
+
+        // 4. El Menú Desplegable que aparece al hacer clic
+        ExposedDropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { isExpanded = false }, // Cierra si se toca fuera
+        ) {
+            options.forEach { selectionOption ->
+                DropdownMenuItem(
+                    text = { Text(selectionOption) },
+                    onClick = {
+                        selectedText = selectionOption // 1. Actualiza el texto mostrado
+                        isExpanded = false             // 2. Cierra el menú
+                        onSelectionChange(selectionOption) // 3. Notifica al componente padre
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                )
+            }
+        }
+    }
+}
+@SuppressLint("ViewModelConstructorInComposable")
+@Composable
+@Preview
+fun FormularioPreview(){
+    RellenoDeSolicitud( appVM = AppVM() )
+}

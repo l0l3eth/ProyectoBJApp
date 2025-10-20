@@ -21,8 +21,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import mx.tec.ptoyectobj.morado
 
+/**
+ * Pantalla de registro que permite al usuario elegir si se registra como "Usuario" o como "Negocio".
+ *
+ * @param onNavigateToRegistroUsuario Lambda que se invoca cuando el usuario hace clic en la opción de registro de usuario.
+ * @param onNavogateToSolicitudNegocio Lambda que se invoca cuando el usuario hace clic en la opción de registro de negocio.
+ * @param modifier Modificador de Compose para personalizar la apariencia y el comportamiento del componente.
+ */
 @Composable
-fun Registro(onNavigateToRegistroUsuario: () -> Unit, modifier: Modifier = Modifier) {
+fun Registro(onNavigateToRegistroUsuario: () -> Unit, onNavogateToSolicitudNegocio: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -56,7 +63,7 @@ fun Registro(onNavigateToRegistroUsuario: () -> Unit, modifier: Modifier = Modif
                     Spacer(modifier = modifier.size(16.dp))
                     BotonCircular(
                         icono = Icons.Outlined.ShoppingCart,
-                        modifier = modifier,
+                        modifier = modifier.clickable{ onNavogateToSolicitudNegocio() },
                         texto = "Negocio",
                         tamano = 150
                     )
@@ -66,8 +73,12 @@ fun Registro(onNavigateToRegistroUsuario: () -> Unit, modifier: Modifier = Modif
     }
 }
 
+/**
+ * Función de previsualización para el composable [Registro].
+ * Muestra cómo se verá la pantalla de registro en el editor de Android Studio.
+ */
 @Preview(showBackground = true)
 @Composable
 fun RegistroPreview() {
-    Registro( onNavigateToRegistroUsuario = { })
+    Registro( onNavigateToRegistroUsuario = { }, onNavogateToSolicitudNegocio = { })
 }

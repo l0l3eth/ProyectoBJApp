@@ -1,5 +1,10 @@
 package mx.tec.proyectoBJ.viewmodel
 
+import android.graphics.BitmapFactory
+import androidx.compose.runtime.State // Importación clave
+import androidx.compose.runtime.mutableStateOf // Importación clave
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,6 +18,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import mx.tec.proyectoBJ.model.ServicioRemoto
+import mx.tec.proyectoBJ.model.TarjetaNegocio
 import mx.tec.proyectoBJ.model.Usuario
 
 /**
@@ -26,6 +32,8 @@ import mx.tec.proyectoBJ.model.Usuario
  *
  * Comunica el resultado de las operaciones a la UI a través de LiveData y StateFlow,
  * permitiendo una arquitectura reactiva y desacoplada.
+ * Autores: Estrella Lolbeth Téllez Rivas A01750496
+ *          Allan Mauricio Brenes Castro  A01750747
  */
 
 sealed class PantallaSplash {
@@ -35,42 +43,43 @@ sealed class PantallaSplash {
 class AppVM : ViewModel(){
     private val servicioRemoto = ServicioRemoto
 
-    /**
-     * Objeto `SharedFlow` para gestionar eventos de navegación de un solo uso,
-     * como la transición desde la pantalla de bienvenida.
-     */
+    // ... (El resto de tus propiedades como _NavegarAInicio, _usuarioLogeado, etc., se mantienen igual)
     private val _NavegarAInicio = MutableSharedFlow<PantallaSplash>()
     val NavegarAInicio: SharedFlow<PantallaSplash> = _NavegarAInicio.asSharedFlow()
 
-    /**
-     * Almacena los datos del usuario autenticado.
-     * La UI observa este `LiveData` para reaccionar a los cambios en el estado de la sesión.
-     * Es nulo si no hay ningún usuario logueado.
-     */
     private val _usuarioLogeado = MutableLiveData<Usuario?>(null)
     val usuarioLogeado: LiveData<Usuario?> = _usuarioLogeado
 
-    /**
-     * Contiene mensajes de error para ser mostrados en la UI.
-     * Se actualiza cuando una operación (como el login) falla.
-     */
     private val _errorMensaje = MutableLiveData<String?>(null)
     val errorMensaje: LiveData<String?> = _errorMensaje
 
-    /**
-     * `StateFlow` que indica si una operación de borrado está en progreso.
-     * Útil para mostrar indicadores de carga en la UI.
-     */
     private val _estaBorrando = MutableStateFlow(false)
     val estaBorrando: StateFlow<Boolean> = _estaBorrando.asStateFlow()
 
-    /**
-     * `SharedFlow` para emitir un evento de una sola vez cuando un usuario
-     * ha sido eliminado con éxito. La UI puede escuchar este evento para
-     * refrescar listas o navegar a otra pantalla.
-     */
     private val _borradoExitoso = MutableSharedFlow<Boolean>()
     val borradoExitoso: SharedFlow<Boolean> = _borradoExitoso.asSharedFlow()
+
+    private val _qrBitmap = MutableStateFlow<ImageBitmap?>(null)
+    val qrBitmap: StateFlow<ImageBitmap?> = _qrBitmap.asStateFlow()
+
+    private val _cargandoQR = MutableStateFlow(false)
+    val cargandoQR: StateFlow<Boolean> = _cargandoQR.asStateFlow()
+
+    /**
+     * Estado privado y mutable: Solo el ViewModel puede modificar esta lista.
+     * La UI observa esta lista para mostrar las tarjetas de negocio.
+     */
+    private val _listaNegocios = mutableStateOf<List<TarjetaNegocio>>(emptyList())
+    // CORRECCIÓN: Se expone como State<T> que es de solo lectura para la UI. Esto está correcto.
+    val listaNegocios: State<List<TarjetaNegocio>> = _listaNegocios
+
+    /**
+     * Estado privado y mutable para el estado de carga de los negocios.
+     */
+    private val _cargando = mutableStateOf(false)
+    // CORRECCIÓN: Se expone como State<Boolean> de solo lectura. Esto también está correcto.
+    val cargando: State<Boolean> = _cargando
+
 
     init {
         // Ejecuta la lógica de retardo y navegación al iniciar el ViewModel
@@ -80,12 +89,11 @@ class AppVM : ViewModel(){
             // Envía el evento de navegación para pasar a la siguiente pantalla
             _NavegarAInicio.emit(PantallaSplash.NavegarAInicio)
         }
+        // Llamamos a la función para cargar los negocios cuando el ViewModel se crea.
+        obtenerTarjetasNegocios()
     }
 
-    /**
-     * Llama al servicio remoto para registrar un nuevo usuario en el sistema.
-     * Los parámetros corresponden a los datos del formulario de registro.
-     */
+    // ... (Las funciones enviarUsuario, iniciarSesion, eliminarUsuario, actualizarUsuario y generarQR se mantienen igual)
     fun enviarUsuario(nombre: String,
                       apellido: String,
                       correo: String,
@@ -108,14 +116,6 @@ class AppVM : ViewModel(){
         }
     }
 
-    /**
-     * Intenta autenticar a un usuario con su correo y contraseña.
-     * Actualiza `usuarioLogeado` si la autenticación es exitosa, o
-     * `errorMensaje` en caso de fallo.
-     *
-     * @param correo El correo electrónico del usuario.
-     * @param contrasena La contraseña del usuario.
-     */
     fun iniciarSesion(correo: String, contrasena: String) {
         viewModelScope.launch {
             val resultadoUsuario = ServicioRemoto.iniciarSesion(correo, contrasena)
@@ -129,13 +129,6 @@ class AppVM : ViewModel(){
         }
     }
 
-    /**
-     * Llama al servicio remoto para eliminar un usuario por su ID.
-     * Gestiona el estado de carga (`estaBorrando`) y notifica el resultado
-     * a través de `borradoExitoso` o `errorMensaje`.
-     *
-     * @param idUsuario El ID numérico del usuario a eliminar.
-     */
     fun eliminarUsuario(idUsuario: Int) {
         viewModelScope.launch {
             // Indicar que la operación ha comenzado
@@ -155,7 +148,6 @@ class AppVM : ViewModel(){
             _estaBorrando.value = false
         }
     }
-    // En tu archivo AppVM.kt
 
     fun actualizarUsuario(idUsuario: Int, usuario: Usuario) {
         // validaciones ALGUIEN HAGA MEJOR ESTO PORFA ESTA HORRIBLE COMO LA HICE XD
@@ -200,5 +192,62 @@ class AppVM : ViewModel(){
         }
     }
 
+    fun generarQR() {
+        // Obtenemos el ID del usuario que ya inició sesión.
+        val idUsuario = _usuarioLogeado.value?.id ?: return
 
+        viewModelScope.launch {
+            // 1. Iniciar estado de carga y limpiar datos anteriores
+            _cargandoQR.value = true
+            _qrBitmap.value = null
+            _errorMensaje.value = null
+
+            try {
+                // 2. Llamar al servicio remoto
+                val response = servicioRemoto.generarQR(idUsuario)
+
+                if (response.isSuccessful && response.body() != null) {
+                    // 3. Procesar la respuesta exitosa
+                    val responseBody = response.body()!!
+                    // Convertir los bytes de la respuesta en un array
+                    val bytes = responseBody.bytes()
+                    // Decodificar el array de bytes a un Bitmap y luego a un ImageBitmap
+                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    _qrBitmap.value = bitmap?.asImageBitmap() // Actualizar el StateFlow
+
+                } else {
+                    // 4. Manejar respuesta de error del servidor
+                    _errorMensaje.value = "Error al generar el QR. Código: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                // 5. Manejar errores de red u otras excepciones
+                _errorMensaje.value = "Error de conexión: ${e.message}"
+                e.printStackTrace()
+            } finally {
+                // 6. Finalizar estado de carga
+                _cargandoQR.value = false
+            }
+        }
+    }
+
+    fun obtenerTarjetasNegocios() {
+        viewModelScope.launch {
+            // CORRECCIÓN: Para cambiar el valor, se usa la propiedad .value del MutableState.
+            _cargando.value = true
+            try {
+                // Llamamos a la función correcta de tu servicio remoto.
+                val resultado = ServicioRemoto.obtenerTarjetasNegocios()
+                // CORRECCIÓN: Asignamos el resultado a la propiedad .value del MutableState.
+                _listaNegocios.value = resultado
+
+            } catch (e: Exception) {
+                // Maneja el error. Considera usar el _errorMensaje para notificar a la UI.
+                _errorMensaje.value = "Error al obtener negocios: ${e.message}"
+                println("Error al obtener negocios: ${e.message}")
+            } finally {
+                // CORRECCIÓN: Finaliza el estado de carga usando la propiedad .value.
+                _cargando.value = false
+            }
+        }
+    }
 }
