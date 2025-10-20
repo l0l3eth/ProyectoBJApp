@@ -1,6 +1,7 @@
 package mx.tec.proyectoBJ.model
 
 import mx.tec.ptoyectobj.URL_BASE
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.HttpException
 import retrofit2.Retrofit
@@ -14,6 +15,8 @@ import java.lang.Exception
  * incluyendo el manejo de errores y la conversión de datos JSON a objetos Kotlin.
  * Todas las operaciones de red son funciones de suspensión (suspend) para ser
  * llamadas desde corutinas.
+ * Autores: Estrella Lolbeth Téllez Rivas A01750496
+ *          Allan Mauricio Brenes Castro  A01750747
  */
 object ServicioRemoto {
 
@@ -148,6 +151,18 @@ object ServicioRemoto {
         return listOf()
     }
 
+    suspend fun obtenerTarjetasNegocios(): List<TarjetaNegocio> {
+        try {
+            return servicio.obtenerTarjetasNegocios()
+        } catch (e: HttpException) {
+            println("Error HTTP, codigo: ${e.code()}")
+            println("Error HTTP, mensaje: ${e.message()}")
+        } catch (e: Exception) {
+            println("Error en la descarga de negocios: $e")
+        }
+        return listOf()
+    }
+
     /**
      * Obtiene la lista completa de productos disponibles desde la API.
      * En caso de error, la excepción será propagada a quien llame a esta función.
@@ -195,6 +210,10 @@ object ServicioRemoto {
             println("Error de conexión al intentar actualizar usuario: $e")
             false
         }
+    }
+
+    suspend fun generarQR(idUsuario: Int): retrofit2.Response<ResponseBody> {
+        return servicio.generarQR(idUsuario)
     }
 
 }

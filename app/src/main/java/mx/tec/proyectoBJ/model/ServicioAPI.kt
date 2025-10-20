@@ -1,5 +1,6 @@
 package mx.tec.proyectoBJ.model
 
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -34,6 +35,10 @@ interface ServicioAPI {
     @GET("/api/negocios")
     suspend fun obtenerNegocios(): List<Negocio>
 
+    //Lista de Tarjetas de Negocios
+    @GET("/api/negocios")
+    suspend fun obtenerTarjetasNegocios(): List<TarjetaNegocio>
+
     //Datos Usuario para el ID digital
     @GET("/api/usuarios")
     suspend fun obtenerUsuarios(): List<Usuario>
@@ -41,4 +46,10 @@ interface ServicioAPI {
     //Lista de Productos
     @GET("/api/productos")
     suspend fun obtenerProductos(): List<Producto>
+
+    //Generación de QR
+    @POST("/usuario/{id}/qr") // o @GET, dependiendo de cómo esté implementado tu backend
+    suspend fun generarQR(
+        @Path("id") idUsuario: Int
+    ): Response<ResponseBody>
 }
