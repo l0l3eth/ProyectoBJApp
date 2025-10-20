@@ -182,9 +182,6 @@ fun AppNavHost(
         composable("InicioSesion") {
             InicioSesion(
                 onNavigateToRegistro = { navController.navigate("Registro") },
-                onNavigateToPrincipal = {
-                    navController.navigate("Pruebas")
-                },
                 appVM = appVM
             )
         }
@@ -229,15 +226,13 @@ fun AppNavHost(
             )
         }
 
-    }
-}
-        composable("Promociones"){
+        composable("Promociones") {
             HomeUsuario(
                 appVM = appVM
             )
         }
 
-        composable("ID"){
+        composable("ID") {
             PantallaIDDigital(
                 appVM = appVM
             )

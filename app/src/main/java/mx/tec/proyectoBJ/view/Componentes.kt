@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import mx.tec.proyectoBJ.R
 import mx.tec.proyectoBJ.model.Producto
+import mx.tec.proyectoBJ.view.outlinedTextFieldColors
 import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.degradado
@@ -77,6 +78,8 @@ import java.util.Date
  * @param modifier Modificador para personalizar el layout y la apariencia.
  * @param etiqueta El texto que se muestra como placeholder o etiqueta flotante.
  * @param onValueChange Callback que se invoca cuando el valor del texto cambia.
+ * Autores: Estrella Lolbeth Téllez Rivas A01750496
+ *          Allan Mauricio Brenes Castro  A01750747
  */
 @Composable
 fun CampoDeTexto(value: String,
@@ -88,16 +91,22 @@ fun CampoDeTexto(value: String,
         value = value,
         onValueChange = onValueChange,
         label = { Text(etiqueta) },
-        modifier = modifier
-            .border(
-                shape = RoundedCornerShape(32.dp),
-                border = BorderStroke(1.dp, Color.Black)
-            )
-            .background(color = blanco,
-                shape = RoundedCornerShape(32.dp)),
-        shape = RoundedCornerShape(32.dp)
+        shape = RoundedCornerShape(28.dp),
+        colors = outlinedTextFieldColors(),
+        modifier = modifier.fillMaxWidth()
     )
 }
+
+@Composable
+private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedContainerColor = blanco.copy(alpha = 0.9f),
+    unfocusedContainerColor = blanco.copy(alpha = 0.9f),
+    focusedBorderColor = Color.Transparent,
+    unfocusedBorderColor = Color.Transparent,
+    focusedLabelColor = blanco,
+    unfocusedLabelColor = morado.copy(alpha = 0.7f),
+    cursorColor = morado
+)
 
 /**
  * Un diálogo modal que muestra un selector de fechas (`DatePicker`).

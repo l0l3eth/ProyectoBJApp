@@ -49,7 +49,6 @@ import mx.tec.ptoyectobj.morado
 
 @Composable
 fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
-                  onNavigateToPrincipal: () -> Unit /*TODO: borrar cuando acabe de probar*/,
                   appVM: AppVM
 ) {
     // Estados para los campos de texto
@@ -202,7 +201,7 @@ private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
     unfocusedContainerColor = blanco.copy(alpha = 0.9f),
     focusedBorderColor = Color.Transparent,
     unfocusedBorderColor = Color.Transparent,
-    focusedLabelColor = morado,
+    focusedLabelColor = blanco,
     unfocusedLabelColor = morado.copy(alpha = 0.7f),
     focusedLeadingIconColor = morado,
     unfocusedLeadingIconColor = morado.copy(alpha = 0.7f),
@@ -213,5 +212,5 @@ private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    InicioSesion( onNavigateToRegistro = { }, onNavigateToPrincipal = { }, appVM = AppVM())
+    InicioSesion( onNavigateToRegistro = { }, appVM = AppVM())
 }
