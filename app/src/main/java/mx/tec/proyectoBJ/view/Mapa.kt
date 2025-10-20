@@ -43,6 +43,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.fondoGris
 import mx.tec.ptoyectobj.rosa
 
@@ -73,18 +74,14 @@ val NegociosUbicacion = listOf(
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun MapaScreen(
-    //appVM: AppVM,
+fun Mapa(
+    appVM: AppVM,
     modifier: Modifier = Modifier
 ) {
 
     var searchText by remember { mutableStateOf("") }
 
     Scaffold(
-        bottomBar = { BarraNavegacion( onNavigateToInicio = {},
-                                        onNavigateToMapa = {},
-                                        onNavigateToPromociones = {},
-                                        onNavigateToID = {}) },
         modifier = modifier.fillMaxSize()
     ) { paddingValues ->
 
@@ -98,7 +95,9 @@ fun MapaScreen(
             item {
                 ParteSuperior(
                     userName = "Usuario",
-                    modifier = Modifier.padding(bottom = 0.dp)
+                    modifier = Modifier.padding(bottom = 0.dp),
+                    onClick = {}
+
                 )
             }
 
@@ -233,8 +232,9 @@ fun BusinessLocationItem(location: NegocioUbicacion) {
 }
 
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun MapaScreenPreview() {
-    MapaScreen()
+    Mapa( appVM = AppVM() )
 }

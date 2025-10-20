@@ -49,6 +49,7 @@ import mx.tec.ptoyectobj.morado
 
 @Composable
 fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
+                  onNavigateToPrincipal: () -> Unit /*TODO: borrar cuando acabe de probar*/,
                   appVM: AppVM
 ) {
     // Estados para los campos de texto
@@ -148,7 +149,7 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp, bottom = 16.dp)
-                    .clickable {/*Logica de contraseña*/  } //Navegación a PuntoPartida
+                    .clickable {/* TODO Logica de contraseña*/  } //Navegación a PuntoPartida
                     .wrapContentWidth(Alignment.End)// Alinear a la derecha
             )
 
@@ -167,13 +168,13 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
 
             // Botón "Iniciar sesión" (con degradado)
             Button(
-                onClick = { appVM.iniciarSesion(email, password) },
+                onClick = {appVM.iniciarSesion(email, password) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
                     .background(degradado, RoundedCornerShape(28.dp)),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                contentPadding = PaddingValues(), // El degradado cubre todo
+                contentPadding = PaddingValues(),
                 shape = RoundedCornerShape(28.dp)
             ) {
                 Box(
@@ -212,5 +213,5 @@ private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    InicioSesion( onNavigateToRegistro = { }, appVM = AppVM())
+    InicioSesion( onNavigateToRegistro = { }, onNavigateToPrincipal = { }, appVM = AppVM())
 }

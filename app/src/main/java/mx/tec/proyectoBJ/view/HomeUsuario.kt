@@ -1,5 +1,7 @@
 package mx.tec.proyectoBJ.view
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -18,7 +20,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
@@ -28,7 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,99 +41,101 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import coil3.compose.rememberAsyncImagePainter
+import mx.tec.proyectoBJ.model.TarjetaNegocio
 import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.fondoGris
 import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.rosa
 
-// --- Modelos de datos para el ejemplo ---
-data class PromotionDetail(
-    val id: String,
-    val category: String,
-    val businessName: String,
-    val description: String,
-    val discountsAvailable: String
-)
-
-val sampleDetailedPromotions = listOf(
-    PromotionDetail("1", "Comida", "WAFFLES Y FRESAS \"BESC\"", "Postres y café", "2 descuentos disponibles"),
-    PromotionDetail("2", "Salud", "JÖTUNHEIM", "Academia de artes marciales", "2 descuentos disponibles"),
-    PromotionDetail("3", "Comida", "BURGER DEALER", "Restaurante", "1 descuento disponible"),
-    PromotionDetail("4", "Belleza", "WILD BARBER SCHOOL", "Escuela de barbería", "2 descuentos disponibles"),
-    PromotionDetail("5", "Entretenimiento", "CINE MUNDO", "Boletos 2x1", "3 descuentos disponibles"),
-)
-
-val categories = listOf("Todo", "Comida", "Salud", "Belleza", "Entretenimiento")
+// Las categorías se mantienen, ya que son parte de la UI
+val categorias = listOf("Todo", "Comida", "Salud", "Belleza", "Entretenimiento")
 
 @Composable
-fun PromocionesScreen(
-    //appVM: AppVM
-
+fun HomeUsuario(
+    appVM: AppVM
 ) {
-    // 1. Estados de la pantalla
+    // 1. Estados de la UI
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    var searchText by remember { mutableStateOf("") }
+    //var searchText by remember { mutableStateOf("") } // Aún no lo usamos, pero es útil tenerlo
 
-    // 2. Lógica de Filtrado Local (simulación)
-    val selectedCategory = categories[selectedTabIndex]
+    // PASO 2: CONECTAR CON EL VIEWMODEL
+    // Obtenemos el estado de carga y la lista de negocios directamente del AppVM.
+    // 'by' se encarga de observar los cambios y redibujar el Composable automáticamente.
+    val estaCargando by appVM.cargando
+    val negociosDesdeAPI by appVM.listaNegocios
 
-    val filteredByTab = sampleDetailedPromotions.filter {
-        selectedCategory == "Todo" || it.category == selectedCategory
+    // 2. Lógica de Filtrado (ahora con datos reales)
+    val selectedCategory = categorias[selectedTabIndex]
+
+    // Filtra la lista obtenida de la API según la pestaña seleccionada
+    val filteredByTab = if (selectedCategory == "Todo") {
+        negociosDesdeAPI //mostraremos todos
+    } else {
+        negociosDesdeAPI.filter { negocio ->
+            // Compara la categoría del negocio con la seleccionada (ignorando mayúsculas/minúsculas)
+            negocio.categoria.equals(selectedCategory, ignoreCase = true)
+        }
     }
 
-    val finalFilteredList = filteredByTab.filter {
-        it.businessName.contains(searchText, ignoreCase = true) ||
-                it.description.contains(searchText, ignoreCase = true)
-    }
+    // (Opcional) Filtro por texto de búsqueda. Por ahora, solo usamos el filtro de pestañas.
+    val finalFilteredList = filteredByTab // Si agregas un buscador, aquí se anidaría el filtro.
 
     Scaffold(
-        bottomBar = { BarraNavegacion( onNavigateToInicio = {},
-                                        onNavigateToMapa = {},
-                                        onNavigateToPromociones = {},
-                                        onNavigateToID = {}) },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(fondoGris)
-                .padding(paddingValues),
-            contentPadding = PaddingValues(top = 0.dp, bottom = 16.dp)
-        ) {
-            item {
-                // --- Parte Superior (Reutilizada) ---
-                Column {
-                    ParteSuperior(
-                        userName = "Usuario",
-                        modifier = Modifier.padding(bottom = 0.dp)
-                    )
-
-                    // --- Pestañas de Categorías ---
-                    CategoryTabs(
-                        categories = categories,
-                        selectedTabIndex = selectedTabIndex,
-                        onTabSelected = { selectedTabIndex = it }
-                    )
-                }
+        // PASO 3: GESTIONAR EL ESTADO DE CARGA
+        // Si 'estaCargando' es true, mostramos un indicador de progreso centrado.
+        if (estaCargando) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(fondoGris),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = morado) // Loader
             }
+        } else {
+            // Si no está cargando, mostramos el contenido principal.
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(fondoGris)
+                    .padding(paddingValues),
+                contentPadding = PaddingValues(top = 0.dp, bottom = 16.dp)
+            ) {
+                item {
+                    Column {
+                        ParteSuperior(
+                            userName = "Usuario",
+                            modifier = Modifier.padding(bottom = 0.dp),
+                            onClick = {}
+                        )
+                        TabCategorias(
+                            categories = categorias,
+                            selectedTabIndex = selectedTabIndex,
+                            onTabSelected = { selectedTabIndex = it }
+                        )
+                    }
+                }
 
-            // --- Lista de Promociones Filtradas ---
-            items(finalFilteredList) { promo ->
-                PromotionDetailCard(promo = promo)
-                Spacer(modifier = Modifier.height(16.dp))
+                // --- Lista de Negocios desde la API ---
+                items(finalFilteredList) { negocio ->
+                    // PASO 3 (Continuación): Usamos la nueva tarjeta adaptada.
+                    TarjetaNegocioCard(negocio = negocio)
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
     }
 }
 
-// ---------------------------------------------------------------------
-// 1. PESTAÑAS DE CATEGORÍA
-// ---------------------------------------------------------------------
+// ... (el resto de tu archivo HomeUsuario.kt se mantiene igual)
+
 
 @Composable
-fun CategoryTabs(
+fun TabCategorias(
     categories: List<String>,
     selectedTabIndex: Int,
     onTabSelected: (Int) -> Unit
@@ -143,12 +147,12 @@ fun CategoryTabs(
         containerColor = White,
         indicator = { tabPositions ->
             // Indicador de la pestaña seleccionada (la línea morada)
-            TabRowDefaults.Indicator(
+            TabRowDefaults.SecondaryIndicator(
                 modifier = Modifier
                     .tabIndicatorOffset(tabPositions[selectedTabIndex])
                     .padding(horizontal = 12.dp), // Ajuste horizontal de la línea
-                color = morado,
-                height = 3.dp
+                height = 3.dp,
+                color = morado
             )
         }
     ) {
@@ -171,20 +175,20 @@ fun CategoryTabs(
         }
     }
     // Línea divisoria debajo de las pestañas
-    Divider(color = Color.LightGray.copy(alpha = 0.5f), thickness = 1.dp)
+    HorizontalDivider(thickness = 1.dp, color = Color.LightGray.copy(alpha = 0.5f))
 }
 
 // ---------------------------------------------------------------------
-// 2. TARJETA DE NEGOCIO
+// 2. TARJETA DE NEGOCIO (ADAPTADA PARA TarjetaNegocio)
 // ---------------------------------------------------------------------
 
 @Composable
-fun PromotionDetailCard(promo: PromotionDetail) {
+fun TarjetaNegocioCard(negocio: TarjetaNegocio) { // Renombrada y adaptada
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .height(110.dp), // Altura aproximada
+            .height(110.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -192,39 +196,44 @@ fun PromotionDetailCard(promo: PromotionDetail) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable { /* TODO: Navegar a detalles de la promoción */ },
+                .clickable { /* TODO: Navegar a detalles con el id del negocio */ },
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Placeholder de la Imagen (cuadrado gris)
-            Box(
+            // Imagen desde la URL usando Coil
+            Image(
+                // Ojo: Asegúrate de que `negocio.imagen` sea una URL válida
+                painter = rememberAsyncImagePainter(model = negocio.imagen),
+                contentDescription = "Imagen de ${negocio.nombre}",
                 modifier = Modifier
-                    .size(80.dp) // Tamaño de la imagen
                     .padding(start = 12.dp)
-                    .background(Color.LightGray.copy(alpha = 0.8f), RoundedCornerShape(8.dp))
+                    .size(80.dp)
+                    .background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+
             )
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Textos de la promoción
+            // Textos usando los campos del modelo TarjetaNegocio
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 12.dp)
             ) {
                 Text(
-                    text = promo.businessName.uppercase(),
+                    text = negocio.nombre.uppercase(), // Usamos 'nombre'
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
                 Text(
-                    text = promo.description,
+                    // Podemos usar la categoría como subtítulo
+                    text = negocio.categoria, // Usamos 'categoria'
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = promo.discountsAvailable,
+                    text = "Ver descuentos",
                     fontSize = 12.sp,
                     color = rosa,
                     fontWeight = FontWeight.SemiBold
@@ -234,12 +243,10 @@ fun PromotionDetailCard(promo: PromotionDetail) {
     }
 }
 
-// ---------------------------------------------------------------------
-// PREVIEW
-// ---------------------------------------------------------------------
-
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
-fun PromocionesScreenPreview() {
-    PromocionesScreen()
+fun HomeUsuarioPreview() {
+    HomeUsuario(appVM = AppVM())
 }
+
