@@ -29,6 +29,7 @@ import androidx.navigation.NavController
 import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.proyectoBJ.viewmodel.PantallaSplash
 import mx.tec.proyectoBJ.R
+import mx.tec.ptoyectobj.morado
 
 @Composable
 fun Entrada(navController: NavController, appVM: AppVM)
@@ -47,8 +48,6 @@ fun Entrada(navController: NavController, appVM: AppVM)
             }
         }
     }
-
-    val morado = Color(0xFF38156E) // Color de fondo morado
 
     // Un Box para centrar el contenido en la pantalla
     Box(

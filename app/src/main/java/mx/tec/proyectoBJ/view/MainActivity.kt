@@ -182,9 +182,6 @@ fun AppNavHost(
         composable("InicioSesion") {
             InicioSesion(
                 onNavigateToRegistro = { navController.navigate("Registro") },
-                onNavigateToPrincipal = {
-                    navController.navigate("Pruebas")
-                },
                 appVM = appVM
             )
         }
@@ -193,6 +190,7 @@ fun AppNavHost(
         composable("Registro") {
             Registro(
                 onNavigateToRegistroUsuario = { navController.navigate("registro_usuario") },
+                onNavogateToSolicitudNegocio = { navController.navigate("SolicitudNegocio") },
             )
         }
 
@@ -205,6 +203,13 @@ fun AppNavHost(
                         popUpTo("Inicio") { inclusive = true }
                     }
                 }
+            )
+        }
+
+        //Define la pantalla de solicitud de negocio
+        composable("SolicitudNegocio") {
+            RellenoDeSolicitud(
+                appVM = appVM,
             )
         }
 
@@ -229,15 +234,13 @@ fun AppNavHost(
             )
         }
 
-    }
-}
-        composable("Promociones"){
+        composable("Promociones") {
             HomeUsuario(
                 appVM = appVM
             )
         }
 
-        composable("ID"){
+        composable("ID") {
             PantallaIDDigital(
                 appVM = appVM
             )
