@@ -49,7 +49,7 @@ import mx.tec.ptoyectobj.morado
 
 @Composable
 fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
-                  onNavigateToPrincipal: () -> Unit /*Logica de navegación*/,
+                  onNavigateToPrincipal: () -> Unit /*TODO: borrar cuando acabe de probar*/,
                   appVM: AppVM
 ) {
     // Estados para los campos de texto

@@ -229,12 +229,8 @@ fun AppNavHost(
             )
         }
 
-        composable("Mapa") {
-            Mapa(
-                appVM = appVM,
-            )
-        }
-
+    }
+}
         composable("Promociones"){
             HomeUsuario(
                 appVM = appVM
