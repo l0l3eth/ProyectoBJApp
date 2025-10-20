@@ -5,6 +5,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -13,11 +14,11 @@ interface ServicioAPI {
     //Iniciar Sesión
     @POST("/api/auth/login")
     suspend fun iniciarSesion(
-        @Body credenciales: Map<String, String>
+        @Body credenciales: LoginRequest
     ): Response<Usuario>
 
     //Registrar Usuario
-    @Headers ("Content-Type: application/json")
+    @Headers("Content-Type: application/json")
     @POST("/api/auth/registrar")
     suspend fun registrarUsuario(@Body usuario: Usuario): Response<Unit> // Es buena práctica esperar una respuesta
 

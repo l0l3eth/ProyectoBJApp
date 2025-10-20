@@ -1,13 +1,13 @@
 package mx.tec.proyectoBJ.model
 
 import mx.tec.ptoyectobj.URL_BASE
-import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.Exception
 import android.util.Log
+import com.google.maps.android.ktx.BuildConfig
+
 
 /**
  * Objeto singleton para gestionar las comunicaciones con el servidor remoto (API).
@@ -39,6 +39,10 @@ object ServicioRemoto {
      * Incluye el interceptor de logging para poder visualizar las trazas de red
      * en el Logcat de Android Studio.
      */
+
+    private val certificatePinner=okhttp3.CertificatePinner.Builder()
+        .build()
+
     private val cliente = okhttp3.OkHttpClient.Builder()
         .addInterceptor(logging)
         .certificatePinner(certificatePinner)
@@ -75,7 +79,7 @@ object ServicioRemoto {
      * Maneja excepciones de red y HTTP, imprimiendo los detalles del error en la consola.
      * @param usuario El objeto `Usuario` con los datos a registrar.
      */
-    suspend fun registrarUsuario(usuario: Usuario) {
+    suspend fun registrarUsuario(usuario: Usuario):Boolean {
        return try {
             val response= servicio.registrarUsuario(usuario)
             println("Registro de usuario exitoso")
@@ -102,28 +106,27 @@ object ServicioRemoto {
                 val authResponse=response.body()
                 if(authResponse!=null){
                     println("Inicio de sesión exitoso, token: ${authResponse.token}")
-                    return authResponse.token
+                    authResponse.token
                 } else{
                     println("Respuesta exitosa, cuerpo vacío")
-                    return null
+                    null
                 }
             }else{
                 val errBody=response.errorBody()?.string()
                 println("Error de inicio de sesión: ${response.code()}. Mensaje del server: $errBody")
-                return null
+                null
             }
         } catch(e: Exception) {
             println("Error en la descarga: $e")
-            return null
+            null
         }
-        return listOf()
     }
 
     suspend fun obtenerTarjetasNegocios(): List<TarjetaNegocio> {
         try {
             val response=servicio.obtenerNegocios()
             if (response.isSuccessful){
-                return response.body() ?: listOf()
+                return (response.body() ?: listOf()) as List<TarjetaNegocio>
             } else{
                 println("Error al obtener negocios, codigo: ${response.code()}")
             }
