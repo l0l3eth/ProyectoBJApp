@@ -189,10 +189,6 @@ fun AppNavHost(
             )
         }
 
-        composable("Pruebas"){
-            HomeUsuario( appVM = appVM) //TODO Borrar cuando acabe de probar todo
-        }
-
         // Define la pantalla "Registro"
         composable("Registro") {
             Registro(

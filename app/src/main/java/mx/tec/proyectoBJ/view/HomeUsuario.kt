@@ -23,19 +23,20 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SecondaryScrollableTabRow
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,7 +57,7 @@ fun HomeUsuario(
 ) {
     // 1. Estados de la UI
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    var searchText by remember { mutableStateOf("") } // Aún no lo usamos, pero es útil tenerlo
+    //var searchText by remember { mutableStateOf("") } // Aún no lo usamos, pero es útil tenerlo
 
     // PASO 2: CONECTAR CON EL VIEWMODEL
     // Obtenemos el estado de carga y la lista de negocios directamente del AppVM.
@@ -69,7 +70,7 @@ fun HomeUsuario(
 
     // Filtra la lista obtenida de la API según la pestaña seleccionada
     val filteredByTab = if (selectedCategory == "Todo") {
-        negociosDesdeAPI // Si es "Todo", muestra todos los negocios
+        negociosDesdeAPI //mostraremos todos
     } else {
         negociosDesdeAPI.filter { negocio ->
             // Compara la categoría del negocio con la seleccionada (ignorando mayúsculas/minúsculas)
@@ -132,54 +133,49 @@ fun HomeUsuario(
 
 // ... (el resto de tu archivo HomeUsuario.kt se mantiene igual)
 
+
 @Composable
 fun TabCategorias(
     categories: List<String>,
     selectedTabIndex: Int,
     onTabSelected: (Int) -> Unit
 ) {
-    Column {
-        SecondaryScrollableTabRow(
-            selectedTabIndex = selectedTabIndex,
-            modifier = Modifier,
-            containerColor = Color.White,
-            edgePadding = 16.dp,
-            indicator = {
-                // CORRECCIÓN FINAL:
-                // Accedemos a la lista de posiciones a través de la propiedad 'tabPositions'
-                // que SÍ existe en el scope del 'indicator'.
-                if (selectedTabIndex < tabPositions.size) { // <-- Usamos tabPositions.size
-                    TabRowDefaults.SecondaryIndicator(
-                        modifier = Modifier
-                            // Y aquí también para obtener la posición por índice.
-                            .tabIndicatorOffset(tabPositions[selectedTabIndex]) // <-- Usamos tabPositions[index]
-                            .padding(horizontal = 12.dp),
-                        height = 3.dp,
-                        color = morado
+    // Contenedor para la TabRow que permite el desplazamiento horizontal (si hay muchas tabs)
+    ScrollableTabRow(
+        selectedTabIndex = selectedTabIndex,
+        edgePadding = 16.dp, // Espacio antes de la primera y después de la última pestaña
+        containerColor = White,
+        indicator = { tabPositions ->
+            // Indicador de la pestaña seleccionada (la línea morada)
+            TabRowDefaults.SecondaryIndicator(
+                modifier = Modifier
+                    .tabIndicatorOffset(tabPositions[selectedTabIndex])
+                    .padding(horizontal = 12.dp), // Ajuste horizontal de la línea
+                height = 3.dp,
+                color = morado
+            )
+        }
+    ) {
+        categories.forEachIndexed { index, title ->
+            val isSelected = index == selectedTabIndex
+            Tab(
+                selected = isSelected,
+                onClick = { onTabSelected(index) },
+                modifier = Modifier
+                    .height(48.dp),
+                text = {
+                    Text(
+                        text = title,
+                        fontSize = 14.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        color = if (isSelected) morado else Color.Gray
                     )
                 }
-            }
-        ) { // El contenido de las tabs va en este bloque lambda
-            categories.forEachIndexed { index, title ->
-                val isSelected = index == selectedTabIndex
-                Tab(
-                    selected = isSelected,
-                    onClick = { onTabSelected(index) },
-                    modifier = Modifier.height(48.dp),
-                    text = {
-                        Text(
-                            text = title,
-                            fontSize = 14.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isSelected) morado else Color.Gray
-                        )
-                    }
-                )
-            }
+            )
         }
-
-        HorizontalDivider(thickness = 1.dp, color = Color.LightGray.copy(alpha = 0.5f))
     }
+    // Línea divisoria debajo de las pestañas
+    HorizontalDivider(thickness = 1.dp, color = Color.LightGray.copy(alpha = 0.5f))
 }
 
 // ---------------------------------------------------------------------
@@ -194,7 +190,7 @@ fun TarjetaNegocioCard(negocio: TarjetaNegocio) { // Renombrada y adaptada
             .padding(horizontal = 16.dp)
             .height(110.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -251,8 +247,6 @@ fun TarjetaNegocioCard(negocio: TarjetaNegocio) { // Renombrada y adaptada
 @Preview(showBackground = true)
 @Composable
 fun HomeUsuarioPreview() {
-    // Para la preview, seguimos necesitando un AppVM.
-    // El preview mostrará la pantalla en su estado inicial (probablemente cargando o vacía).
     HomeUsuario(appVM = AppVM())
 }
 

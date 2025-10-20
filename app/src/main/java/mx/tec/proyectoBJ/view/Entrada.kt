@@ -50,7 +50,7 @@ fun Entrada(navController: NavController, appVM: AppVM)
 
     val morado = Color(0xFF38156E) // Color de fondo morado
 
-    // Un Box para centrar todo el contenido en la pantalla
+    // Un Box para centrar el contenido en la pantalla
     Box(
         modifier = Modifier
             .fillMaxSize()

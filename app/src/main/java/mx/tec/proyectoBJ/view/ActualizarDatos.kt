@@ -240,7 +240,7 @@ fun UserSettingItem(option: UserOption) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = option.action) // Todo el ítem es clickeable.
+            .clickable(onClick = option.action) // Indica que el ítem es clickeable.
             .padding(horizontal = 32.dp)
     ) {
         Row(
