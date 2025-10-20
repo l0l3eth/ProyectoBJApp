@@ -13,15 +13,17 @@ interface ServicioAPI {
     ): Response <AuthResponse>
 
     //Registrar Usuario
+    @Headers ("Content-Type: application/json")
     @POST("/api/auth/registrar")
-    suspend fun registrarUsuario(@Body usuario: Usuario);
+    suspend fun registrarUsuario(@Body usuario: Usuario): Response<Void>
+
 
     //Lista de Negocios
     @GET("/api/negocios")
-    suspend fun obtenerNegocios(): List<Negocio>
+    suspend fun obtenerNegocios(): Response<List<Negocio>>
 
     //Datos Usuario para el ID digital
     @GET("/api/usuarios")
-    suspend fun obtenerUsuarios(): List<Usuario>
+    suspend fun obtenerUsuarios(): Response<List<Usuario>>
 
 }

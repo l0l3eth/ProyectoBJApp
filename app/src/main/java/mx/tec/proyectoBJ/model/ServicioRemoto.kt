@@ -6,15 +6,20 @@ import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.Exception
+import android.util.Log
 
 object ServicioRemoto {
     // Para obtener el mensaje completo HTTP del servidor
     private val logging = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+        level = if (BuildConfig.DEBUG) {
+            HttpLoggingInterceptor.Level.BODY }
+        else{
+            HttpLoggingInterceptor.Level.NONE
+        }
     }
     private val certificatePinner = CertificatePinner.Builder()
-        .add("*.example.com", "sha256/ZC3lTYTDBJQVf1P2V7+)
+        .add(".example.com", "sha256/ZC3lTYTDBJQVf1P2V7+uEqXx4P/vU3Dc8GTxTQ==")
+        //cambiar "exaample.com por el dominio de la página y el hash real del certificado"
         .build()
 
 
@@ -46,9 +51,9 @@ object ServicioRemoto {
                 Log.e("Registro",
                     "Error al registrar usuario, código: ${response.errorBody()?.string()}")
                 false
-            }")
+                }
             }
-              catch (e: Exception) {
+       catch (e: Exception) {
                   Log.e("Registro", "Error en la conexión: ${e.message}")
                   false
        }
@@ -95,15 +100,14 @@ object ServicioRemoto {
 
     suspend fun obtenerUsuariID(): List<Usuario> {
         try{
-            val usuarios=servicio.obtenerUsuarios()
-            return usuarios
+            val response=servicio.obtenerUsuarios()
             if(response.isSuccessful){
                 return response.body() ?: listOf()
             }else{
-                println("Error al obtener usuarios, codigo: ${response.code()}")
+                Log.e("Error al obtener usuarios", "Código: ${response.code()}")
             }
         }catch(e: Exception){
-            println("Fallo de conexión al obtener usuarios: $e")
+            Log.e("Error en la conexión", "Mensaje: $e")
         }
         return listOf()
     }
