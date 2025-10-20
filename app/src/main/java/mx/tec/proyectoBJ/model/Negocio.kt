@@ -6,6 +6,4 @@ data class Negocio(
     val ubicacion: String,
     val correo: String,
     val contrasena: String = "",
-    val descripcion: String,
-    val horarios: List<Horarios>
 )
