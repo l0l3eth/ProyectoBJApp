@@ -190,6 +190,7 @@ fun AppNavHost(
         composable("Registro") {
             Registro(
                 onNavigateToRegistroUsuario = { navController.navigate("registro_usuario") },
+                onNavogateToSolicitudNegocio = { navController.navigate("SolicitudNegocio") },
             )
         }
 
@@ -202,6 +203,13 @@ fun AppNavHost(
                         popUpTo("Inicio") { inclusive = true }
                     }
                 }
+            )
+        }
+
+        //Define la pantalla de solicitud de negocio
+        composable("SolicitudNegocio") {
+            RellenoDeSolicitud(
+                appVM = appVM,
             )
         }
 

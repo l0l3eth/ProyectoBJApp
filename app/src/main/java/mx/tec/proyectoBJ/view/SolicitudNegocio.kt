@@ -1,5 +1,6 @@
 package mx.tec.proyectoBJ.view
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import mx.tec.proyectoBJ.model.EstadoDeRegistro
 import mx.tec.proyectoBJ.viewmodel.AppVM
@@ -111,7 +112,7 @@ fun RellenoDeSolicitud(appVM: AppVM, modifier: Modifier = Modifier){
                     // Optionally, you could show a button to go back
                 }
             }
-            Botones(pantallaActual = pantallaActual,
+            BotonesNegocio(pantallaActual = pantallaActual,
                 totalPantallas = totalPantallas,
                 onPantallaCambia = { cambiarPantalla(it) })
         }
@@ -354,4 +355,10 @@ fun TipoEstablecimientoDropdown(
             }
         }
     }
+}
+@SuppressLint("ViewModelConstructorInComposable")
+@Composable
+@Preview
+fun FormularioPreview(){
+    RellenoDeSolicitud( appVM = AppVM() )
 }

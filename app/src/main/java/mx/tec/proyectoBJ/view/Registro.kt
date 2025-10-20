@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import mx.tec.ptoyectobj.morado
 
 @Composable
-fun Registro(onNavigateToRegistroUsuario: () -> Unit, modifier: Modifier = Modifier) {
+fun Registro(onNavigateToRegistroUsuario: () -> Unit, onNavogateToSolicitudNegocio: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -56,7 +56,7 @@ fun Registro(onNavigateToRegistroUsuario: () -> Unit, modifier: Modifier = Modif
                     Spacer(modifier = modifier.size(16.dp))
                     BotonCircular(
                         icono = Icons.Outlined.ShoppingCart,
-                        modifier = modifier,
+                        modifier = modifier.clickable{ onNavogateToSolicitudNegocio() },
                         texto = "Negocio",
                         tamano = 150
                     )
@@ -69,5 +69,5 @@ fun Registro(onNavigateToRegistroUsuario: () -> Unit, modifier: Modifier = Modif
 @Preview(showBackground = true)
 @Composable
 fun RegistroPreview() {
-    Registro( onNavigateToRegistroUsuario = { })
+    Registro( onNavigateToRegistroUsuario = { }, onNavogateToSolicitudNegocio = { })
 }

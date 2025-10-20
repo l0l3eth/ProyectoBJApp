@@ -8,6 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.Exception
 import android.util.Log
+import com.google.maps.android.ktx.BuildConfig
 
 /**
  * Objeto singleton para gestionar las comunicaciones con el servidor remoto (API).
@@ -75,7 +76,7 @@ object ServicioRemoto {
      * Maneja excepciones de red y HTTP, imprimiendo los detalles del error en la consola.
      * @param usuario El objeto `Usuario` con los datos a registrar.
      */
-    suspend fun registrarUsuario(usuario: Usuario) {
+    suspend fun registrarUsuario(usuario: Usuario): Boolean {
        return try {
             val response= servicio.registrarUsuario(usuario)
             println("Registro de usuario exitoso")
