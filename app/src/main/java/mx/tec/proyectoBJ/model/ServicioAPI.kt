@@ -35,6 +35,10 @@ interface ServicioAPI {
     @GET("/api/negocios")
     suspend fun obtenerNegocios(): List<Negocio>
 
+    //Lista de Tarjetas de Negocios
+    @GET("/api/negocios")
+    suspend fun obtenerTarjetasNegocios(): List<TarjetaNegocio>
+
     //Datos Usuario para el ID digital
     @GET("/api/usuarios")
     suspend fun obtenerUsuarios(): List<Usuario>

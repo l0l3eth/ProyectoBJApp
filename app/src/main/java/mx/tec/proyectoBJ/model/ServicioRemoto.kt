@@ -15,6 +15,8 @@ import java.lang.Exception
  * incluyendo el manejo de errores y la conversión de datos JSON a objetos Kotlin.
  * Todas las operaciones de red son funciones de suspensión (suspend) para ser
  * llamadas desde corutinas.
+ * Autores: Estrella Lolbeth Téllez Rivas A01750496
+ *          Allan Mauricio Brenes Castro  A01750747
  */
 object ServicioRemoto {
 
@@ -140,6 +142,18 @@ object ServicioRemoto {
     suspend fun obtenerNegocios(): List<Negocio> {
         try {
             return servicio.obtenerNegocios()
+        } catch (e: HttpException) {
+            println("Error HTTP, codigo: ${e.code()}")
+            println("Error HTTP, mensaje: ${e.message()}")
+        } catch (e: Exception) {
+            println("Error en la descarga de negocios: $e")
+        }
+        return listOf()
+    }
+
+    suspend fun obtenerTarjetasNegocios(): List<TarjetaNegocio> {
+        try {
+            return servicio.obtenerTarjetasNegocios()
         } catch (e: HttpException) {
             println("Error HTTP, codigo: ${e.code()}")
             println("Error HTTP, mensaje: ${e.message()}")

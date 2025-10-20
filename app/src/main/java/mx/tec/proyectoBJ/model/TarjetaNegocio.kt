@@ -4,5 +4,5 @@ data class TarjetaNegocio(
     val imagen: String,
     val nombre: String,
     val categoria: String,
-    val descuentosDisponibles: Int
+    //val descuentosDisponibles: Int
 )

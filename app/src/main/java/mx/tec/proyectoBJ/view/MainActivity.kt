@@ -8,7 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -33,6 +32,8 @@ import mx.tec.proyectoBJ.viewmodel.AppVM
  * `MainActivity` es la actividad principal y el punto de entrada de la aplicación.
  * Se encarga de configurar la ventana, inicializar el ViewModel principal y establecer
  * el contenido de la UI con Jetpack Compose.
+ * Autores: Estrella Lolbeth Téllez Rivas A01750496
+ *          Allan Mauricio Brenes Castro  A01750747
  */
 class MainActivity : ComponentActivity() {
     // Inicializa el ViewModel principal que será compartido a través de la app.
@@ -153,13 +154,11 @@ fun AppNavHost(
     appVM: AppVM,
     modifier: Modifier,
     onMenuClick: () -> Unit,
-//    onBack: () -> Unit,
-//    onLogoutSuccess: () -> Unit = {}
 ) {
     // NavHost define el grafo de navegación.
     NavHost(
         navController = navController,
-        startDestination = "Entrada", // La pantalla inicial de la app.
+        startDestination = "Entrada", // La pantalla con la que arranca la app.
         modifier = modifier.fillMaxSize()
     ) {
         // Define la pantalla "Entrada"
@@ -191,7 +190,7 @@ fun AppNavHost(
         }
 
         composable("Pruebas"){
-            Promociones( appVM = appVM) //TODO Borrar cuando acabe de probar todo
+            HomeUsuario( appVM = appVM) //TODO Borrar cuando acabe de probar todo
         }
 
         // Define la pantalla "Registro"
@@ -241,7 +240,7 @@ fun AppNavHost(
         }
 
         composable("Promociones"){
-            Promociones(
+            HomeUsuario(
                 appVM = appVM
             )
         }

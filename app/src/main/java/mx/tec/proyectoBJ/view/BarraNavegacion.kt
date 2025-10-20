@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,17 +16,13 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-// BORRAR: import androidx.compose.runtime.mutableStateOf
-// BORRAR: import androidx.compose.runtime.remember
-// BORRAR: import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-// AÑADIR ESTOS IMPORTS
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import mx.tec.ptoyectobj.morado
@@ -108,7 +103,7 @@ fun BarraNavegacion(navController: NavHostController) {
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     )
                 },
-                label = {  },
+                label = { Text(text = item.label) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = morado,
                     selectedTextColor = morado,
@@ -119,4 +114,10 @@ fun BarraNavegacion(navController: NavHostController) {
             )
         }
     }
+}
+
+@Composable
+@Preview
+fun BarraNavegacionPreview(){
+    BarraNavegacion(NavHostController(LocalContext.current))
 }
