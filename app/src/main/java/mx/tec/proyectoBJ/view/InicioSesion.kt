@@ -1,7 +1,6 @@
 package mx.tec.proyectoBJ.view
 
-import android.R.attr.visibility
-import androidx.compose.foundation.Image
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -33,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -150,7 +148,7 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp, bottom = 16.dp)
-                    .clickable {/*Logica de contraseña*/  } //Navegación a PuntoPartida
+                    .clickable {/* TODO Logica de contraseña*/  } //Navegación a PuntoPartida
                     .wrapContentWidth(Alignment.End)// Alinear a la derecha
             )
 
@@ -169,13 +167,13 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
 
             // Botón "Iniciar sesión" (con degradado)
             Button(
-                onClick = { /* TODO: Lógica de boton */ },
+                onClick = {appVM.iniciarSesion(email, password) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
                     .background(degradado, RoundedCornerShape(28.dp)),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                contentPadding = PaddingValues(), // El degradado cubre todo
+                contentPadding = PaddingValues(),
                 shape = RoundedCornerShape(28.dp)
             ) {
                 Box(
@@ -203,13 +201,14 @@ private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
     unfocusedContainerColor = blanco.copy(alpha = 0.9f),
     focusedBorderColor = Color.Transparent,
     unfocusedBorderColor = Color.Transparent,
-    focusedLabelColor = morado,
+    focusedLabelColor = blanco,
     unfocusedLabelColor = morado.copy(alpha = 0.7f),
     focusedLeadingIconColor = morado,
     unfocusedLeadingIconColor = morado.copy(alpha = 0.7f),
     cursorColor = morado
 )
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
