@@ -1,24 +1,16 @@
 package mx.tec.proyectoBJ.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -83,15 +75,17 @@ fun NegocioProfileScreen(
 
             item {
                 // Botón/Enlace "Editar perfil"
-                Text(
-                    text = "Editar perfil",
-                    color = rosa,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp,
-                    modifier = Modifier
-                        .padding(top = 24.dp, bottom = 48.dp) // Espacio para el enlace
-                        .clickable { /* TODO: Navegar a pantalla de edición */ }
-                )
+                TextButton(
+                    onClick = { /* Por hacer: Navegar a pantalla de edición */ }
+                ) {
+                    Text(text = "Editar perfil",
+                        color = rosa,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        modifier = Modifier
+                            .padding(top = 24.dp, bottom = 48.dp) // Espacio para el enlace
+                    )
+                }
             }
         }
     }
@@ -112,73 +106,20 @@ fun HeaderNegocio(userName: String) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             // Fila superior (Menú y Título)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { /* TODO: Abrir Drawer de Navegación */ }) {
-                    Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = "Menú",
-                        tint = White,
-                        modifier = Modifier.size(30.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Bienvenido $userName",
-                    color = White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
+            BarraSuperior(userName)
 
             // Espacio negro para el banner/imagen del negocio
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp) // Altura del espacio negro
-                    .background(Black)
-            )
+            Portada()
         }
 
         // Logos flotantes (Alineados al centro)
-        Column(
-            modifier = Modifier.align(Alignment.Center)
-                .offset(y = 100.dp) // Baja los logos para que queden sobre la transición de color
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Placeholder del logo principal del negocio
-            Box(
-                modifier = Modifier
-                    .size(80.dp) // Tamaño del logo
-                    .clip(CircleShape)
-                    .background(Color.White) // Círculo blanco de fondo
-                    .border(2.dp, Color.White, CircleShape), // Borde blanco (si fuera necesario)
-                contentAlignment = Alignment.Center
-            ) {
-                // Placeholder para el logo 'JOTUNHEIM'
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                        .background(Color.Red.copy(alpha = 0.5f)) // Simulación del logo interno
-                )
-                /* Si tuvieras el asset:
-                Image(
-                    painter = painterResource(id = R.drawable.logo_negocio),
-                    contentDescription = "Logo del negocio",
-                    modifier = Modifier.fillMaxSize()
-                )
-                */
-            }
-        }
+        Icono()
     }
 
     // Relleno para que el contenido de abajo inicie después de los logos flotantes
     Spacer(modifier = Modifier.height(100.dp + 16.dp))
 }
+
 
 // ---------------------------------------------------------------------
 // 2. INFORMACIÓN Y HORARIOS

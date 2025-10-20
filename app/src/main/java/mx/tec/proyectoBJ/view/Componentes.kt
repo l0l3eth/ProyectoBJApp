@@ -4,9 +4,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -47,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -55,14 +57,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import mx.tec.proyectoBJ.R
 import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.blanco
-import mx.tec.ptoyectobj.degradado
 import mx.tec.ptoyectobj.morado
 import mx.tec.ptoyectobj.naranja
 import java.text.SimpleDateFormat
@@ -511,6 +511,77 @@ fun ConfirmarSalida(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun BarraSuperior(nombreNegocio: String, modifier: Modifier = Modifier) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = { /* TODO: Abrir Drawer de Navegación */ }) {
+            Icon(
+                imageVector = Icons.Default.Menu,
+                contentDescription = "Menú",
+                tint = White,
+                modifier = Modifier.size(30.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "Bienvenido $nombreNegocio",
+            color = White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+@Composable
+fun Portada() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp) // Altura del espacio negro
+            .background(Black)
+    )
+}
+
+@Composable
+fun BoxScope.Icono() {
+    Column(
+        modifier = Modifier
+            .align(Alignment.Center)
+            .offset(y = 100.dp) // Baja los logos para que queden sobre la transición de color
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Placeholder del logo principal del negocio
+        Box(
+            modifier = Modifier
+                .size(80.dp) // Tamaño del logo
+                .clip(CircleShape)
+                .background(White) // Círculo blanco de fondo
+                .border(2.dp, White, CircleShape), // Borde blanco (si fuera necesario)
+            contentAlignment = Alignment.Center
+        ) {
+            // Placeholder para el logo 'JOTUNHEIM'
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Red.copy(alpha = 0.5f)) // Simulación del logo interno
+            )
+            /* Si tuvieras el asset:
+                Image(
+                    painter = painterResource(id = R.drawable.logo_negocio),
+                    contentDescription = "Logo del negocio",
+                    modifier = Modifier.fillMaxSize()
+                )
+                */
         }
     }
 }

@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -45,8 +45,9 @@ data class NavItem(val label: String, val icon: ImageVector)
 val navItems = listOf(
     NavItem("Inicio", Icons.Default.Home),
     NavItem("Mapa", Icons.Default.LocationOn),
-    NavItem("Promociones", Icons.Default.ShoppingBag),
-    NavItem("ID digital", Icons.Default.CreditCard),
+    // Iconos cambiados porque decía que no existían
+    NavItem("Promociones", Icons.Default.ShoppingCart),
+    NavItem("ID digital", Icons.Default.Info),
 )
 
 /**
