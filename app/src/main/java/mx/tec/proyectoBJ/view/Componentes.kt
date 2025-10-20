@@ -423,7 +423,7 @@ fun TarjetasPromocion(promo: Producto) { // Se asume la existencia de data class
  * @param viewModel La instancia del ViewModel (AppVM) para poder llamar a sus funciones.
  * @param onDismissRequest La acción a ejecutar cuando el diálogo se cierra (ya sea
  *   presionando fuera o usando el botón de cancelar).
- *   Creado por: Estrella Lolbeth Téllez Rivas A01750496
+ *
  */
 @Composable
 fun ConfirmarSalida(

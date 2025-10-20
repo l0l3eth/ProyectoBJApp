@@ -72,6 +72,7 @@ dependencies {
 
     //Acceso a los iconos
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.material3)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
