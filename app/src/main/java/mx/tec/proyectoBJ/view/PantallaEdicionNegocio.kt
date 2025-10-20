@@ -17,7 +17,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.tec.proyectoBJ.model.Horarios
 import mx.tec.proyectoBJ.model.Negocio
 import mx.tec.ptoyectobj.fondoGris
 import mx.tec.ptoyectobj.morado
@@ -40,29 +40,33 @@ fun NegocioEdicionPerfil(modifier: Modifier = Modifier) {
         numeroTelefono = "555-1234567",
         ubicacion = "Ciudad de México",
         correo = "jottunheim@gmail.com",
-        descripcion = "Academia de Artes Marciales"
+        descripcion = "Academia de Artes Marciales",
+        horarios = listOf(
+            Horarios("Lunes", "9:00 - 9:00, 18:00 - 22:00"),
+            Horarios("Martes", "9:00 - 9:00, 18:00 - 22:00"),
+            Horarios("Miércoles", "9:00 - 9:00, 18:00 - 22:00"),
+            Horarios("Jueves", "9:00 - 12:00"),
+            Horarios("Viernes", "11:00 - 20:00", esHoy = true), // Resaltado
+            Horarios("Sábado", "9:00 - 9:00, 18:00 - 22:00"),
+            Horarios("Domingo", "9:00 - 12:00"),
+        )
     )
     Scaffold(
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(fondoGris)
                 .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally // Centra el contenido horizontalmente
         ) {
-            item {
-                EditarPerfilHeader(modifier, innerPadding)
-            }
+            EditarPerfilHeader(modifier, innerPadding)
 
-            item {
-                BusinessInfoSectionEditable(
-                    name = negocio.nombreNegocio,
-                    description = negocio.descripcion,
-                    modifier = modifier
-                )
-            }
+            BusinessInfoSectionEditable(
+                negocio = negocio,
+                modifier = modifier
+            )
         }
     }
 }
@@ -148,29 +152,50 @@ fun EditarPortada(
 }
 
 @Composable
-fun BusinessInfoSectionEditable(name: String,
-                                description: String,
+fun BusinessInfoSectionEditable(negocio: Negocio,
                                 modifier: Modifier = Modifier) {
-    Column(
+    LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
             .background(fondoGris) // Asegura que el fondo sea gris
     ) {
-        TextField(
-            value = name,
-            onValueChange = { /* Actualiza el nombre */ },
-            label = { Text("Nombre del Negocio") },
-            modifier = modifier.padding(vertical = 8.dp)
-        )
-        TextField(
-            value = description,
-            onValueChange = { /* Actualiza la descripción */ },
-            label = { Text("Descripción") }
-        )
-        Spacer(modifier = Modifier.height(32.dp))
+        item {
+            CampoDeTexto(
+                value = negocio.nombreNegocio,
+                onValueChange = { /* Actualiza el nombre */ },
+                etiqueta = "Nombre del negocio",
+                modifier = modifier.padding(vertical = 8.dp)
+            )
+        }
+        item {
+            CampoDeTexto(
+                value = negocio.descripcion,
+                onValueChange = { /* Actualiza la descripción */ },
+                etiqueta = "Descripción"
+            )
+        }
+
+        item {
+            CampoDeTexto(
+                value = negocio.numeroTelefono,
+                onValueChange = { /* Actualiza el número de teléfono */ },
+                etiqueta = "Número de teléfono"
+            )
+        }
+
+        for (horario in negocio.horarios) {
+            item {
+                CampoDeTexto(
+                    value = horario.horario,
+                    onValueChange = { /* Actualiza el horario */ },
+                    etiqueta = horario.dia
+                )
+            }
+        }
     }
+    Spacer(modifier = Modifier.height(32.dp))
 }
 
 
