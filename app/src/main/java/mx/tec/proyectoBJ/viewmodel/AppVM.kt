@@ -120,7 +120,7 @@ class AppVM : ViewModel(){
         viewModelScope.launch {
             val resultadoUsuario = ServicioRemoto.iniciarSesion(correo, contrasena)
             if (resultadoUsuario != null) {
-                _usuarioLogeado.value = resultadoUsuario
+                _usuarioLogeado.value = resultadoUsuario as Usuario?
                 _errorMensaje.value = null
             } else {
                 _usuarioLogeado.value = null
@@ -247,6 +247,33 @@ class AppVM : ViewModel(){
             } finally {
                 // CORRECCIÓN: Finaliza el estado de carga usando la propiedad .value.
                 _cargando.value = false
+            }
+        }
+    }
+
+    fun generarQR(idUsuario: Int) {
+        viewModelScope.launch {
+            _cargandoQR.value = true
+            _errorMensaje.value = null
+            _qrBitmap.value = null
+
+            try {
+                // ¡Llamada directa a tu nueva función en ServicioRemoto!
+                val responseBody = ServicioRemoto.generarQR(idUsuario)
+
+                if (responseBody != null) {
+                    // Convierte la respuesta binaria a un Bitmap
+                    val bytes = responseBody.bytes()
+                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    _qrBitmap.value = bitmap.asImageBitmap() // Convierte a ImageBitmap para Compose
+                } else {
+                    _errorMensaje.value = "La respuesta del servidor para el QR está vacía."
+                }
+
+            } catch (e: Exception) {
+                _errorMensaje.value = "Error de conexión: ${e.message}"
+            } finally {
+                _cargandoQR.value = false
             }
         }
     }

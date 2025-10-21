@@ -1,9 +1,7 @@
 package mx.tec.proyectoBJ.model
 
 import mx.tec.ptoyectobj.URL_BASE
-import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.Exception
@@ -40,10 +38,10 @@ object ServicioRemoto {
      * Incluye el interceptor de logging para poder visualizar las trazas de red
      * en el Logcat de Android Studio.
      */
-    private val cliente = okhttp3.OkHttpClient.Builder()
-        .addInterceptor(logging)
-        .certificatePinner(certificatePinner)
-        .build()
+//    private val cliente = okhttp3.OkHttpClient.Builder()
+//        .addInterceptor(logging)
+//        .certificatePinner(certificatePinner)
+//        .build()
 
     /**
      * Instancia de Retrofit configurada para comunicarse con la API.
@@ -57,7 +55,7 @@ object ServicioRemoto {
     private val retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(URL_BASE) //Cambiar a HTTPS
-            .client(cliente)
+            // .client(cliente)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -95,7 +93,7 @@ object ServicioRemoto {
        }
     }
 
-    suspend fun iniciarSesion(correo:String, contrasena:String):String?{
+    suspend fun iniciarSesion(correo:String, contrasena:String): Any? {
         val request= LoginRequest(correo=correo, contrasena=contrasena)
         return try{
             val response=servicio.iniciarSesion(request)
@@ -117,14 +115,14 @@ object ServicioRemoto {
             println("Error en la descarga: $e")
             return null
         }
-        return listOf()
+        return null
     }
 
     suspend fun obtenerTarjetasNegocios(): List<TarjetaNegocio> {
         try {
             val response=servicio.obtenerNegocios()
             if (response.isSuccessful){
-                return response.body() ?: listOf()
+                return (response.body() ?: listOf()) as List<TarjetaNegocio>
             } else{
                 println("Error al obtener negocios, codigo: ${response.code()}")
             }
@@ -149,4 +147,20 @@ object ServicioRemoto {
         return listOf()
     }
 
+    suspend fun generarQR(idUsuario: Int): okhttp3.ResponseBody? {
+        return try {
+            val respuesta = servicio.generarQR(idUsuario)
+
+            if (respuesta.isSuccessful) {
+                Log.d("ServicioRemoto", "QR generado exitosamente para el usuario $idUsuario.")
+                respuesta.body() // Devuelve el cuerpo de la respuesta (la imagen)
+            } else {
+                Log.e("ServicioRemoto", "Error al generar QR. Código: ${respuesta.code()}, Mensaje: ${respuesta.errorBody()?.string()}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("ServicioRemoto", "Excepción al generar QR: ${e.message}")
+            null
+        }
+    }
 }

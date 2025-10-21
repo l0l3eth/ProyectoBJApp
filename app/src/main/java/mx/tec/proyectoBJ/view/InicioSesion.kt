@@ -46,7 +46,18 @@ import mx.tec.ptoyectobj.blanco
 import mx.tec.ptoyectobj.degradado
 import mx.tec.ptoyectobj.morado
 
-
+/**
+ * Composable que define la pantalla de inicio de sesión de la aplicación.
+ *
+ * Esta pantalla permite a los usuarios existentes ingresar sus credenciales (correo y contraseña)
+ * para acceder a su cuenta. También proporciona enlaces para registrarse si son nuevos usuarios
+ * o para recuperar la contraseña si la han olvidado.
+ *
+ * @param onNavigateToRegistro Una función lambda que se invoca cuando el usuario hace clic en el enlace "Regístrate".
+ *                             Esta se encarga de la navegación a la pantalla de registro.
+ * @param appVM Una instancia del ViewModel [AppVM] que maneja la lógica de negocio, como el proceso
+ *              de inicio de sesión.
+ */
 @Composable
 fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
                   appVM: AppVM
@@ -194,7 +205,13 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
     }
 }
 
-// Función auxiliar para los colores de los campos de texto
+/**
+ * Función auxiliar privada que define el estilo visual para los campos de texto [OutlinedTextField].
+ * Personaliza los colores para los estados de enfocado y desenfocado, así como el color del cursor
+ * y los iconos.
+ *
+ * @return Un objeto [OutlinedTextFieldDefaults.colors] con el tema personalizado.
+ */
 @Composable
 private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
     focusedContainerColor = blanco.copy(alpha = 0.9f),
@@ -208,6 +225,13 @@ private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
     cursorColor = morado
 )
 
+/**
+ * Función de previsualización para el Composable [InicioSesion].
+ *
+ * Muestra una vista previa de la pantalla de inicio de sesión en el editor de Android Studio,
+ * permitiendo un desarrollo visual rápido sin necesidad de ejecutar la aplicación completa.
+ * Se utiliza un [AppVM] vacío y una función de navegación vacía para la instanciación.
+ */
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
