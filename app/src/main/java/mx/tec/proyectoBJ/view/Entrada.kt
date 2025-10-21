@@ -26,27 +26,18 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.proyectoBJ.viewmodel.PantallaSplash
 import mx.tec.proyectoBJ.R
+import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.ptoyectobj.morado
 
 @Composable
 fun Entrada(navController: NavController, appVM: AppVM)
 {
     // 1. Observa el evento de navegación del ViewModel.
-    val eventoNavegacion = appVM.NavegarAInicio.collectAsState(initial = null).value
+    val eventoNavegacion = appVM.navegarAInicio.collectAsState(initial = null).value
 
     // 2. Usar LaunchedEffect para reaccionar al evento de navegación
     LaunchedEffect(eventoNavegacion) {
-        if (eventoNavegacion == PantallaSplash.NavegarAInicio) {
-            // 3. Realizar la navegación al destino (Pantalla 2: Inicio)
-            navController.navigate("Inicio"){
-                popUpTo("Entrada") {
-                    inclusive = true // This also removes "Entrada" itself.
-                }
-            }
-        }
     }
 
     // Un Box para centrar el contenido en la pantalla

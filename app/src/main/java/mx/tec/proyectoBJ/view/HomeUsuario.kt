@@ -62,7 +62,7 @@ fun HomeUsuario(
     // PASO 2: CONECTAR CON EL VIEWMODEL
     // Obtenemos el estado de carga y la lista de negocios directamente del AppVM.
     // 'by' se encarga de observar los cambios y redibujar el Composable automáticamente.
-    val estaCargando by appVM.cargando
+    val estaCargando by appVM.cargandoNegocios
     val negociosDesdeAPI by appVM.listaNegocios
 
     // 2. Lógica de Filtrado (ahora con datos reales)

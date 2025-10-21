@@ -7,6 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.Exception
 import android.util.Log
 import com.google.maps.android.ktx.BuildConfig
+import retrofit2.HttpException
 
 /**
  * Objeto singleton para gestionar las comunicaciones con el servidor remoto (API).
@@ -116,6 +117,50 @@ object ServicioRemoto {
             return null
         }
         return null
+    }
+
+    /**
+     * Envía una petición a la API para eliminar un usuario por su ID.
+     * @param idUsuario El ID del usuario que se desea eliminar.
+     * @return `true` si el usuario fue eliminado exitosamente (código 2xx),
+     *         `false` en caso contrario (error del servidor o de conexión).
+     */
+    suspend fun borrarUsuario(idUsuario: Int): Boolean {
+        return try {
+            val response = servicio.borrarUsuario(idUsuario)
+            if (response.isSuccessful) {
+                println("Usuario con ID $idUsuario borrado exitosamente.")
+                true
+            } else {
+                println("Error al borrar el usuario. Código: ${response.code()}, Mensaje: ${response.message()}")
+                false
+            }
+        } catch (e: HttpException) {
+            println("Error HTTP al borrar usuario: ${e.message()}")
+            false
+        } catch (e: Exception) {
+            println("Error de conexión al intentar borrar usuario: $e")
+            false
+        }
+    }
+
+    suspend fun actualizarUsuario(idUsuario: Int, usuario: Usuario): Boolean {
+        return try {
+            val response = servicio.actualizarUsuario(idUsuario, usuario)
+            if (response.isSuccessful) {
+                println("Usuario actualizado correctamente (ID: $idUsuario).")
+                true
+            } else {
+                println("Error al actualizar usuario. Código: ${response.code()}, mensaje: ${response.message()}")
+                false
+            }
+        } catch (e: HttpException) {
+            println("Error HTTP al actualizar usuario: ${e.message()}")
+            false
+        } catch (e: Exception) {
+            println("Error de conexión al intentar actualizar usuario: $e")
+            false
+        }
     }
 
     suspend fun obtenerTarjetasNegocios(): List<TarjetaNegocio> {
