@@ -89,6 +89,19 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle.v150)
     implementation(libs.androidx.camera.view.v150)
 
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+
+    implementation("androidx.camera:camera-core:1.5.0")
+    implementation("androidx.camera:camera-camera2:1.5.0")
+    implementation("androidx.camera:camera-lifecycle:1.5.0")
+    implementation("androidx.camera:camera-view:1.5.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.31.5-beta")
+    implementation("androidx.camera:camera-extensions:1.5.0")
+    implementation("androidx.camera:camera-core:1.5.0")
+    implementation("androidx.camera:camera-camera2:1.5.0")
+    implementation("androidx.camera:camera-lifecycle:1.5.0")
+    implementation("androidx.camera:camera-view:1.5.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
