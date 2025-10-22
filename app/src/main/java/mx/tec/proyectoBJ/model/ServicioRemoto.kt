@@ -39,10 +39,14 @@ object ServicioRemoto {
      * Incluye el interceptor de logging para poder visualizar las trazas de red
      * en el Logcat de Android Studio.
      */
-//    private val cliente = okhttp3.OkHttpClient.Builder()
-//        .addInterceptor(logging)
-//        .certificatePinner(certificatePinner)
-//        .build()
+
+    private val certificatePinner=okhttp3.CertificatePinner.Builder()
+        .build()
+
+    private val cliente = okhttp3.OkHttpClient.Builder()
+        .addInterceptor(logging)
+        .certificatePinner(certificatePinner)
+        .build()
 
     /**
      * Instancia de Retrofit configurada para comunicarse con la API.
@@ -102,19 +106,19 @@ object ServicioRemoto {
                 val authResponse=response.body()
                 if(authResponse!=null){
                     println("Inicio de sesión exitoso, token: ${authResponse.token}")
-                    return authResponse.token
+                    authResponse.token
                 } else{
                     println("Respuesta exitosa, cuerpo vacío")
-                    return null
+                    null
                 }
             }else{
                 val errBody=response.errorBody()?.string()
                 println("Error de inicio de sesión: ${response.code()}. Mensaje del server: $errBody")
-                return null
+                null
             }
         } catch(e: Exception) {
             println("Error en la descarga: $e")
-            return null
+            null
         }
         return null
     }
