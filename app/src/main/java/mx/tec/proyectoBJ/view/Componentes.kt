@@ -170,6 +170,7 @@ fun BotonCircular(icono: ImageVector,
         modifier = modifier
             .padding(0.dp)
             .size(tamano.dp)
+            .background(White)
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
