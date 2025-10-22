@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,20 +38,42 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import mx.tec.proyectoBJ.model.EstadoDeRegistro
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.ptoyectobj.blanco
-import mx.tec.ptoyectobj.degradado
-import mx.tec.ptoyectobj.morado
+import mx.tec.proyectoBJ.blanco
+import mx.tec.proyectoBJ.degradado
+import mx.tec.proyectoBJ.morado
 
+/**
+ * Composable principal que gestiona un formulario de registro de negocio multipasos.
+ *
+ * Este componente orquesta varias sub-pantallas (`DatosDeNegocio`, `DatosDeContactoNegocio`, etc.)
+ * para recolectar la información necesaria para registrar un nuevo negocio. Mantiene el estado
+ * del formulario y la pantalla actual, y finalmente envía los datos a través del [AppVM]
+ * una vez que todos los pasos se han completado.
+ *
+ * @param appVM La instancia del ViewModel [AppVM] utilizada para enviar los datos del nuevo usuario/negocio.
+ * @param modifier El modificador a aplicar al contenedor principal.
+ * Creado por: Estrella Lolbeth Téllez Rivas A01750496
+ */
 @Composable
 fun RellenoDeSolicitud(appVM: AppVM, modifier: Modifier = Modifier){
     val totalPantallas = 4
-    var pantallaActual by remember { mutableStateOf(0) }
+    // Estado para controlar la pantalla visible (ej. 0 para DatosDeNegocio, 1 para Contacto, etc.)
+    var pantallaActual by remember { mutableIntStateOf(0) }
+    // Estado para almacenar todos los datos del formulario a medida que se completan.
     var estadoDeRegistro by remember { mutableStateOf(EstadoDeRegistro()) }
 
+    /**
+     * Función interna para actualizar el estado del formulario de registro.
+     * @param newState El nuevo estado con la información actualizada.
+     */
     fun onStateChange(newState: EstadoDeRegistro) {
         estadoDeRegistro = newState
     }
 
+    /**
+     * Función interna para navegar entre las diferentes pantallas del formulario.
+     * @param pantalla El valor a sumar a la pantalla actual (-1 para retroceder, 1 para avanzar).
+     */
     fun cambiarPantalla(pantalla: Int = 0) {
         pantallaActual += pantalla
     }
@@ -66,10 +89,11 @@ fun RellenoDeSolicitud(appVM: AppVM, modifier: Modifier = Modifier){
         ) {
             LogoYTextoGrande()
 
+            // Muestra condicionalmente cada paso del formulario basado en `pantallaActual`.
             DatosDeNegocio(
                 mostrar = pantallaActual == 0,
                 state = estadoDeRegistro,
-                onStateChange = ::onStateChange, // Pass the function reference
+                onStateChange = ::onStateChange,
                 modifier = modifier.padding(horizontal = 32.dp)
             )
             DatosDeContactoNegocio(
@@ -87,6 +111,7 @@ fun RellenoDeSolicitud(appVM: AppVM, modifier: Modifier = Modifier){
                 state = estadoDeRegistro,
                 onStateChange = ::onStateChange
             )
+            // Pantalla final: validación y envío de datos.
             if (pantallaActual == 4) {
                 val isValid = estadoDeRegistro.nombre != null &&
                         estadoDeRegistro.apellido != null &&
@@ -98,6 +123,7 @@ fun RellenoDeSolicitud(appVM: AppVM, modifier: Modifier = Modifier){
 
                 if (isValid) {
                     TextoTitularRegistro("¡Todo listo! Enviando...")
+                    // Llama al ViewModel para enviar los datos al backend.
                     appVM.enviarUsuario(
                         nombre = estadoDeRegistro.nombre!!,
                         apellido = estadoDeRegistro.apellido!!,
@@ -109,15 +135,16 @@ fun RellenoDeSolicitud(appVM: AppVM, modifier: Modifier = Modifier){
                     )
                 } else {
                     TextoTitularRegistro("Faltan datos por llenar.")
-                    // Optionally, you could show a button to go back
                 }
             }
+            // Muestra los botones de navegación en todas las pantallas.
             BotonesNegocio(pantallaActual = pantallaActual,
                 totalPantallas = totalPantallas,
                 onPantallaCambia = { cambiarPantalla(it) })
         }
     }
 }
+
 /**
  * Un composable que muestra los botones de navegación "Regresar" y "Siguiente".
  *
@@ -134,9 +161,9 @@ fun RellenoDeSolicitud(appVM: AppVM, modifier: Modifier = Modifier){
  */
 @Composable
 fun BotonesNegocio(pantallaActual : Int,
-            modifier : Modifier = Modifier,
-            totalPantallas: Int,
-            onPantallaCambia: (Int) -> Unit = {}) {
+                   modifier : Modifier = Modifier,
+                   totalPantallas: Int,
+                   onPantallaCambia: (Int) -> Unit = {}) {
     Row {
         if (pantallaActual > 0) {
             TextButton(
@@ -170,7 +197,7 @@ fun BotonesNegocio(pantallaActual : Int,
 }
 
 /**
- * Un composable que muestra la pantalla para la creación de la contraseña del usuario.
+ * Un composable que muestra la pantalla para la creación de la contraseña del negocio.
  *
  * Esta pantalla es parte de un proceso de registro de varios pasos. Solicita al usuario que
  * cree una contraseña, que luego se almacena en el estado central del formulario de registro.
@@ -185,20 +212,18 @@ fun BotonesNegocio(pantallaActual : Int,
  */
 @Composable
 fun ContrasenaNegocio(mostrar: Boolean = false,
-               state: EstadoDeRegistro,
-               onStateChange: (EstadoDeRegistro) -> Unit = {}) {
+                      state: EstadoDeRegistro,
+                      onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
         TextoTitularRegistro("Crea una contraseña.")
-        // Resaltar los requerimientos de seguridad de contraseña al usuario
         CampoDeTexto(etiqueta = "Contraseña",
             value = state.contrasena ?: "",
             onValueChange = { onStateChange(state.copy(contrasena = it)) })
-        // CampoDeTexto("Confirmar contraseña")
     }
 }
 
 /**
- * Un composable que muestra un formulario para recolectar los datos de contacto del usuario.
+ * Un composable que muestra un formulario para recolectar los datos de contacto del negocio.
  *
  * Esta pantalla forma parte de un flujo de registro de varios pasos. Solicita al usuario
  * su correo electrónico y número de teléfono. Los datos se gestionan a través de un
@@ -213,8 +238,8 @@ fun ContrasenaNegocio(mostrar: Boolean = false,
  */
 @Composable
 fun DatosDeContactoNegocio(mostrar: Boolean = true,
-                    state: EstadoDeRegistro,
-                    onStateChange: (EstadoDeRegistro) -> Unit = {}) {
+                           state: EstadoDeRegistro,
+                           onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
         TextoTitularRegistro("Ingresa tus datos de contacto.")
         CampoDeTexto(etiqueta = "Correo electrónico",
@@ -226,14 +251,25 @@ fun DatosDeContactoNegocio(mostrar: Boolean = true,
     }
 }
 
+/**
+ * Un composable que muestra un formulario para recolectar la dirección del negocio.
+ *
+ * Esta pantalla es parte de un flujo de registro de varios pasos. Solicita al usuario
+ * los detalles de su dirección. La visibilidad de la pantalla está controlada por
+ * el parámetro `mostrar`.
+ *
+ * @param mostrar Una bandera booleana que controla si el composable debe mostrarse.
+ * @param state El estado actual del formulario de registro.
+ * @param onStateChange Callback que se invoca cuando el campo de dirección cambia,
+ *                      actualizando el estado general.
+ */
 @Composable
 fun DireccionNegocio(mostrar: Boolean = false,
-              state: EstadoDeRegistro,
-              onStateChange: (EstadoDeRegistro) -> Unit = {}) {
+                     state: EstadoDeRegistro,
+                     onStateChange: (EstadoDeRegistro) -> Unit = {}) {
     if (mostrar) {
-        TextoTitularRegistro("¿En dónde vives?")
+        TextoTitularRegistro("¿En dónde se ubica tu negocio?")
         TextoTitularRegistro("Sólo se aceptan direcciones de Atizapán.")
-        // Por hacer: verificar que la dirección pertenezca a Atizapán
         CampoDeTexto(etiqueta = "Calle, número y colonia o fraccionamiento",
             value = state.direccion ?: "",
             onValueChange = { onStateChange(state.copy(direccion = it)) })
@@ -241,26 +277,23 @@ fun DireccionNegocio(mostrar: Boolean = false,
 }
 
 /**
- * Un composable que muestra un formulario para recolectar datos personales del usuario.
+ * Un composable que muestra un formulario para recolectar los datos iniciales del negocio.
  *
- * Esta pantalla es parte de un proceso de registro de varios pasos. Recolecta el/los nombre(s),
- * apellidos y CURP del usuario. Los datos recolectados se gestionan a través de un objeto
- * de estado central.
+ * Esta es la primera pantalla en el flujo de registro. Recolecta el nombre del negocio
+ * y permite al usuario seleccionar el tipo de establecimiento a través de un menú desplegable.
  *
- * @param modifier El modificador a aplicar al layout.
- * @param mostrar Una bandera booleana que controla la visibilidad de este composable. Si es `true`,
- *                el formulario se muestra; de lo contrario, se oculta.
- * @param state El estado actual del formulario de registro, que contiene todos los datos
- *              introducidos por el usuario.
- * @param onStateChange Una función de callback que se invoca cuando el valor de cualquiera de los
- *                      campos de entrada cambia. Recibe un objeto `EstadoDeRegistro` actualizado.
+ * @param modifier El modificador a aplicar al layout de la columna.
+ * @param mostrar Una bandera booleana que controla la visibilidad de este composable.
+ * @param state El estado actual del formulario de registro.
+ * @param onStateChange Una función de callback que se invoca cuando el valor del
+ *                      campo de nombre cambia.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatosDeNegocio(modifier: Modifier = Modifier,
-                    mostrar: Boolean = true,
-                    state: EstadoDeRegistro,
-                    onStateChange: (EstadoDeRegistro) -> Unit = {}) {
+                   mostrar: Boolean = true,
+                   state: EstadoDeRegistro,
+                   onStateChange: (EstadoDeRegistro) -> Unit = {}) {
 
     if (mostrar) {
         Column(
@@ -272,50 +305,51 @@ fun DatosDeNegocio(modifier: Modifier = Modifier,
             CampoDeTexto(etiqueta = "Nombre del negocio",
                 value = state.nombre ?: "",
                 onValueChange = { onStateChange(state.copy(nombre = it)) })
-            TipoEstablecimientoDropdown(onSelectionChange = {})
+            // Se puede conectar onSelectionChange para guardar el tipo de establecimiento si es necesario
+            TipoEstablecimientoDropdown(onSelectionChange = { /* onStateChange(state.copy(tipo = it)) */ })
         }
     }
 }
 
+/**
+ * Un menú desplegable estilizado para seleccionar el tipo de establecimiento.
+ *
+ * Este Composable proporciona una lista predefinida de categorías de negocio en un
+ * menú desplegable (`ExposedDropdownMenuBox`). Está diseñado para coincidir con la
+ * apariencia de los `CampoDeTexto` de la aplicación.
+ *
+ * @param modifier El modificador a aplicar al contenedor del menú.
+ * @param options La lista de strings a mostrar como opciones en el menú.
+ * @param initialSelection El texto que se muestra por defecto antes de hacer una selección.
+ * @param onSelectionChange Un callback que se invoca con la opción seleccionada por el usuario.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TipoEstablecimientoDropdown(
     modifier: Modifier = Modifier,
-    // Lista de opciones a mostrar en el menú
     options: List<String> = listOf("Entretenimiento", "Comida", "Salud", "Belleza", "Educación", "Moda y Accesorios", "Servicios"),
-    // Valor inicial o seleccionado
     initialSelection: String = "Tipo de establecimiento",
-    // Callback para devolver la opción seleccionada
     onSelectionChange: (String) -> Unit
 ) {
-    // 1. Estado para controlar si el menú está expandido
     var isExpanded by remember { mutableStateOf(false) }
-
-    // 2. Estado para el texto seleccionado que se muestra en el campo
     var selectedText by remember { mutableStateOf(initialSelection) }
 
-    // Utiliza ExposedDropdownMenuBox para manejar la lógica de apertura/cierre
     ExposedDropdownMenuBox(
         expanded = isExpanded,
         onExpandedChange = { isExpanded = !isExpanded },
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(28.dp)) // Esquinas redondeadas
+            .clip(RoundedCornerShape(28.dp))
     ) {
-        // 3. Campo de Texto (simula el input)
-        // Usamos un OutlinedTextField para la apariencia de tu pantalla
         OutlinedTextField(
-            // El modificador 'menuAnchor()' es OBLIGATORIO en el TextField
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor()
                 .height(56.dp),
-            readOnly = true, // No permite que el usuario escriba, solo selecciona
+            readOnly = true,
             value = selectedText,
-            onValueChange = {}, // No hace nada ya que es de solo lectura
-            label = null, // No se usa etiqueta flotante en tu diseño
+            onValueChange = {},
             placeholder = {
-                // Muestra un placeholder solo si el texto es el inicial
                 if (selectedText == initialSelection) {
                     Text(text = initialSelection, color = Color.Gray)
                 }
@@ -324,8 +358,8 @@ fun TipoEstablecimientoDropdown(
                 focusedContainerColor = White,
                 unfocusedContainerColor = White,
                 disabledContainerColor = White,
-                focusedBorderColor = Color.Transparent, // Sin borde visible
-                unfocusedBorderColor = Color.Transparent, // Sin borde visible
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
                 cursorColor = Color.Transparent,
                 focusedLeadingIconColor = morado,
                 unfocusedLeadingIconColor = morado,
@@ -334,21 +368,20 @@ fun TipoEstablecimientoDropdown(
                 focusedTextColor = Color.Black.copy(alpha = 0.8f),
                 unfocusedTextColor = Color.Black.copy(alpha = 0.8f)
             ),
-            shape = RoundedCornerShape(28.dp) // Esquinas redondeadas del campo
+            shape = RoundedCornerShape(28.dp)
         )
 
-        // 4. El Menú Desplegable que aparece al hacer clic
         ExposedDropdownMenu(
             expanded = isExpanded,
-            onDismissRequest = { isExpanded = false }, // Cierra si se toca fuera
+            onDismissRequest = { isExpanded = false },
         ) {
             options.forEach { selectionOption ->
                 DropdownMenuItem(
                     text = { Text(selectionOption) },
                     onClick = {
-                        selectedText = selectionOption // 1. Actualiza el texto mostrado
-                        isExpanded = false             // 2. Cierra el menú
-                        onSelectionChange(selectionOption) // 3. Notifica al componente padre
+                        selectedText = selectionOption
+                        isExpanded = false
+                        onSelectionChange(selectionOption)
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
@@ -356,6 +389,13 @@ fun TipoEstablecimientoDropdown(
         }
     }
 }
+
+/**
+ * Un Composable de previsualización para el formulario de registro de negocio.
+ *
+ * Esta función permite a Android Studio renderizar una vista previa del `RellenoDeSolicitud`
+ * sin necesidad de ejecutar la aplicación completa.
+ */
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
 @Preview

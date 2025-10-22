@@ -44,8 +44,8 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.ptoyectobj.fondoGris
-import mx.tec.ptoyectobj.rosa
+import mx.tec.proyectoBJ.fondoGris
+import mx.tec.proyectoBJ.rosa
 
 data class NegocioUbicacion(
     val address: String,

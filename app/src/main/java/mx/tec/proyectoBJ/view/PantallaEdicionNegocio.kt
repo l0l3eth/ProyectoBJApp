@@ -44,10 +44,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mx.tec.proyectoBJ.R
-import mx.tec.proyectoBJ.model.Horarios
 import mx.tec.proyectoBJ.model.Negocio
-import mx.tec.ptoyectobj.fondoGris
-import mx.tec.ptoyectobj.morado
+import mx.tec.proyectoBJ.fondoGris
+import mx.tec.proyectoBJ.morado
 
 @Composable
 fun NegocioEdicionPerfil(modifier: Modifier = Modifier) {

@@ -44,9 +44,9 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
 import mx.tec.proyectoBJ.model.TarjetaNegocio
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.ptoyectobj.fondoGris
-import mx.tec.ptoyectobj.morado
-import mx.tec.ptoyectobj.rosa
+import mx.tec.proyectoBJ.fondoGris
+import mx.tec.proyectoBJ.morado
+import mx.tec.proyectoBJ.rosa
 
 // Las categorías se mantienen, ya que son parte de la UI
 val categorias = listOf("Todo", "Comida", "Salud", "Belleza", "Entretenimiento")

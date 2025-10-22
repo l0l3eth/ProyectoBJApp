@@ -20,10 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -50,9 +47,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.ptoyectobj.morado
-import mx.tec.ptoyectobj.naranja
-import mx.tec.ptoyectobj.rosa
+import mx.tec.proyectoBJ.morado
+import mx.tec.proyectoBJ.naranja
+import mx.tec.proyectoBJ.rosa
 
 /**
  * Modelo de datos que representa una opción configurable en la pantalla de perfil del usuario.

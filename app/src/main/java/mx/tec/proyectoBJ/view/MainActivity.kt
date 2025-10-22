@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
@@ -29,30 +30,34 @@ import mx.tec.proyectoBJ.viewmodel.AppVM
 
 /**
  * `MainActivity` es la actividad principal y el punto de entrada de la aplicación.
- * Se encarga de configurar la ventana, inicializar el ViewModel principal y establecer
- * el contenido de la UI con Jetpack Compose.
- * Autores: Estrella Lolbeth Téllez Rivas A01750496
- *          Allan Mauricio Brenes Castro  A01750747
+ *
+ * Se encarga de configurar la ventana principal, inicializar el [AppVM] (ViewModel principal)
+ * y establecer el contenido de la UI utilizando Jetpack Compose. Actúa como el anfitrión
+ * para toda la navegación y la estructura de la aplicación.
+ *
+ * Creado por: Estrella Lolbeth Téllez Rivas A01750496
+ *
  */
 class MainActivity : ComponentActivity() {
-    // Inicializa el ViewModel principal que será compartido a través de la app.
+    // Inicializa el ViewModel principal usando la delegación de 'viewModels()'.
+    // Esto asegura que el ViewModel sobreviva a cambios de configuración como rotaciones.
     private val viewModel: AppVM by viewModels()
 
     /**
      * Se llama cuando la actividad es creada por primera vez.
-     * Configura el edge-to-edge display y establece el Composable raíz de la aplicación.
+     * Aquí se configura la UI de la aplicación.
      *
-     * @param savedInstanceState Si la actividad se está recreando después de haber sido
-     * cerrada por el sistema, este Bundle contiene el estado más reciente.
+     * @param savedInstanceState Si la actividad se está recreando, este Bundle contiene
+     * el estado guardado previamente.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Habilita el modo de pantalla completa (edge-to-edge).
+        // Habilita que la UI se dibuje de borde a borde para un look moderno.
         enableEdgeToEdge()
         setContent {
-            // Aplica el tema personalizado de la aplicación.
+            // Aplica el tema personalizado (colores, tipografía) a toda la aplicación.
             PtoyectoBJTheme {
-                // Llama al Composable principal que construye la UI y la navegación.
+                // Llama al Composable raíz que construye la UI y la navegación.
                 AppPrincipal(viewModel)
             }
         }
@@ -60,65 +65,75 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * Composable raíz que estructura la navegación principal y el menú lateral.
- * Gestiona el estado del `NavController` y del menú de navegación (`ModalNavigationDrawer`).
+ * Composable raíz que estructura la navegación principal y el menú lateral (`Drawer`).
+ *
+ * Este Composable es el núcleo de la UI. Gestiona:
+ * 1.  El estado y control del menú de navegación lateral ([ModalNavigationDrawer]).
+ * 2.  La navegación automática basada en el estado de autenticación del usuario.
+ * 3.  La visibilidad condicional de la barra de navegación inferior (`BottomBar`).
+ * 4.  La integración del `NavHost` que contiene todas las pantallas de la app.
  *
  * @param appVM La instancia del ViewModel [AppVM] que contiene la lógica de negocio y el estado global.
  */
 @Composable
 fun AppPrincipal(appVM: AppVM) {
     val navController = rememberNavController()
-    // 1. ESTADO Y CONTROL DEL MENÚ LATERAL
+    // --- ESTADO Y CONTROL DEL MENÚ LATERAL ---
     val estadoMenu = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-    // Función para abrir el menú que se pasará a los componentes hijos.
+    // Función lambda para abrir el menú. Se pasará a los componentes que necesiten esta acción.
     val abrirMenu: () -> Unit = {
         coroutineScope.launch {
             estadoMenu.open()
         }
     }
-    // Función para cerrar el menú.
+    // Función lambda para cerrar el menú.
     val cerrarMenu: () -> Unit = {
         coroutineScope.launch {
             estadoMenu.close()
         }
     }
-    // Observa el estado de la autenticación para navegar automáticamente.
-    // Si el usuario se logea, navega a la pantalla principal y limpia el backstack.
+
+    // --- NAVEGACIÓN AUTOMÁTICA POR AUTENTICACIÓN ---
+    // Observa el estado de la autenticación para navegar automáticamente al iniciar sesión.
     val usuarioLogeado by appVM.usuarioLogeado.observeAsState()
     LaunchedEffect(usuarioLogeado) {
         if (usuarioLogeado != null) {
+            // Si el usuario se logea, navega a la pantalla principal y limpia el backstack
+            // para evitar que el usuario regrese a la pantalla de login con el botón "Atrás".
             navController.navigate("PromocionesScreen") {
                 popUpTo("InicioSesion") { inclusive = true }
             }
         }
     }
 
-    // 1. Observa la ruta actual desde el NavController
+    // --- CONTROL DE VISIBILIDAD DE LA BARRA DE NAVEGACIÓN ---
+    // Observa la ruta actual para decidir si se muestra o no la barra de navegación inferior.
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // 2. Define las rutas donde la barra de navegación NO debe ser visible
+    // Define las rutas donde la barra de navegación NO debe ser visible (pantallas de flujo inicial).
     val rutasSinBarraNav =
         listOf("Entrada", "Inicio", "InicioSesion", "Registro", "registro_usuario")
     val mostrarBarraNav = currentRoute !in rutasSinBarraNav
 
-    // 2. CONTENEDOR PRINCIPAL CON MENÚ LATERAL
-    // ModalNavigationDrawer permite mostrar un menú deslizable desde el lateral.
+    // --- ESTRUCTURA PRINCIPAL DE LA UI ---
+    // Contenedor principal que permite un menú deslizable desde el lateral.
     ModalNavigationDrawer(
         drawerState = estadoMenu,
         drawerContent = {
-            // Contenido del menú lateral.
+            // El contenido que se muestra dentro del menú lateral.
             AppMenuLateral(
                 navController = navController,
                 appVM = appVM,
-                closeDrawer = cerrarMenu // Pasa la función para que el menú pueda cerrarse.
+                closeDrawer = cerrarMenu // Pasa la función para que el menú pueda cerrarse desde su interior.
             )
         }
     ) {
+        // Scaffold proporciona la estructura básica de Material Design (app bar, bottom bar, etc.).
         Scaffold(
             bottomBar = {
-                // 3. Muestra la BarraNavegacion solo si la condición se cumple
+                // Muestra la BarraNavegacion solo si la condición se cumple.
                 if (mostrarBarraNav) {
                     BarraNavegacion(
                         navController = navController
@@ -126,26 +141,28 @@ fun AppPrincipal(appVM: AppVM) {
                 }
             }
         ) { innerPadding ->
-            // Contenido principal de la aplicación, gestionado por AppNavHost.
+            // El contenido principal de la aplicación, gestionado por AppNavHost.
             AppNavHost(
                 navController = navController,
                 appVM = appVM,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color(0xFFFFF9ED)),
-                onMenuClick = abrirMenu // Pasa la función para abrir el menú al contenido principal
+                onMenuClick = abrirMenu // Pasa la función para abrir el menú a los componentes hijos.
             )
         }
     }
 }
 /**
  * Gestiona el grafo de navegación de la aplicación usando un [NavHost].
- * Define todas las rutas (pantallas) y las transiciones entre ellas.
+ *
+ * Define todas las rutas (pantallas) y las transiciones entre ellas. Cada `composable`
+ * dentro del `NavHost` representa una pantalla o destino en la aplicación.
  *
  * @param navController El controlador de navegación para gestionar las rutas.
- * @param appVM El ViewModel global [AppVM].
+ * @param appVM El ViewModel global [AppVM], pasado a cada pantalla que lo necesite.
  * @param modifier El modificador de Compose para aplicar al [NavHost].
- * @param onMenuClick La función lambda que se ejecutará para abrir el menú lateral.
+ * @param onMenuClick La función lambda que se ejecutará para abrir el menú lateral desde una pantalla.
  */
 @Composable
 fun AppNavHost(
@@ -154,30 +171,14 @@ fun AppNavHost(
     modifier: Modifier,
     onMenuClick: () -> Unit,
 ) {
-    // NavHost define el grafo de navegación.
+    // NavHost define el contenedor para el grafo de navegación.
     NavHost(
         navController = navController,
         startDestination = "InicioSesion", // La pantalla con la que arranca la app.
         modifier = modifier.fillMaxSize()
     ) {
-        // Define la pantalla "Entrada"
-//        composable("Entrada") {
-//            Entrada(
-//                navController = navController,
-//                appVM = appVM
-//            )
-//        }
+        // --- FLUJO DE AUTENTICACIÓN Y REGISTRO ---
 
-        // Define la pantalla "Inicio"
-//        composable("Inicio") {
-//            Inicio(
-//                onNavigateToInicioSesion = { navController.navigate("InicioSesion") },
-//                onNavigateToRegistro = { navController.navigate("Registro") },
-//                appVM = appVM
-//            )
-//        }
-
-        // Define la pantalla "InicioSesion"
         composable("InicioSesion") {
             InicioSesion(
                 onNavigateToRegistro = { navController.navigate("Registro") },
@@ -186,7 +187,6 @@ fun AppNavHost(
             )
         }
 
-        // Define la pantalla "Registro"
         composable("Registro") {
             Registro(
                 onNavigateToRegistroUsuario = { navController.navigate("registro_usuario") },
@@ -194,26 +194,46 @@ fun AppNavHost(
             )
         }
 
-        // Define la pantalla "registro_usuario" para el ingreso de datos
         composable("registro_usuario") {
             IngresoDeDatos(
                 appVM = appVM,
                 onNavigateToLogin = {
                     navController.navigate("InicioSesion") {
+                        // Limpia el backstack hasta la pantalla de inicio para un flujo limpio.
                         popUpTo("Inicio") { inclusive = true }
                     }
                 }
             )
         }
 
-        //Define la pantalla de solicitud de negocio
         composable("SolicitudNegocio") {
             RellenoDeSolicitud(
                 appVM = appVM,
             )
         }
 
-        // Define la pantalla para actualizar datos con acceso al menú
+        // --- PANTALLAS PRINCIPALES (POST-AUTENTICACIÓN) ---
+
+        composable("PromocionesScreen") {
+            PromocionesScreen(
+                appVM = appVM
+            )
+        }
+
+        composable("HomeUsuario") { // Asumo que "Promociones" era un nombre temporal
+            HomeUsuario(
+                appVM = appVM
+            )
+        }
+
+        composable("ID") {
+            PantallaIDDigital(
+                appVM = appVM
+            )
+        }
+
+        // --- PANTALLAS DEL MENÚ LATERAL ---
+
         composable("ActualizarDatos") {
             ActualizarDatos(
                 appVM = appVM,
@@ -226,30 +246,18 @@ fun AppNavHost(
             )
         }
 
-        // Define la pantalla para confirmar la salida (logout)
         composable("ConfirmarSalida") {
             ConfirmarSalida(
                 appVM = appVM,
-                onDismissRequest = { navController.popBackStack() },
+                onDismissRequest = { navController.popBackStack() }, // Cierra el diálogo al cancelar
             )
         }
 
-        composable("Promociones") {
-            HomeUsuario(
-                appVM = appVM
-            )
-        }
-
-        composable("ID") {
-            PantallaIDDigital(
-                appVM = appVM
-            )
-        }
-
-        composable("PromocionesScreen") {
-            PromocionesScreen(
-                appVM = appVM
+        composable("EscaneoQR"){
+            EscaneoQR(
+                paddingValues = PaddingValues()
             )
         }
     }
 }
+

@@ -1,6 +1,6 @@
 package mx.tec.proyectoBJ.model
 
-import mx.tec.ptoyectobj.URL_BASE
+import mx.tec.proyectoBJ.URL_BASE
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
