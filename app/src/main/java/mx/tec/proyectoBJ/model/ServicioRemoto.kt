@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.Exception
 import android.util.Log
 import com.google.maps.android.ktx.BuildConfig
-
+import retrofit2.HttpException
 
 /**
  * Objeto singleton para gestionar las comunicaciones con el servidor remoto (API).
@@ -60,7 +60,7 @@ object ServicioRemoto {
     private val retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(URL_BASE) //Cambiar a HTTPS
-            .client(cliente)
+            // .client(cliente)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -79,7 +79,7 @@ object ServicioRemoto {
      * Maneja excepciones de red y HTTP, imprimiendo los detalles del error en la consola.
      * @param usuario El objeto `Usuario` con los datos a registrar.
      */
-    suspend fun registrarUsuario(usuario: Usuario):Boolean {
+    suspend fun registrarUsuario(usuario: Usuario): Boolean {
        return try {
             val response= servicio.registrarUsuario(usuario)
             println("Registro de usuario exitoso")
@@ -98,7 +98,7 @@ object ServicioRemoto {
        }
     }
 
-    suspend fun iniciarSesion(correo:String, contrasena:String):String?{
+    suspend fun iniciarSesion(correo:String, contrasena:String): Any? {
         val request= LoginRequest(correo=correo, contrasena=contrasena)
         return try{
             val response=servicio.iniciarSesion(request)
@@ -119,6 +119,51 @@ object ServicioRemoto {
         } catch(e: Exception) {
             println("Error en la descarga: $e")
             null
+        }
+        return null
+    }
+
+    /**
+     * Envía una petición a la API para eliminar un usuario por su ID.
+     * @param idUsuario El ID del usuario que se desea eliminar.
+     * @return `true` si el usuario fue eliminado exitosamente (código 2xx),
+     *         `false` en caso contrario (error del servidor o de conexión).
+     */
+    suspend fun borrarUsuario(idUsuario: Int): Boolean {
+        return try {
+            val response = servicio.borrarUsuario(idUsuario)
+            if (response.isSuccessful) {
+                println("Usuario con ID $idUsuario borrado exitosamente.")
+                true
+            } else {
+                println("Error al borrar el usuario. Código: ${response.code()}, Mensaje: ${response.message()}")
+                false
+            }
+        } catch (e: HttpException) {
+            println("Error HTTP al borrar usuario: ${e.message()}")
+            false
+        } catch (e: Exception) {
+            println("Error de conexión al intentar borrar usuario: $e")
+            false
+        }
+    }
+
+    suspend fun actualizarUsuario(idUsuario: Int, usuario: Usuario): Boolean {
+        return try {
+            val response = servicio.actualizarUsuario(idUsuario, usuario)
+            if (response.isSuccessful) {
+                println("Usuario actualizado correctamente (ID: $idUsuario).")
+                true
+            } else {
+                println("Error al actualizar usuario. Código: ${response.code()}, mensaje: ${response.message()}")
+                false
+            }
+        } catch (e: HttpException) {
+            println("Error HTTP al actualizar usuario: ${e.message()}")
+            false
+        } catch (e: Exception) {
+            println("Error de conexión al intentar actualizar usuario: $e")
+            false
         }
     }
 
@@ -151,4 +196,20 @@ object ServicioRemoto {
         return listOf()
     }
 
+    suspend fun generarQR(idUsuario: Int): okhttp3.ResponseBody? {
+        return try {
+            val respuesta = servicio.generarQR(idUsuario)
+
+            if (respuesta.isSuccessful) {
+                Log.d("ServicioRemoto", "QR generado exitosamente para el usuario $idUsuario.")
+                respuesta.body() // Devuelve el cuerpo de la respuesta (la imagen)
+            } else {
+                Log.e("ServicioRemoto", "Error al generar QR. Código: ${respuesta.code()}, Mensaje: ${respuesta.errorBody()?.string()}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("ServicioRemoto", "Excepción al generar QR: ${e.message}")
+            null
+        }
+    }
 }

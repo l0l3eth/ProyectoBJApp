@@ -87,7 +87,7 @@ fun IDCard(data: Usuario?, appVM : AppVM ) {
     }
     val qrBitmap by appVM.qrBitmap.collectAsState()
     val isLoading by appVM.cargandoQR.collectAsState()
-    val error by appVM.errorMensaje.observeAsState() // Si usas LiveData para errores
+    val error by appVM.errorMensaje.observeAsState()
 
     Card(
         modifier = Modifier
@@ -127,41 +127,45 @@ fun IDCard(data: Usuario?, appVM : AppVM ) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            when {
-                isLoading -> {
-                    // Muestra un indicador de carga mientras se genera el QR
-                    CircularProgressIndicator()
-                    Text("Generando tu código QR...")
-                }
-                qrBitmap != null -> {
-                    // Si el bitmap no es nulo, muestra la imagen
-                    Text("¡Tu QR ha sido generado!", style = MaterialTheme.typography.titleLarge)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Image(
-                        bitmap = qrBitmap!!, // El !! es seguro por la comprobación qrBitmap != null
-                        contentDescription = "Código QR del usuario",
-                        modifier = Modifier.size(250.dp)
-                    )
-                }
-                error != null -> {
-                    // Si hay un error, muéstralo
-                    Text(
-                        text = "Error: $error",
-                        color = MaterialTheme.colorScheme.error,
-                        textAlign = TextAlign.Center
-                    )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(250.dp) // Da un tamaño fijo al contenedor
+            ) {
+                when {
+                    isLoading -> {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator()
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("Generando tu código QR...")
+                        }
+                    }
+                    qrBitmap != null -> {
+                        // Si el bitmap no es nulo, muestra la imagen
+                        Image(
+                            bitmap = qrBitmap!!, // El !! es seguro aquí
+                            contentDescription = "Código QR del usuario",
+                            modifier = Modifier.fillMaxSize() // La imagen llena el Box
+                        )
+                    }
+                    error != null -> {
+                        // Si hay un error, muéstralo
+                        Text(
+                            text = "Error: $error",
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    else -> {
+                        // Estado inicial o si data es null
+                        Text(
+                            text = "No se puede generar el QR.",
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
-
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Tipo de Usuario (etiqueta inferior)
-            Text(
-                text = data?.tipoUsuario ?: "Tipo de Usuario",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black
-            )
         }
     }
 }

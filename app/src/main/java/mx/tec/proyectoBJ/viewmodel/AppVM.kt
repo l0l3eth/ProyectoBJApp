@@ -1,8 +1,8 @@
 package mx.tec.proyectoBJ.viewmodel
 
 import android.graphics.BitmapFactory
-import androidx.compose.runtime.State // Importación clave
-import androidx.compose.runtime.mutableStateOf // Importación clave
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.LiveData
@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import mx.tec.proyectoBJ.model.ServicioRemoto
 import mx.tec.proyectoBJ.model.TarjetaNegocio
 import mx.tec.proyectoBJ.model.Usuario
+import java.io.IOException // Importante para un manejo de errores más específico
 
 /**
  * ViewModel principal de la aplicación (`AppVM`).
@@ -28,7 +29,9 @@ import mx.tec.proyectoBJ.model.Usuario
  * funcionalidades clave como:
  * - Control de la pantalla de bienvenida (splash screen).
  * - Registro e inicio de sesión de usuarios.
- * - Eliminación de usuarios.
+ * - Eliminación y actualización de usuarios.
+ * - Generación de códigos QR.
+ * - Carga de tarjetas de negocio.
  *
  * Comunica el resultado de las operaciones a la UI a través de LiveData y StateFlow,
  * permitiendo una arquitectura reactiva y desacoplada.
@@ -40,68 +43,62 @@ sealed class PantallaSplash {
     object NavegarAInicio : PantallaSplash()
 }
 
-class AppVM : ViewModel(){
+class AppVM : ViewModel() {
     private val servicioRemoto = ServicioRemoto
 
-    // ... (El resto de tus propiedades como _NavegarAInicio, _usuarioLogeado, etc., se mantienen igual)
-    private val _NavegarAInicio = MutableSharedFlow<PantallaSplash>()
-    val NavegarAInicio: SharedFlow<PantallaSplash> = _NavegarAInicio.asSharedFlow()
+    // Flujo para la navegación después de la pantalla de bienvenida
+    private val _navegarAInicio = MutableSharedFlow<PantallaSplash>()
+    val navegarAInicio: SharedFlow<PantallaSplash> = _navegarAInicio.asSharedFlow()
 
+    // Estado del usuario que ha iniciado sesión
     private val _usuarioLogeado = MutableLiveData<Usuario?>(null)
     val usuarioLogeado: LiveData<Usuario?> = _usuarioLogeado
 
+    // Mensajes de error para mostrar en la UI
     private val _errorMensaje = MutableLiveData<String?>(null)
     val errorMensaje: LiveData<String?> = _errorMensaje
 
+    // Estado para operaciones de borrado
     private val _estaBorrando = MutableStateFlow(false)
     val estaBorrando: StateFlow<Boolean> = _estaBorrando.asStateFlow()
 
     private val _borradoExitoso = MutableSharedFlow<Boolean>()
     val borradoExitoso: SharedFlow<Boolean> = _borradoExitoso.asSharedFlow()
 
+    // Estado y datos para la generación del código QR
     private val _qrBitmap = MutableStateFlow<ImageBitmap?>(null)
     val qrBitmap: StateFlow<ImageBitmap?> = _qrBitmap.asStateFlow()
 
     private val _cargandoQR = MutableStateFlow(false)
     val cargandoQR: StateFlow<Boolean> = _cargandoQR.asStateFlow()
 
-    /**
-     * Estado privado y mutable: Solo el ViewModel puede modificar esta lista.
-     * La UI observa esta lista para mostrar las tarjetas de negocio.
-     */
+    // Estado y datos para la lista de tarjetas de negocio
     private val _listaNegocios = mutableStateOf<List<TarjetaNegocio>>(emptyList())
-    // CORRECCIÓN: Se expone como State<T> que es de solo lectura para la UI. Esto está correcto.
     val listaNegocios: State<List<TarjetaNegocio>> = _listaNegocios
 
-    /**
-     * Estado privado y mutable para el estado de carga de los negocios.
-     */
-    private val _cargando = mutableStateOf(false)
-    // CORRECCIÓN: Se expone como State<Boolean> de solo lectura. Esto también está correcto.
-    val cargando: State<Boolean> = _cargando
-
+    private val _cargandoNegocios = mutableStateOf(false)
+    val cargandoNegocios: State<Boolean> = _cargandoNegocios
 
     init {
-        // Ejecuta la lógica de retardo y navegación al iniciar el ViewModel
         viewModelScope.launch {
-            // Retraso para la pantalla de bienvenida
-            delay(3000L)
-            // Envía el evento de navegación para pasar a la siguiente pantalla
-            _NavegarAInicio.emit(PantallaSplash.NavegarAInicio)
+            delay(2000L) // Retraso para la pantalla de bienvenida
+            _navegarAInicio.emit(PantallaSplash.NavegarAInicio)
         }
-        // Llamamos a la función para cargar los negocios cuando el ViewModel se crea.
+        // Cargar los negocios al iniciar el ViewModel
         obtenerTarjetasNegocios()
     }
 
-    // ... (Las funciones enviarUsuario, iniciarSesion, eliminarUsuario, actualizarUsuario y generarQR se mantienen igual)
-    fun enviarUsuario(nombre: String,
-                      apellido: String,
-                      correo: String,
-                      contrasena: String,
-                      direccion: String,
-                      numeroTelefono: String,
-                      curp: String) {
+    fun enviarUsuario(
+        nombre: String,
+        apellido: String,
+        correo: String,
+        contrasena: String,
+        direccion: String,
+        numeroTelefono: String,
+        curp: String
+    ) {
         viewModelScope.launch {
+            // Aquí también podrías añadir validaciones antes de enviar
             servicioRemoto.registrarUsuario(
                 Usuario(
                     nombre = nombre,
@@ -120,7 +117,7 @@ class AppVM : ViewModel(){
         viewModelScope.launch {
             val resultadoUsuario = ServicioRemoto.iniciarSesion(correo, contrasena)
             if (resultadoUsuario != null) {
-                _usuarioLogeado.value = resultadoUsuario
+                _usuarioLogeado.value = resultadoUsuario as Usuario?
                 _errorMensaje.value = null
             } else {
                 _usuarioLogeado.value = null
@@ -131,60 +128,45 @@ class AppVM : ViewModel(){
 
     fun eliminarUsuario(idUsuario: Int) {
         viewModelScope.launch {
-            // Indicar que la operación ha comenzado
             _estaBorrando.value = true
-            _errorMensaje.value = null // Limpiar errores previos
+            _errorMensaje.value = null
 
             val exito = servicioRemoto.borrarUsuario(idUsuario)
-
             if (exito) {
-                // Notificar a la UI que el borrado fue exitoso
                 _borradoExitoso.emit(true)
             } else {
-                // Notificar a la UI que hubo un error
                 _errorMensaje.value = "No se pudo eliminar el usuario. Inténtalo de nuevo."
             }
-            // Indicar que la operación ha terminado
             _estaBorrando.value = false
         }
     }
 
     fun actualizarUsuario(idUsuario: Int, usuario: Usuario) {
-        // validaciones ALGUIEN HAGA MEJOR ESTO PORFA ESTA HORRIBLE COMO LA HICE XD
-        if (!usuario.nombre.matches(Regex("^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$"))) {
-            _errorMensaje.value = "Error, el nombre solo puede contener letras."
-            return // Detiene la ejecución si el nombre es inválido
-        }
-        if (usuario.nombre == "") {
-            _errorMensaje.value = "Error, el nombre no puede estar vacío."
-            return
-        }
-
-        if (!usuario.apellidos.matches(Regex("^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$"))) {
-            _errorMensaje.value = "Error, el apellido solo puede contener letras."
-            return // Detiene la ejecución si el nombre es inválido
-        }
-        if (usuario.apellidos == "") {
-            _errorMensaje.value = "Error, el apellido no puede estar vacío."
-            return
-        }
-        // Esta Regex es un estándar común para validar el formato de un email.
+        // CORRECCIÓN: Validaciones mejoradas y centralizadas al inicio de la función.
         val emailRegex = Regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$")
+
+        if (usuario.nombre.isBlank() || usuario.apellidos.isBlank() || usuario.correo.isBlank()) {
+            _errorMensaje.value = "Error, ningún campo puede estar vacío."
+            return
+        }
+        if (!usuario.nombre.matches(Regex("^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+\$"))) {
+            _errorMensaje.value = "Error, el nombre solo puede contener letras y espacios."
+            return
+        }
+        if (!usuario.apellidos.matches(Regex("^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+\$"))) {
+            _errorMensaje.value = "Error, los apellidos solo pueden contener letras y espacios."
+            return
+        }
         if (!usuario.correo.matches(emailRegex)) {
             _errorMensaje.value = "Error, el formato del correo no es válido."
-            return // Detiene la ejecución si el correo es inválido
+            return
         }
-        // ---------------------------------------------------
 
-        // Si todas las validaciones pasan, se ejecuta la actualización.
         viewModelScope.launch {
-            // Limpiamos cualquier mensaje de error previo antes de intentar la operación
             _errorMensaje.postValue(null)
-
             val exito = servicioRemoto.actualizarUsuario(idUsuario, usuario)
             if (exito) {
                 println("Usuario actualizado con éxito.")
-                // Actualiza el LiveData con el nuevo objeto de usuario para que la UI reaccione
                 _usuarioLogeado.postValue(usuario)
             } else {
                 _errorMensaje.value = "No se pudo actualizar el usuario. Inténtalo de nuevo."
@@ -192,39 +174,43 @@ class AppVM : ViewModel(){
         }
     }
 
+    /**
+     * CORRECCIÓN: Se unificaron las funciones `generarQR` en una sola.
+     * Genera un código QR para el usuario que ha iniciado sesión.
+     * Si necesitas generar un QR para otro usuario, puedes crear otra función como `generarQROtroUsuario(id: Int)`.
+     */
     fun generarQR() {
-        // Obtenemos el ID del usuario que ya inició sesión.
-        val idUsuario = _usuarioLogeado.value?.id ?: return
+        // Se obtiene el ID del usuario logeado. Si no hay, la función termina.
+        val idUsuario = _usuarioLogeado.value?.id ?: run {
+            _errorMensaje.value = "No se ha iniciado sesión para generar un QR."
+            return
+        }
 
         viewModelScope.launch {
-            // 1. Iniciar estado de carga y limpiar datos anteriores
             _cargandoQR.value = true
             _qrBitmap.value = null
             _errorMensaje.value = null
 
             try {
-                // 2. Llamar al servicio remoto
-                val response = servicioRemoto.generarQR(idUsuario)
+                // Se asume que ServicioRemoto.generarQR devuelve ResponseBody?
+                val responseBody = servicioRemoto.generarQR(idUsuario)
 
-                if (response.isSuccessful && response.body() != null) {
-                    // 3. Procesar la respuesta exitosa
-                    val responseBody = response.body()!!
-                    // Convertir los bytes de la respuesta en un array
+                if (responseBody != null) {
                     val bytes = responseBody.bytes()
-                    // Decodificar el array de bytes a un Bitmap y luego a un ImageBitmap
                     val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    _qrBitmap.value = bitmap?.asImageBitmap() // Actualizar el StateFlow
-
+                    _qrBitmap.value = bitmap?.asImageBitmap()
                 } else {
-                    // 4. Manejar respuesta de error del servidor
-                    _errorMensaje.value = "Error al generar el QR. Código: ${response.code()}"
+                    _errorMensaje.value = "No se pudo obtener el código QR del servidor."
                 }
+            } catch (e: IOException) {
+                // Error de red o de I/O
+                _errorMensaje.value = "Error de conexión al generar QR: ${e.message}"
+                e.printStackTrace()
             } catch (e: Exception) {
-                // 5. Manejar errores de red u otras excepciones
-                _errorMensaje.value = "Error de conexión: ${e.message}"
+                // Otro tipo de error
+                _errorMensaje.value = "Ocurrió un error inesperado al generar QR: ${e.message}"
                 e.printStackTrace()
             } finally {
-                // 6. Finalizar estado de carga
                 _cargandoQR.value = false
             }
         }
@@ -232,21 +218,14 @@ class AppVM : ViewModel(){
 
     fun obtenerTarjetasNegocios() {
         viewModelScope.launch {
-            // CORRECCIÓN: Para cambiar el valor, se usa la propiedad .value del MutableState.
-            _cargando.value = true
+            _cargandoNegocios.value = true
             try {
-                // Llamamos a la función correcta de tu servicio remoto.
-                val resultado = ServicioRemoto.obtenerTarjetasNegocios()
-                // CORRECCIÓN: Asignamos el resultado a la propiedad .value del MutableState.
-                _listaNegocios.value = resultado
-
+                _listaNegocios.value = servicioRemoto.obtenerTarjetasNegocios()
             } catch (e: Exception) {
-                // Maneja el error. Considera usar el _errorMensaje para notificar a la UI.
                 _errorMensaje.value = "Error al obtener negocios: ${e.message}"
                 println("Error al obtener negocios: ${e.message}")
             } finally {
-                // CORRECCIÓN: Finaliza el estado de carga usando la propiedad .value.
-                _cargando.value = false
+                _cargandoNegocios.value = false
             }
         }
     }

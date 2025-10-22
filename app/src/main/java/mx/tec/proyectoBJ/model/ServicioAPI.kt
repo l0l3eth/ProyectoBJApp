@@ -12,7 +12,7 @@ import retrofit2.http.Path
 
 interface ServicioAPI {
     //Iniciar Sesión
-    @POST("/api/auth/login-token")
+    @POST("/api/auth/login-token") //Ya cambio el endpoint
     suspend fun iniciarSesion(
         @Body credenciales: LoginRequest
     ): Response<Usuario>
@@ -54,4 +54,8 @@ interface ServicioAPI {
     suspend fun generarQR(
         @Path("id") idUsuario: Int
     ): Response<ResponseBody>
+
+    //Extraer imagen de negocio
+    @GET("api/negocios/{ID}/logo")
+    suspend fun obtenerLogoNegocio(@Path("ID") idNegocio: Int): Response<ResponseBody>
 }
