@@ -182,7 +182,6 @@ fun AppNavHost(
         composable("InicioSesion") {
             InicioSesion(
                 onNavigateToRegistro = { navController.navigate("Registro") },
-                onNavigateToPrueba = { navController.navigate("PromocionesScreen") },
                 appVM = appVM
             )
         }
