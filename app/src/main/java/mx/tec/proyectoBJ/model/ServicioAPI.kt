@@ -12,7 +12,7 @@ import retrofit2.http.Path
 
 interface ServicioAPI {
     //Iniciar Sesión
-    @POST("/api/auth/login")
+    @POST("/api/auth/login-token")
     suspend fun iniciarSesion(
         @Body credenciales: LoginRequest
     ): Response<Usuario>
