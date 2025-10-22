@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 // Modelo
 
-const val URL_BASE = "http://54.144.192.111:8080" //Cambiar http por httpsis
+const val URL_BASE = "https://benejoven.hopto.org"
 
 // Vista
 
