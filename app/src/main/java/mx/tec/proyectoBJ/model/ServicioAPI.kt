@@ -54,4 +54,8 @@ interface ServicioAPI {
     suspend fun generarQR(
         @Path("id") idUsuario: Int
     ): Response<ResponseBody>
+
+    @GET("/api/promociones")
+    suspend fun obtenerPromocionesNegocio(): Response<List<Promocion>>
+
 }

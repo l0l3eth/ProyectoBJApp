@@ -149,4 +149,20 @@ object ServicioRemoto {
         return listOf()
     }
 
+
+    suspend fun obtenerPromocionesNegocio(): List<Promocion> {
+        try{
+            val response = servicio.obtenerPromocionesNegocio()
+            if (response.isSuccessful){
+                return response.body() ?: listOf()
+            }else{
+                Log.e("Error al obtener promociones", "Código: ${response.code()}")
+                throw HttpException(response)
+            }
+        }catch(e:Exception){
+            Log.e("Fallo de conexión", "Mensaje: ${e.message}")
+        }
+        return listOf()
+    }
+
 }
