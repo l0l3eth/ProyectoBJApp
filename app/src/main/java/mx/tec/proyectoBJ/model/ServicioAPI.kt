@@ -12,7 +12,7 @@ import retrofit2.http.Path
 
 interface ServicioAPI {
     //Iniciar Sesión
-    @POST("/api/auth/login") //endpoint de inicio de sesión /api/auth/login-token
+    @POST("/api/auth/login-token") //Ya cambio el endpoint
     suspend fun iniciarSesion(
         @Body credenciales: LoginRequest
     ): Response<Usuario>
