@@ -72,7 +72,9 @@ interface ServicioAPI {
      * @return Un [Response] que contiene una lista de objetos [Negocio].
      */
     @GET("/api/negocios")
-    suspend fun obtenerNegocios(): Response<List<Negocio>>
+    suspend fun obtenerNegocios(
+        @Header("Authorization") token: String
+    ): Response<List<Negocio>>
 
     /**
      * Obtiene una lista simplificada de negocios para mostrar como tarjetas.
@@ -80,7 +82,9 @@ interface ServicioAPI {
      * y no está envuelta en un objeto `Response`.
      */
     @GET("/api/negocios")
-    suspend fun obtenerTarjetasNegocios(): List<TarjetaNegocio>
+    suspend fun obtenerTarjetasNegocios(
+        @Header("Authorization") token: String
+    ): List<TarjetaNegocio>
 
     /**
      * Obtiene una lista de todos los usuarios registrados.
