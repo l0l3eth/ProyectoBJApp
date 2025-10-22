@@ -42,9 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mx.tec.proyectoBJ.R
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.ptoyectobj.blanco
-import mx.tec.ptoyectobj.degradado
-import mx.tec.ptoyectobj.morado
+import mx.tec.proyectoBJ.blanco
+import mx.tec.proyectoBJ.degradado
+import mx.tec.proyectoBJ.morado
 
 /**
  * Composable que define la pantalla de inicio de sesión de la aplicación.
@@ -60,7 +60,6 @@ import mx.tec.ptoyectobj.morado
  */
 @Composable
 fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
-                  onNavigateToPrueba: () -> Unit, //TODO: Borrar
                   appVM: AppVM
 ) {
     // Estados para los campos de texto
@@ -179,7 +178,7 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
 
             // Botón "Iniciar sesión" (con degradado)
             Button(
-                onClick = {/*appVM.iniciarSesion(email, password)*/ onNavigateToPrueba() /*TODO: Borrar*/ },
+                onClick = {appVM.iniciarSesion(email, password) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
@@ -237,5 +236,5 @@ private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    InicioSesion( onNavigateToRegistro = { }, onNavigateToPrueba = { } ,appVM = AppVM())
+    InicioSesion( onNavigateToRegistro = { },appVM = AppVM())
 }

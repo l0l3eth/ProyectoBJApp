@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -13,8 +13,12 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,11 +27,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.launch
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.ptoyectobj.blanco
-import mx.tec.ptoyectobj.morado
-import mx.tec.ptoyectobj.naranja
+import mx.tec.proyectoBJ.blanco
+import mx.tec.proyectoBJ.morado
+import mx.tec.proyectoBJ.naranja
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -80,7 +83,7 @@ fun AppMenuLateral(
 
         // --- Item para cerrar sesión (abre el diálogo) ---
         NavigationDrawerItem(
-            icon = { Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión") },
+            icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Cerrar Sesión") },
             label = { Text("Cerrar Sesión") },
             selected = false,
             onClick = {

@@ -1,6 +1,5 @@
 package mx.tec.proyectoBJ.view
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -62,11 +61,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import mx.tec.proyectoBJ.R
 import mx.tec.proyectoBJ.model.Producto
-import mx.tec.proyectoBJ.view.outlinedTextFieldColors
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.ptoyectobj.blanco
-import mx.tec.ptoyectobj.morado
-import mx.tec.ptoyectobj.naranja
+import mx.tec.proyectoBJ.blanco
+import mx.tec.proyectoBJ.morado
+import mx.tec.proyectoBJ.naranja
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -78,7 +76,7 @@ import java.util.Date
  * @param modifier Modificador para personalizar el layout y la apariencia.
  * @param etiqueta El texto que se muestra como placeholder o etiqueta flotante.
  * @param onValueChange Callback que se invoca cuando el valor del texto cambia.
- * Autores: Estrella Lolbeth Téllez Rivas A01750496
+ * Creado por: Estrella Lolbeth Téllez Rivas A01750496
  *          Allan Mauricio Brenes Castro  A01750747
  */
 @Composable
@@ -170,7 +168,6 @@ fun BotonCircular(icono: ImageVector,
         modifier = modifier
             .padding(0.dp)
             .size(tamano.dp)
-            .background(White)
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -568,13 +565,6 @@ fun BoxScope.Icono() {
                     .fillMaxSize()
                     .background(Color.Red.copy(alpha = 0.5f)) // Simulación del logo interno
             )
-            /* Si tuvieras el asset:
-                Image(
-                    painter = painterResource(id = R.drawable.logo_negocio),
-                    contentDescription = "Logo del negocio",
-                    modifier = Modifier.fillMaxSize()
-                )
-                */
         }
     }
 }

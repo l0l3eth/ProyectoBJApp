@@ -27,10 +27,24 @@ import mx.tec.proyectoBJ.model.Promocion
 import mx.tec.proyectoBJ.viewmodel.AppVM
 
 
+/**
+ * Muestra la pantalla de promociones.
+ *
+ * Esta pantalla observa el estado del [AppVM] para mostrar una lista de promociones.
+ * Gestiona y muestra diferentes estados de la UI:
+ * - Un indicador de progreso mientras se cargan los datos.
+ * - Un mensaje de error si la carga falla.
+ * - Un mensaje indicando que no hay promociones si la lista está vacía.
+ * - La lista de promociones utilizando un `LazyColumn`.
+ *
+ * @param appVM La instancia del ViewModel [AppVM] que proporciona el estado y los datos de las promociones.
+ * Creado por: Carlos Antonio Tejero Andrade A01801062
+ */
 @Composable
 fun PromocionesScreen(
     appVM: AppVM,
 ){
+    // Se suscribe a los flujos de estado del ViewModel para reaccionar a los cambios.
     val listaPromocion by appVM.promociones.collectAsState()
     val estaCargando by appVM.estaCargando.collectAsState()
     val error by appVM.error.collectAsState()
@@ -39,9 +53,11 @@ fun PromocionesScreen(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        // Muestra un indicador de carga mientras se obtienen los datos.
         if (estaCargando) {
             CircularProgressIndicator(modifier = Modifier.size(50.dp))
         }
+        // Muestra un mensaje de error si ocurrió un problema.
         else if(error != null){
             Text(
                 text= error!!,
@@ -49,12 +65,14 @@ fun PromocionesScreen(
                 style=MaterialTheme.typography.bodyLarge
             )
         }
+        // Muestra un mensaje si no hay promociones disponibles.
         else if(listaPromocion.isEmpty()){
             Text(
                 text="Aun no hay promociones",
                 style=MaterialTheme.typography.bodyLarge
             )
         }
+        // Muestra la lista de promociones si hay datos disponibles.
         else{
             LazyColumn (
                 modifier = Modifier.fillMaxSize(),
@@ -62,13 +80,21 @@ fun PromocionesScreen(
             ) {
                 items(listaPromocion) {promocion->
                     PromocionItem(promocion=promocion)
-
                 }
             }
         }
     }
 }
 
+/**
+ * Representa un único elemento visual para una promoción dentro de la lista.
+ *
+ * Este Composable muestra los detalles de una promoción, como su nombre y descripción,
+ * dentro de una tarjeta con elevación para un mejor diseño visual.
+ *
+ * @param promocion El objeto [Promocion] que contiene los datos a mostrar.
+ * @param modifier El [Modifier] que se aplicará a la `Card`.
+ */
 @Composable
 fun PromocionItem(
     promocion: Promocion,
@@ -92,8 +118,6 @@ fun PromocionItem(
                 text = "Válido hasta: ${promocion.descripcion}",
                 style = MaterialTheme.typography.bodyMedium
             )
-
         }
-
     }
 }

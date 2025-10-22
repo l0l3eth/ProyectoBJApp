@@ -22,25 +22,34 @@ import mx.tec.proyectoBJ.model.Promocion
 import mx.tec.proyectoBJ.model.ServicioRemoto
 import mx.tec.proyectoBJ.model.TarjetaNegocio
 import mx.tec.proyectoBJ.model.Usuario
-import java.io.IOException // Importante para un manejo de errores más específico
+import java.io.IOException
 
 /**
- * ViewModel principal de la aplicación (`AppVM`).
+ * ViewModel principal de la aplicación que actúa como el centro de la lógica de negocio.
  *
- * Se encarga de la lógica de negocio y de gestionar el estado de la UI para
- * funcionalidades clave como:
- * - Control de la pantalla de bienvenida (splash screen).
- * - Registro e inicio de sesión de usuarios.
- * - Eliminación y actualización de usuarios.
- * - Generación de códigos QR.
- * - Carga de tarjetas de negocio.
+ * Esta clase se encarga de preparar y gestionar los datos para la UI, reaccionando a las
+ * interacciones del usuario y comunicándose con la capa de datos (a través de [ServicioRemoto]).
+ * Expone el estado de la aplicación a los Composables mediante el uso de [LiveData] y [StateFlow],
+ * asegurando una arquitectura reactiva y desacoplada.
  *
- * Comunica el resultado de las operaciones a la UI a través de LiveData y StateFlow,
- * permitiendo una arquitectura reactiva y desacoplada.
- * Autores: Estrella Lolbeth Téllez Rivas A01750496
- *          Allan Mauricio Brenes Castro  A01750747
+ * ### Responsabilidades Clave:
+ * - **Gestión de Sesión:** Maneja el inicio de sesión, registro, actualización y eliminación de usuarios.
+ * - **Visualización de Datos:** Obtiene y gestiona listas de tarjetas de negocio y promociones.
+ * - **Generación de Contenido:** Crea códigos QR para los usuarios.
+ * - **Control de Flujo de UI:** Gestiona la navegación inicial después de la pantalla de bienvenida.
+ * - **Manejo de Estado:** Proporciona estados de carga, éxito y error para las operaciones asíncronas,
+ *   permitiendo que la UI reaccione de manera apropiada.
+ *
+ * @property usuarioLogeado Expone los datos del usuario que ha iniciado sesión.
+ * @property listaNegocios Mantiene y expone la lista de tarjetas de negocio.
+ * @property promociones Mantiene y expone la lista de promociones.
+ * @property qrBitmap Contiene el [ImageBitmap] del código QR generado.
+ * @property errorMensaje Proporciona mensajes de error para ser mostrados en la UI.
+ *
+ * Creado por: Estrella Lolbeth Téllez Rivas A01750496
+               Allan Mauricio Brenes Castro A01750747
+               Carlos Antonio Tejero Andrade A01801062
  */
-
 sealed class PantallaSplash {
     object NavegarAInicio : PantallaSplash()
 }
@@ -81,24 +90,40 @@ class AppVM : ViewModel() {
     private val _cargandoNegocios = mutableStateOf(false)
     val cargandoNegocios: State<Boolean> = _cargandoNegocios
 
+    // Estado y datos para la lista de promociones
     private val _promociones=MutableStateFlow<List<Promocion>>(emptyList())
     val promociones=_promociones.asStateFlow()
 
+    // Estado de carga genérico para operaciones como la carga de promociones
     private val _estaCargando=MutableStateFlow(false)
     val estaCargando=_estaCargando.asStateFlow()
 
+    // Estado de error genérico
     private val _error=MutableStateFlow<String?>(null)
     val error=_error.asStateFlow()
 
     init {
         viewModelScope.launch {
             delay(2000)
-            }
-        // Cargar los negocios al iniciar el ViewModel
+            // Podrías emitir el evento de navegación aquí si fuera necesario
+            // _navegarAInicio.emit(PantallaSplash.NavegarAInicio)
+        }
+        // Cargar los datos iniciales al crear el ViewModel
         obtenerTarjetasNegocios()
         cargarPromociones()
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     *
+     * @param nombre Nombre del usuario.
+     * @param apellido Apellidos del usuario.
+     * @param correo Correo electrónico del usuario.
+     * @param contrasena Contraseña para la nueva cuenta.
+     * @param direccion Dirección del usuario.
+     * @param numeroTelefono Número de teléfono del usuario.
+     * @param curp CURP del usuario.
+     */
     fun enviarUsuario(
         nombre: String,
         apellido: String,
@@ -109,7 +134,6 @@ class AppVM : ViewModel() {
         curp: String
     ) {
         viewModelScope.launch {
-            // Aquí también podrías añadir validaciones antes de enviar
             servicioRemoto.registrarUsuario(
                 Usuario(
                     nombre = nombre,
@@ -124,6 +148,13 @@ class AppVM : ViewModel() {
         }
     }
 
+    /**
+     * Autentica a un usuario con su correo y contraseña.
+     * Actualiza [_usuarioLogeado] si las credenciales son correctas, o [_errorMensaje] si fallan.
+     *
+     * @param correo Correo electrónico del usuario.
+     * @param contrasena Contraseña del usuario.
+     */
     fun iniciarSesion(correo: String, contrasena: String) {
         viewModelScope.launch {
             val resultadoUsuario = ServicioRemoto.iniciarSesion(correo, contrasena)
@@ -137,6 +168,11 @@ class AppVM : ViewModel() {
         }
     }
 
+    /**
+     * Elimina un usuario del sistema.
+     *
+     * @param idUsuario El ID del usuario a eliminar.
+     */
     fun eliminarUsuario(idUsuario: Int) {
         viewModelScope.launch {
             _estaBorrando.value = true
@@ -152,8 +188,14 @@ class AppVM : ViewModel() {
         }
     }
 
+    /**
+     * Actualiza los datos de un usuario existente.
+     * Realiza validaciones de formato y campos vacíos antes de enviar la solicitud.
+     *
+     * @param idUsuario El ID del usuario a actualizar.
+     * @param usuario El objeto [Usuario] con la información actualizada.
+     */
     fun actualizarUsuario(idUsuario: Int, usuario: Usuario) {
-        // CORRECCIÓN: Validaciones mejoradas y centralizadas al inicio de la función.
         val emailRegex = Regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$")
 
         if (usuario.nombre.isBlank() || usuario.apellidos.isBlank() || usuario.correo.isBlank()) {
@@ -186,12 +228,11 @@ class AppVM : ViewModel() {
     }
 
     /**
-     * CORRECCIÓN: Se unificaron las funciones `generarQR` en una sola.
      * Genera un código QR para el usuario que ha iniciado sesión.
-     * Si necesitas generar un QR para otro usuario, puedes crear otra función como `generarQROtroUsuario(id: Int)`.
+     * El resultado se almacena en [_qrBitmap].
+     * Maneja los estados de carga y error durante el proceso.
      */
     fun generarQR() {
-        // Se obtiene el ID del usuario logeado. Si no hay, la función termina.
         val idUsuario = _usuarioLogeado.value?.id ?: run {
             _errorMensaje.value = "No se ha iniciado sesión para generar un QR."
             return
@@ -203,9 +244,7 @@ class AppVM : ViewModel() {
             _errorMensaje.value = null
 
             try {
-                // Se asume que ServicioRemoto.generarQR devuelve ResponseBody?
                 val responseBody = servicioRemoto.generarQR(idUsuario)
-
                 if (responseBody != null) {
                     val bytes = responseBody.bytes()
                     val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
@@ -214,11 +253,9 @@ class AppVM : ViewModel() {
                     _errorMensaje.value = "No se pudo obtener el código QR del servidor."
                 }
             } catch (e: IOException) {
-                // Error de red o de I/O
                 _errorMensaje.value = "Error de conexión al generar QR: ${e.message}"
                 e.printStackTrace()
             } catch (e: Exception) {
-                // Otro tipo de error
                 _errorMensaje.value = "Ocurrió un error inesperado al generar QR: ${e.message}"
                 e.printStackTrace()
             } finally {
@@ -227,6 +264,9 @@ class AppVM : ViewModel() {
         }
     }
 
+    /**
+     * Obtiene la lista de tarjetas de negocio del servidor y la almacena en [_listaNegocios].
+     */
     fun obtenerTarjetasNegocios() {
         viewModelScope.launch {
             _cargandoNegocios.value = true
@@ -241,25 +281,23 @@ class AppVM : ViewModel() {
         }
     }
 
+    /**
+     * Carga la lista de promociones desde el servidor.
+     * Actualiza los estados [_estaCargando], [_promociones] y [_error] según el resultado de la operación.
+     */
     private fun cargarPromociones() {
         viewModelScope.launch {
-            _estaCargando.value = true // Mostramos el loader
-            _error.value = null      // Limpiamos errores anteriores
+            _estaCargando.value = true
+            _error.value = null
 
             try {
-                // AQUÍ OCURRE LA MAGIA:
-                // El ViewModel llama a ServicioRemoto para obtener los datos.
-                // No sabe cómo lo hace, solo confía en que le devolverá una lista.
                 val listaDesdeServidor = ServicioRemoto.obtenerPromocionesNegocio()
                 _promociones.value = listaDesdeServidor
-
             } catch (e: Exception) {
-                // Si ServicioRemoto falla (ej. sin internet), atrapamos el error.
-                Log.e("PromocionesVM", "Error al cargar promociones: ${e.message}")
+                Log.e("AppVM", "Error al cargar promociones: ${e.message}")
                 _error.value = "No se pudieron cargar las promociones. Intenta más tarde."
             } finally {
-                // Este bloque se ejecuta siempre, con o sin error.
-                _estaCargando.value = false // Ocultamos el loader
+                _estaCargando.value = false
             }
         }
     }

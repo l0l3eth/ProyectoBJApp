@@ -18,9 +18,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mx.tec.proyectoBJ.model.Horarios
-import mx.tec.ptoyectobj.fondoGris
-import mx.tec.ptoyectobj.morado
-import mx.tec.ptoyectobj.rosa
+import mx.tec.proyectoBJ.fondoGris
+import mx.tec.proyectoBJ.morado
+import mx.tec.proyectoBJ.rosa
 
 val sampleSchedule = listOf(
     Horarios("Lunes", "9:00 - 9:00, 18:00 - 22:00"),
