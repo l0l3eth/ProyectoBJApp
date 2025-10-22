@@ -55,7 +55,7 @@ interface ServicioAPI {
         @Path("id") idUsuario: Int
     ): Response<ResponseBody>
 
-    //Extraer imagen de negocio
-    @GET("api/negocios/{ID}/logo")
-    suspend fun obtenerLogoNegocio(@Path("ID") idNegocio: Int): Response<ResponseBody>
+    @GET("/api/promociones")
+    suspend fun obtenerPromocionesNegocio(): Response<List<Promocion>>
+
 }

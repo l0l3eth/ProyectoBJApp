@@ -20,12 +20,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,22 +52,27 @@ import mx.tec.ptoyectobj.morado
 @Composable
 fun NegocioEdicionPerfil(modifier: Modifier = Modifier) {
     // Objeto provisional
-    val negocio = Negocio(
-        nombreNegocio = "JÖTUNHEIM",
+    var negocio: Negocio by remember { mutableStateOf(Negocio(
+            nombreNegocio = "JÖTUNHEIM",
         numeroTelefono = "555-1234567",
         ubicacion = "Ciudad de México",
-        correo = "jottunheim@gmail.com",
-        descripcion = "Academia de Artes Marciales",
-        horarios = listOf(
-            Horarios("Lunes", "9:00 - 9:00, 18:00 - 22:00"),
-            Horarios("Martes", "9:00 - 9:00, 18:00 - 22:00"),
-            Horarios("Miércoles", "9:00 - 9:00, 18:00 - 22:00"),
-            Horarios("Jueves", "9:00 - 12:00"),
-            Horarios("Viernes", "11:00 - 20:00", esHoy = true), // Resaltado
-            Horarios("Sábado", "9:00 - 9:00, 18:00 - 22:00"),
-            Horarios("Domingo", "9:00 - 12:00"),
-        )
-    )
+        correo = "jottunheim@gmail.com"
+        ))
+    }
+
+    fun actualizar(nombreNegocio: String = "",
+                   numeroTelefono: String = "",
+                   correo: String = "",
+                   icono: String = "",
+                   portada: String = "") {
+        // Lógica para actualizar los datos del negocio
+        negocio.nombreNegocio = nombreNegocio
+        negocio.numeroTelefono = numeroTelefono
+        negocio.correo = correo
+        negocio.icono = icono
+        negocio.portada = portada
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
@@ -85,14 +95,26 @@ fun NegocioEdicionPerfil(modifier: Modifier = Modifier) {
                 EditarIcono(
                     contenido = {
                         EditarIcono()
-                    }
+                    },
+                    actualizar = { actualizar() }
                 )
             }
 
             BusinessInfoSectionEditable(
                 negocio = negocio,
                 modifier = modifier
-            )
+            ) {
+                actualizar()
+            }
+
+            ElevatedButton(
+                onClick = {  },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = White, // Fondo blanco
+                    contentColor = morado // Color del texto
+            )) {
+                Text("Guardar configuración")
+            }
         }
     }
 }
@@ -100,7 +122,8 @@ fun NegocioEdicionPerfil(modifier: Modifier = Modifier) {
 @Composable
 private fun EditarPerfilHeader(
     modifier: Modifier,
-    innerPadding: PaddingValues
+    innerPadding: PaddingValues,
+    actualizar: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -117,7 +140,10 @@ private fun EditarPerfilHeader(
 
             // Espacio negro para el banner/imagen del negocio
             EditarPortada(
-                contenido = { Portada() }
+                contenido = { Portada() },
+                actualizar = {
+                    actualizar()
+                }
             )
         }
     }
@@ -151,6 +177,7 @@ fun BarraArmaPerfil(modifier: Modifier = Modifier) {
 @Composable
 fun EditarPortada(
     modifier: Modifier = Modifier,
+    actualizar: () -> Unit,
     contenido: @Composable () -> Unit
 ) {
     // 1. Box permite superponer elementos unos encima de otros.
@@ -166,7 +193,7 @@ fun EditarPortada(
             onClick = { /* TODO: Lógica para cambiar la portada */ },
             shape = RoundedCornerShape(8.dp), // Esquinas redondeadas
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White, // Fondo blanco
+                containerColor = White, // Fondo blanco
                 contentColor = morado // Color del texto
             ),
             modifier = modifier.padding(4.dp)
@@ -183,6 +210,7 @@ fun EditarPortada(
 @Composable
 fun EditarIcono(
     modifier: Modifier = Modifier,
+    actualizar: () -> Unit,
     contenido: @Composable () -> Unit
 ) {
     // 1. Box para superponer el botón sobre el icono.
@@ -216,7 +244,8 @@ fun EditarIcono(
 
 @Composable
 fun BusinessInfoSectionEditable(negocio: Negocio,
-                                modifier: Modifier = Modifier) {
+                                modifier: Modifier = Modifier,
+                                actualizar: () -> Unit) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -232,14 +261,6 @@ fun BusinessInfoSectionEditable(negocio: Negocio,
                 modifier = modifier.padding(vertical = 8.dp)
             )
         }
-        item {
-            CampoDeTexto(
-                value = negocio.descripcion,
-                onValueChange = { /* Actualiza la descripción */ },
-                etiqueta = "Descripción",
-                modifier = modifier.padding(vertical = 8.dp)
-            )
-        }
 
         item {
             CampoDeTexto(
@@ -248,17 +269,6 @@ fun BusinessInfoSectionEditable(negocio: Negocio,
                 etiqueta = "Número de teléfono",
                 modifier = modifier.padding(vertical = 8.dp)
             )
-        }
-
-        for (horario in negocio.horarios) {
-            item {
-                CampoDeTexto(
-                    value = horario.horario,
-                    onValueChange = { /* Actualiza el horario */ },
-                    etiqueta = horario.dia,
-                    modifier = modifier.padding(vertical = 8.dp)
-                )
-            }
         }
     }
     Spacer(modifier = Modifier.height(32.dp))

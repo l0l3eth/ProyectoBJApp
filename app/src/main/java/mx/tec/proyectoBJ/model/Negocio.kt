@@ -14,9 +14,11 @@ package mx.tec.proyectoBJ.model
  */
 
 data class Negocio(
-    val nombreNegocio: String,
-    val numeroTelefono: String,
-    val ubicacion: String,
-    val correo: String,
-    val contrasena: String = "",
+    var nombreNegocio: String,
+    var numeroTelefono: String,
+    var ubicacion: String,
+    var correo: String,
+    var contrasena: String = "",
+    var icono: String = "",
+    var portada: String = ""
 )
