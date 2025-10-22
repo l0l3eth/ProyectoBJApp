@@ -1,6 +1,5 @@
 package mx.tec.proyectoBJ.view
 
-import Inicio
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -158,30 +157,31 @@ fun AppNavHost(
     // NavHost define el grafo de navegación.
     NavHost(
         navController = navController,
-        startDestination = "Entrada", // La pantalla con la que arranca la app.
+        startDestination = "InicioSesion", // La pantalla con la que arranca la app.
         modifier = modifier.fillMaxSize()
     ) {
         // Define la pantalla "Entrada"
-        composable("Entrada") {
-            Entrada(
-                navController = navController,
-                appVM = appVM
-            )
-        }
+//        composable("Entrada") {
+//            Entrada(
+//                navController = navController,
+//                appVM = appVM
+//            )
+//        }
 
         // Define la pantalla "Inicio"
-        composable("Inicio") {
-            Inicio(
-                onNavigateToInicioSesion = { navController.navigate("InicioSesion") },
-                onNavigateToRegistro = { navController.navigate("Registro") },
-                appVM = appVM
-            )
-        }
+//        composable("Inicio") {
+//            Inicio(
+//                onNavigateToInicioSesion = { navController.navigate("InicioSesion") },
+//                onNavigateToRegistro = { navController.navigate("Registro") },
+//                appVM = appVM
+//            )
+//        }
 
         // Define la pantalla "InicioSesion"
         composable("InicioSesion") {
             InicioSesion(
                 onNavigateToRegistro = { navController.navigate("Registro") },
+                onNavigateToPrueba = { navController.navigate("PromocionesScreen") },
                 appVM = appVM
             )
         }
@@ -242,6 +242,12 @@ fun AppNavHost(
 
         composable("ID") {
             PantallaIDDigital(
+                appVM = appVM
+            )
+        }
+
+        composable("PromocionesScreen") {
+            PromocionesScreen(
                 appVM = appVM
             )
         }

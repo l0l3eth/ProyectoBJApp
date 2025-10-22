@@ -1,6 +1,7 @@
 package mx.tec.proyectoBJ.viewmodel
 
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.ImageBitmap
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import mx.tec.proyectoBJ.model.Promocion
 import mx.tec.proyectoBJ.model.ServicioRemoto
 import mx.tec.proyectoBJ.model.TarjetaNegocio
 import mx.tec.proyectoBJ.model.Usuario
@@ -79,13 +81,22 @@ class AppVM : ViewModel() {
     private val _cargandoNegocios = mutableStateOf(false)
     val cargandoNegocios: State<Boolean> = _cargandoNegocios
 
+    private val _promociones=MutableStateFlow<List<Promocion>>(emptyList())
+    val promociones=_promociones.asStateFlow()
+
+    private val _estaCargando=MutableStateFlow(false)
+    val estaCargando=_estaCargando.asStateFlow()
+
+    private val _error=MutableStateFlow<String?>(null)
+    val error=_error.asStateFlow()
+
     init {
         viewModelScope.launch {
-            delay(2000L) // Retraso para la pantalla de bienvenida
-            _navegarAInicio.emit(PantallaSplash.NavegarAInicio)
-        }
+            delay(2000)
+            }
         // Cargar los negocios al iniciar el ViewModel
         obtenerTarjetasNegocios()
+        cargarPromociones()
     }
 
     fun enviarUsuario(
@@ -226,6 +237,29 @@ class AppVM : ViewModel() {
                 println("Error al obtener negocios: ${e.message}")
             } finally {
                 _cargandoNegocios.value = false
+            }
+        }
+    }
+
+    private fun cargarPromociones() {
+        viewModelScope.launch {
+            _estaCargando.value = true // Mostramos el loader
+            _error.value = null      // Limpiamos errores anteriores
+
+            try {
+                // AQUÍ OCURRE LA MAGIA:
+                // El ViewModel llama a ServicioRemoto para obtener los datos.
+                // No sabe cómo lo hace, solo confía en que le devolverá una lista.
+                val listaDesdeServidor = ServicioRemoto.obtenerPromocionesNegocio()
+                _promociones.value = listaDesdeServidor
+
+            } catch (e: Exception) {
+                // Si ServicioRemoto falla (ej. sin internet), atrapamos el error.
+                Log.e("PromocionesVM", "Error al cargar promociones: ${e.message}")
+                _error.value = "No se pudieron cargar las promociones. Intenta más tarde."
+            } finally {
+                // Este bloque se ejecuta siempre, con o sin error.
+                _estaCargando.value = false // Ocultamos el loader
             }
         }
     }
