@@ -91,7 +91,7 @@ fun AppMenuLateral(
                 closeDrawer() // Cierra el menú
             },
             colors = NavigationDrawerItemDefaults.colors(
-                unselectedContainerColor = morado
+                unselectedContainerColor = blanco
             )
         )
     }
@@ -105,6 +105,10 @@ fun AppMenuLateral(
                 if (!estaBorrando) {
                     mostrarDialogo = false
                 }
+            },
+            onConfirmar = {
+                appVM.eliminarUsuario(appVM.usuarioLogeado.value?.idUsuario ?: 0)
+                mostrarDialogo = false
             }
         )
     }

@@ -4,7 +4,6 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
-import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
@@ -30,8 +29,10 @@ interface ServicioAPI {
      */
     @POST("/api/auth/login-token")
     suspend fun iniciarSesion(
-        @Body credenciales: LoginRequest
-    ): Response<Usuario>
+        @Body request: LoginRequest
+    ): Response<LoginResponse>
+
+
 
     /**
      * Registra un nuevo usuario en el sistema.
