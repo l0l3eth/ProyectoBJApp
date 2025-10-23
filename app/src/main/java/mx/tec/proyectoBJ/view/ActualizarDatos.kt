@@ -125,7 +125,7 @@ fun ActualizarDatos( appVM: AppVM,
                 valorActual = correo
             })
         },
-        usuario?.idUsuario?.let {
+        usuario?.id?.let {
             UserOption(label = "FOLIO: $it", hasEditIcon = false)
         },
         UserOption(label = "CONTRASEÑA", hasEditIcon = false)
@@ -198,7 +198,7 @@ fun ActualizarDatos( appVM: AppVM,
         ConfirmarSalida(
             appVM = appVM,
             onDismissRequest = { if (!estaBorrando) mostrarDialogoSalida = false },
-            onConfirmar = { appVM.eliminarUsuario( usuario?.idUsuario ?: 0) }
+            onConfirmar = { appVM.eliminarUsuario( usuario?.id ?: 0) }
         )
     }
 
@@ -209,7 +209,7 @@ fun ActualizarDatos( appVM: AppVM,
             onDismiss = { campoEnEdicion = null },
             onSave = { nuevoValor ->
                 usuario?.let { usr ->
-                    usr.idUsuario?.let { idSeguro ->
+                    usr.id?.let { idSeguro ->
                         // Crea una copia del usuario con el campo modificado.
                         val usuarioActualizado = when (campoEnEdicion) {
                             "nombre" -> usr.copy(nombre = nuevoValor, contrasena = usr.contrasena ?: "")

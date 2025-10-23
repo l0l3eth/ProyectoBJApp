@@ -398,7 +398,7 @@ fun ConfirmarSalida(
     // 2. Observamos el LiveData del usuario logueado para obtener su ID.
     // Usamos ?.id para manejar de forma segura el caso en que no haya usuario (aunque
     // en esta pantalla siempre debería haber uno).
-    val usuarioId = appVM.usuarioLogeado.observeAsState().value?.idUsuario ?: -1
+    val usuarioId = appVM.usuarioLogeado.observeAsState().value?.id ?: -1
 
     Dialog(onDismissRequest = onDismissRequest) {
         Card(

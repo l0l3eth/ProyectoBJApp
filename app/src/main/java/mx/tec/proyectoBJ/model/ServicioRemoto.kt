@@ -6,10 +6,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.Exception
 import android.util.Log
-import androidx.compose.animation.core.copy
 import com.google.maps.android.ktx.BuildConfig
 import retrofit2.HttpException
-import retrofit2.Response
 
 /**
  * Objeto singleton para gestionar las comunicaciones con el servidor remoto (API).

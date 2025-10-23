@@ -10,7 +10,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson // IMPORTACIÓN AÑADIDA
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,9 +24,7 @@ import mx.tec.proyectoBJ.model.EstadoLogin
 import mx.tec.proyectoBJ.model.Promocion
 import mx.tec.proyectoBJ.model.ServicioRemoto
 import mx.tec.proyectoBJ.model.TarjetaNegocio
-import mx.tec.proyectoBJ.model.TipoUsuario
 import mx.tec.proyectoBJ.model.Usuario
-import java.io.IOException
 
 /**
  * ViewModel principal de la aplicación que actúa como el centro de la lógica de negocio.
@@ -144,16 +141,14 @@ class AppVM : ViewModel() {
         viewModelScope.launch {
             servicioRemoto.registrarUsuario(
                 Usuario(
-                    idUsuario = 0, // AÑADIDO: Se necesita un ID, 0 es un valor común para entidades nuevas.
+                    id = 0, // AÑADIDO: Se necesita un ID, 0 es un valor común para entidades nuevas.
                     nombre = nombre,
                     apellidos = apellido,
                     correo = correo,
                     contrasena = contrasena,
                     direccion = direccion,
                     telefono = numeroTelefono,
-                    curp = curp,
-                    tipoUsuario = TODO(),
-                    token = TODO()
+                    curp = curp
                 )
             )
         }
@@ -268,7 +263,7 @@ class AppVM : ViewModel() {
      */
     fun generarQR() {
         val usuarioActual = _usuarioLogeado.value
-        val idUsuario = usuarioActual?.idUsuario
+        val idUsuario = usuarioActual?.id
         val token = usuarioActual?.token
 
         // La validación que ya tienes es perfecta.

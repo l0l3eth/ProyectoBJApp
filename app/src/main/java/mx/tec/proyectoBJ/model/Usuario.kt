@@ -3,23 +3,23 @@ package mx.tec.proyectoBJ.model
 import com.google.gson.annotations.SerializedName
 
 data class Usuario(
-    val id : Int? = null,
+    val id: Int? = null,
     @SerializedName("nombre")
-    val nombre : String,
+    val nombre: String,
     @SerializedName("apellidos")
-    val apellidos : String,
+    val apellidos: String,
     @SerializedName("correo")
-    val correo : String,
+    val correo: String,
     @SerializedName("telefono")
-    val telefono : String,
+    val telefono: String?,
     @SerializedName("contrasena")
-    val contrasena : String, //CharArray,
+    val contrasena: String?, //CharArray,
     @SerializedName("direccion")
-    val direccion : String,
+    val direccion: String?,
     @SerializedName("curp")
-    val curp: String,
+    val curp: String?,
 
-    val tipoUsuario: TipoUsuario,
+    val tipoUsuario: TipoUsuario = TipoUsuario.JOVEN,
 
     val token: String? = null
 )

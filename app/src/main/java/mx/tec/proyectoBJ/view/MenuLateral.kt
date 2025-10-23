@@ -29,7 +29,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import mx.tec.proyectoBJ.viewmodel.AppVM
 import mx.tec.proyectoBJ.blanco
-import mx.tec.proyectoBJ.morado
 import mx.tec.proyectoBJ.naranja
 
 @SuppressLint("ViewModelConstructorInComposable")
@@ -107,7 +106,7 @@ fun AppMenuLateral(
                 }
             },
             onConfirmar = {
-                appVM.eliminarUsuario(appVM.usuarioLogeado.value?.idUsuario ?: 0)
+                appVM.eliminarUsuario(appVM.usuarioLogeado.value?.id ?: 0)
                 mostrarDialogo = false
             }
         )
