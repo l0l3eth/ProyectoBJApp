@@ -214,13 +214,11 @@ object ServicioRemoto {
         }
     }
 
-    suspend fun generarQR(token: String, idUsuario: Int): okhttp3.ResponseBody? {
+    suspend fun generarQR(token: String, idUsuario: Int): okhttp3.ResponseBody {
         try {
             val respuesta = servicio.generarQR(token, idUsuario)
 
             if (respuesta.isSuccessful) {
-                // Si la respuesta es exitosa, esperamos que SIEMPRE haya un cuerpo.
-                // Si el cuerpo es nulo, es una situación excepcional y debe tratarse como un error.
                 val cuerpoRespuesta = respuesta.body()
                 if (cuerpoRespuesta != null) {
                     Log.d("ServicioRemoto", "QR generado exitosamente para el usuario $idUsuario.")
@@ -230,13 +228,13 @@ object ServicioRemoto {
                     throw NullPointerException("La respuesta fue exitosa pero el cuerpo del QR está vacío.")
                 }
             } else {
-                // Si la respuesta del servidor no fue exitosa, lanzamos HttpException.
+
                 val errorBody = respuesta.errorBody()?.string()
                 Log.e("ServicioRemoto", "Error al generar QR. Código: ${respuesta.code()}, Mensaje: $errorBody")
                 throw HttpException(respuesta)
             }
         } catch (e: Exception) {
-            // Relanzamos cualquier excepción para que el ViewModel la maneje.
+
             Log.e("ServicioRemoto", "Excepción al generar QR: ${e.message}")
             throw e
         }
