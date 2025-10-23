@@ -71,6 +71,8 @@ import mx.tec.proyectoBJ.morado
 fun InicioSesion( onNavigateToRegistro: () -> Unit,
                   onNavigateToHomeJoven: () -> Unit,
                   onNavigateToHomeNegocio: () -> Unit,
+                  //onNavigateToPrueba: () -> Unit, //TODO: borrar
+                  //onNavigateToPruebaUsuario: () -> Unit, //TODO: borrar
                   appVM: AppVM
 ) {
     // Estados para los campos de texto
@@ -86,12 +88,10 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit,
     LaunchedEffect(loginState) {
         when (val state = loginState) {
             is EstadoLogin.Success -> {
-                // ¡Aquí está la lógica de redirección!
                 when (state.tipoUsuario) {
                     TipoUsuario.JOVEN -> onNavigateToHomeJoven()
                     TipoUsuario.NEGOCIO -> onNavigateToHomeNegocio()
                     TipoUsuario.DESCONOCIDO -> {
-                        // Mostrar un error y resetear.
                         scope.launch {
                             snackbarHostState.showSnackbar("Error: Tipo de usuario desconocido.")
                         }
@@ -193,18 +193,18 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit,
             )
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Enlace "Olvidaste tu contraseña?"
-            Text(
-                text = "¿Olvidaste tu contraseña?",
-                color = blanco,
-                fontSize = 14.sp,
-                textDecoration = TextDecoration.Underline,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 16.dp)
-                    .clickable {/* TODO Logica de contraseña*/ } //Navegación a PuntoPartida
-                    .wrapContentWidth(Alignment.End)// Alinear a la derecha
-            )
+//            // Enlace "Olvidaste tu contraseña?"
+//            Text(
+//                text = "¿Prueba?",
+//                color = blanco,
+//                fontSize = 14.sp,
+//                textDecoration = TextDecoration.Underline,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 8.dp, bottom = 16.dp)
+//                    .clickable {   } //Navegación a PuntoPartida
+//                    .wrapContentWidth(Alignment.End)// Alinear a la derecha
+//            )
 
             //Enlace "¿Eres nuevo? Registrate"
             Text(
@@ -221,7 +221,7 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit,
 
             // Botón "Iniciar sesión" (con degradado)
             Button(
-                onClick = {appVM.iniciarSesion(email, password) },
+                onClick = { appVM.iniciarSesion(email, password) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)

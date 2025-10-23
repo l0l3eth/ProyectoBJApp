@@ -201,6 +201,15 @@ fun AppNavHost(
                 onNavigateToRegistro = { navController.navigate("Registro") },
                 onNavigateToHomeJoven = { navController.navigate("PromocionesScreen") },
                 onNavigateToHomeNegocio = { navController.navigate("PantallaPrincipalNegocio") },
+//                onNavigateToPrueba = { navController.navigate("Prueba") },
+//                onNavigateToPruebaUsuario = { navController.navigate("ID") },
+                appVM = appVM
+            )
+        }
+
+        composable("PruebaUsuario"){ //TODO: borrar
+
+            HomeUsuario(
                 appVM = appVM
             )
         }
@@ -246,7 +255,7 @@ fun AppNavHost(
             )
         }
 
-        composable("HomeUsuario") { // Asumo que "Promociones" era un nombre temporal
+        composable("HomeUsuario") {
             HomeUsuario(
                 appVM = appVM
             )
@@ -290,7 +299,7 @@ fun AppNavHost(
             )
         }
 
-        composable("EscaneoQR") {
+        composable("EscanearQR") {
             EscaneoQR(
                 paddingValues = PaddingValues()
             )
@@ -311,6 +320,12 @@ fun AppNavHost(
         composable("QR") {
             EscaneoQR(
                 paddingValues = PaddingValues()
+            )
+        }
+
+        composable("Prueba"){  //TODO: borrar
+            NegocioProfileScreen(
+
             )
         }
     }

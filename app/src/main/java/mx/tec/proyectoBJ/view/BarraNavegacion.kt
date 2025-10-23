@@ -44,7 +44,7 @@ data class NavItem(val label: String, val icon: ImageVector, val route: String)
  * Cada elemento define una sección principal de la app.
  */
 val navItems = listOf(
-    NavItem("Inicio", Icons.Default.Home, "Promociones"),
+    NavItem("Inicio", Icons.Default.Home, "HomeUsuario"),
     NavItem("Mapa", Icons.Default.LocationOn, "Mapa"),
     NavItem("ID digital", Icons.Default.CreditCard, "ID"),
 )

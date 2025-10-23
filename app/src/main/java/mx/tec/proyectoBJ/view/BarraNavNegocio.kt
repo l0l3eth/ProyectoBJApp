@@ -46,7 +46,7 @@ data class NavItemNegocio(val label: String, val icon: ImageVector, val route: S
 val navItemsNegocio = listOf(
     NavItemNegocio("Inicio", Icons.Default.Store, "PaginaPrincipalNegocio"),
     NavItemNegocio("Promociones", Icons.Default.Discount, "PromocionesScreen"),
-    NavItemNegocio("Escanear QR", Icons.Default.QrCode, "QR"),
+    NavItemNegocio("Escanear QR", Icons.Default.QrCode, "Escanear QR"),
 )
 
 /**
