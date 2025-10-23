@@ -5,6 +5,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -49,7 +50,10 @@ interface ServicioAPI {
      * @return Un [Response] sin cuerpo (`Unit`) indicando el resultado de la solicitud.
      */
     @DELETE("/api/auth/usuario/{id}")
-    suspend fun borrarUsuario(@Path("id") idUsuario: Int): Response<Unit>
+    suspend fun borrarUsuario(
+        @Header("Authorization") token: String,
+        @Path("id") idUsuario: Int
+    ): Response<Unit>
 
     /**
      * Actualiza la información de un usuario existente.
@@ -59,6 +63,7 @@ interface ServicioAPI {
      */
     @PUT("/api/usuarios/{id}")
     suspend fun actualizarUsuario(
+        @Header("Authorization") token: String,
         @Path("id") id: Int,
         @Body usuario: Usuario
     ): Response<Unit>
@@ -68,7 +73,9 @@ interface ServicioAPI {
      * @return Un [Response] que contiene una lista de objetos [Negocio].
      */
     @GET("/api/negocios")
-    suspend fun obtenerNegocios(): Response<List<Negocio>>
+    suspend fun obtenerNegocios(
+        @Header("Authorization") token: String
+    ): Response<List<Negocio>>
 
     /**
      * Obtiene una lista simplificada de negocios para mostrar como tarjetas.
@@ -76,7 +83,9 @@ interface ServicioAPI {
      * y no está envuelta en un objeto `Response`.
      */
     @GET("/api/negocios")
-    suspend fun obtenerTarjetasNegocios(): List<TarjetaNegocio>
+    suspend fun obtenerTarjetasNegocios(
+        @Header("Authorization") token: String
+    ): List<TarjetaNegocio>
 
     /**
      * Obtiene una lista de todos los usuarios registrados.
@@ -84,14 +93,18 @@ interface ServicioAPI {
      * @return Un [Response] que contiene una lista de objetos [Usuario].
      */
     @GET("/api/usuarios")
-    suspend fun obtenerUsuarios(): Response<List<Usuario>>
+    suspend fun obtenerUsuarios(
+        @Header("Authorization") token: String
+    ): Response<List<Usuario>>
 
     /**
      * Obtiene una lista de todos los productos disponibles.
      * @return Una lista de objetos [Producto].
      */
     @GET("/api/productos")
-    suspend fun obtenerProductos(): List<Producto>
+    suspend fun obtenerProductos(
+        @Header("Authorization") token: String
+    ): List<Producto>
 
     /**
      * Solicita la generación de una imagen de código QR para un usuario específico.
@@ -101,6 +114,7 @@ interface ServicioAPI {
      */
     @POST("/usuario/{id}/qr")
     suspend fun generarQR(
+        @Header("Authorization") token: String,
         @Path("id") idUsuario: Int
     ): Response<ResponseBody>
 
@@ -109,7 +123,9 @@ interface ServicioAPI {
      * @return Un [Response] que contiene una lista de objetos [Promocion].
      */
     @GET("/api/promociones")
-    suspend fun obtenerPromocionesNegocio(): Response<List<Promocion>>
+    suspend fun obtenerPromocionesNegocio(
+        @Header("Authorization") token: String
+    ): Response<List<Promocion>>
 
     /**
      * Solicita al backend que envíe un correo de restablecimiento de contraseña.

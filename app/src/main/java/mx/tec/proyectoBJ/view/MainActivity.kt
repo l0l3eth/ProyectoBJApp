@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -161,6 +162,7 @@ fun AppPrincipal(appVM: AppVM) {
                 navController = navController,
                 appVM = appVM,
                 modifier = Modifier
+                    .padding(innerPadding)
                     .fillMaxSize()
                     .background(Color(0xFFFFF9ED)),
                 onMenuClick = abrirMenu // Pasa la función para abrir el menú a los componentes hijos.

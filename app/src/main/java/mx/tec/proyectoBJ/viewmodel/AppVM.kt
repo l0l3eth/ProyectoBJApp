@@ -220,13 +220,24 @@ class AppVM : ViewModel() {
             _estaBorrando.value = true
             _errorMensaje.value = null
 
-            val exito = servicioRemoto.borrarUsuario(idUsuario)
-            if (exito) {
+            val token = _usuarioLogeado.value?.token
+            if (token==null) {
+                _errorMensaje.value = "No se pudo eliminar el usuario.No está autenticado."
+                _estaBorrando.value = false
+                return@launch
+            }
+            try{
+                servicioRemoto.borrarUsuario(token, idUsuario)
                 _borradoExitoso.emit(true)
-            } else {
+            }
+            catch (e: Exception){
+                Log.e("AppVM", "Error al eliminar usuario: ${e.message}")
                 _errorMensaje.value = "No se pudo eliminar el usuario. Inténtalo de nuevo."
             }
-            _estaBorrando.value = false
+
+            finally{
+                _estaBorrando.value = false
+            }
         }
     }
 
@@ -258,12 +269,18 @@ class AppVM : ViewModel() {
         }
 
         viewModelScope.launch {
-            _errorMensaje.postValue(null)
-            val exito = servicioRemoto.actualizarUsuario(idUsuario, usuario)
-            if (exito) {
+            _errorMensaje.value=null
+            val token = _usuarioLogeado.value?.token
+            if (token == null) {
+                _errorMensaje.value = "No se pudo actualizar el usuario. Inténtalo de nuevo."
+                return@launch
+            }
+            try{
+                servicioRemoto.actualizarUsuario(token, idUsuario, usuario)
                 println("Usuario actualizado con éxito.")
                 _usuarioLogeado.postValue(usuario)
-            } else {
+            }catch (e: Exception){
+                Log.e("AppVM", "Error al actualizar usuario: ${e.message}")
                 _errorMensaje.value = "No se pudo actualizar el usuario. Inténtalo de nuevo."
             }
         }
@@ -286,19 +303,18 @@ class AppVM : ViewModel() {
             _errorMensaje.value = null
 
             try {
-                val responseBody = servicioRemoto.generarQR(idUsuario)
-                if (responseBody != null) {
-                    val bytes = responseBody.bytes()
-                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    _qrBitmap.value = bitmap?.asImageBitmap()
-                } else {
-                    _errorMensaje.value = "No se pudo obtener el código QR del servidor."
+                val responseBody = servicioRemoto.generarQR(token, idUsuario)
+                val bitmap = withContext(Dispatchers.IO) {
+                    val bytes = responseBody.bytes() // Esto ya no dará error.
+                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                 }
-            } catch (e: IOException) {
-                _errorMensaje.value = "Error de conexión al generar QR: ${e.message}"
-                e.printStackTrace()
+
+                // 3. ACTUALIZACIÓN EN HILO PRINCIPAL:
+                _qrBitmap.value = bitmap?.asImageBitmap()
+
             } catch (e: Exception) {
-                _errorMensaje.value = "Ocurrió un error inesperado al generar QR: ${e.message}"
+                Log.e("AppVM", "Error al generar QR: ${e.message}")
+                _errorMensaje.value = "Ocurrió un error al generar el código QR."
                 e.printStackTrace()
             } finally {
                 _cargandoQR.value = false
@@ -312,11 +328,19 @@ class AppVM : ViewModel() {
     fun obtenerTarjetasNegocios() {
         viewModelScope.launch {
             _cargandoNegocios.value = true
+            _errorMensaje.value = null
+            val token = _usuarioLogeado.value?.token
+
+            if(token==null){
+                _errorMensaje.value = "No se pudo obtener la lista de negocios.No está autenticado."
+                _cargandoNegocios.value = false
+                return@launch
+            }
             try {
-                _listaNegocios.value = servicioRemoto.obtenerTarjetasNegocios()
+                _listaNegocios.value = servicioRemoto.obtenerTarjetasNegocios(token)
             } catch (e: Exception) {
-                _errorMensaje.value = "Error al obtener negocios: ${e.message}"
-                println("Error al obtener negocios: ${e.message}")
+                _errorMensaje.value = "Error al obtener negocios"
+                Log.e("AppVM", "Error al obtener negocios: ${e.message}")
             } finally {
                 _cargandoNegocios.value = false
             }
@@ -332,6 +356,13 @@ class AppVM : ViewModel() {
             _estaCargando.value = true
             _error.value = null
 
+            val token=_usuarioLogeado.value?.token
+
+            if(token==null){
+                _error.value = "No se pudo cargar las promociones."
+                _estaCargando.value = false
+                return@launch
+            }
             try {
                 val listaDesdeServidor = servicioRemoto.obtenerPromocionesNegocio()
                 _promociones.value = listaDesdeServidor
