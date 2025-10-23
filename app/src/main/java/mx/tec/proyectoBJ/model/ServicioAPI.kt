@@ -31,7 +31,7 @@ interface ServicioAPI {
     @POST("/api/auth/login-token")
     suspend fun iniciarSesion(
         @Body credenciales: LoginRequest
-    ): Response<Usuario>
+    ): Response<AuthResponse>
 
     /**
      * Registra un nuevo usuario en el sistema.

@@ -6,6 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.Exception
 import android.util.Log
+import androidx.compose.animation.core.copy
 import com.google.maps.android.ktx.BuildConfig
 import retrofit2.HttpException
 
@@ -100,13 +101,19 @@ object ServicioRemoto {
 
     suspend fun iniciarSesion(correo:String, contrasena:String): Any? {
         val request= LoginRequest(correo=correo, contrasena=contrasena)
-        return try{
+        try{
             val response=servicio.iniciarSesion(request)
             if(response.isSuccessful){
-                val authResponse=response.body()
+                val authResponse = response.body()
+                if (authResponse != null) {
+                    // Asignamos el token al objeto usuario que vamos a devolver.
+                    // Es buena práctica que el objeto Usuario contenga su propio token.
+                    val usuarioConToken = authResponse.usuario.copy(token = authResponse.token)
+                    return usuarioConToken
+                }
                 if(authResponse!=null){
                     println("Inicio de sesión exitoso, token: ${authResponse.token}")
-                    authResponse.token
+                    authResponse
                 } else{
                     println("Respuesta exitosa, cuerpo vacío")
                     null

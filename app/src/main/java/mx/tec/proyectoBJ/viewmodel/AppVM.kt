@@ -160,6 +160,7 @@ class AppVM : ViewModel() {
     fun iniciarSesion(correo: String, contrasena: String) {
         viewModelScope.launch {
             val resultadoUsuario = ServicioRemoto.iniciarSesion(correo, contrasena)
+            println("resultadoUsuario = $resultadoUsuario")
             if (resultadoUsuario != null) {
                 _usuarioLogeado.value = resultadoUsuario as Usuario?
                 _errorMensaje.value = null
