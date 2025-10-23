@@ -137,11 +137,11 @@ fun ActualizarDatos( appVM: AppVM,
             .background(morado)
     ) {
         // --- Decoraciones de fondo (formas circulares y bordes) ---
-        Box(modifier = Modifier.offset(x = (-40).dp, y = (-120).dp).size(400.dp).clip(CircleShape).background(rosa))
-        Box(modifier = Modifier.offset(x = 5.dp, y = (-190).dp).size(width = 800.dp, height = 400.dp).clip(CircleShape).background(naranja))
+        //Box(modifier = Modifier.offset(x = (-40).dp, y = (-120).dp).size(400.dp).clip(CircleShape).background(rosa))
+        //Box(modifier = Modifier.offset(x = 5.dp, y = (-190).dp).size(width = 800.dp, height = 400.dp).clip(CircleShape).background(naranja))
         Box(modifier = Modifier.offset(x = (-150).dp, y = 700.dp).size(400.dp).clip(CircleShape).background(rosa))
         Box(modifier = Modifier.offset(x = 20.dp, y = 700.dp).size(400.dp).clip(CircleShape).background(naranja))
-        Box(modifier = Modifier.align(Alignment.TopCenter).offset(x = 8.dp, y = (-170).dp).size(400.dp).clip(CircleShape).border(1.dp, White, CircleShape))
+        //Box(modifier = Modifier.align(Alignment.TopCenter).offset(x = 8.dp, y = (-170).dp).size(400.dp).clip(CircleShape).border(1.dp, White, CircleShape))
         Box(modifier = Modifier.align(Alignment.BottomEnd).offset(x = 100.dp, y = 200.dp).size(400.dp).clip(CircleShape).border(1.dp, White, CircleShape))
 
         // --- Contenido principal con scroll ---
