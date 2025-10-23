@@ -114,8 +114,12 @@ class AppVM : ViewModel() {
             // _navegarAInicio.emit(PantallaSplash.NavegarAInicio)
         }
         // Cargar los datos iniciales al crear el ViewModel
-        obtenerTarjetasNegocios()
-        cargarPromociones()
+        viewModelScope.launch {
+            delay(25000)
+            obtenerTarjetasNegocios()
+            cargarPromociones()
+        }
+
     }
 
     /**
@@ -332,6 +336,7 @@ class AppVM : ViewModel() {
             _error.value = null
 
             val token=_usuarioLogeado.value?.token
+
 
             if(token==null){
                 _error.value = "No se pudo cargar las promociones."

@@ -120,7 +120,7 @@ interface ServicioAPI {
      * Obtiene la lista de todas las promociones de los negocios.
      * @return Un [Response] que contiene una lista de objetos [Promocion].
      */
-    @GET("/api/promociones")
+    @GET("/api/descuentos")
     suspend fun obtenerPromocionesNegocio(
         @Header("Authorization") token: String
     ): Response<List<Promocion>>

@@ -2,15 +2,10 @@ package mx.tec.proyectoBJ.model
 import com.google.gson.annotations.SerializedName
 
 data class Promocion(
-    @SerializedName("id_promocion")
+    @SerializedName("id")
     val id:Int,
-    @SerializedName("nombre_promocion")
-    val nombre: String,
-    @SerializedName("descripcion_promocion")
-    val descripcion: String,
-    @SerializedName("fecha-fin-oferta")
-    val imagen: String,
- //   @SerializedName("URL_imagen_promocion")
- //   val imagenPromocion: String
-
+    @SerializedName("titulo")
+    val titulo: String,
+    @SerializedName("tipo_descuento")
+    val tipo_descuento: String,
 )

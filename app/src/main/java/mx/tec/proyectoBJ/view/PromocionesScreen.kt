@@ -110,12 +110,12 @@ fun PromocionItem(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = promocion.nombre,
+                text = promocion.titulo,
                 style = MaterialTheme.typography.titleLarge
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Válido hasta: ${promocion.descripcion}",
+                text = "Válido hasta: ${promocion.tipo_descuento}",
                 style = MaterialTheme.typography.bodyMedium
             )
         }
