@@ -1,5 +1,6 @@
 package mx.tec.proyectoBJ.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,14 +16,17 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import mx.tec.proyectoBJ.fondoGris
 import mx.tec.proyectoBJ.model.Promocion
 import mx.tec.proyectoBJ.viewmodel.AppVM
 
@@ -43,43 +47,64 @@ import mx.tec.proyectoBJ.viewmodel.AppVM
 @Composable
 fun PromocionesScreen(
     appVM: AppVM,
-){
+) {
     // Se suscribe a los flujos de estado del ViewModel para reaccionar a los cambios.
     val listaPromocion by appVM.promociones.collectAsState()
     val estaCargando by appVM.estaCargando.collectAsState()
     val error by appVM.error.collectAsState()
+    val usuario by appVM.usuarioLogeado.observeAsState()
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        // Muestra un indicador de carga mientras se obtienen los datos.
-        if (estaCargando) {
-            CircularProgressIndicator(modifier = Modifier.size(50.dp))
-        }
-        // Muestra un mensaje de error si ocurrió un problema.
-        else if(error != null){
-            Text(
-                text= error!!,
-                color=Color.Red,
-                style=MaterialTheme.typography.bodyLarge
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(fondoGris)
+                .padding(paddingValues)
+        ) {
+            // --- Barra superior personalizada ---
+            ParteSuperior(
+                userName = usuario?.nombre ?: "Usuario",
+                modifier = Modifier.padding(bottom = 0.dp),
+                onClick = {}
             )
-        }
-        // Muestra un mensaje si no hay promociones disponibles.
-        else if(listaPromocion.isEmpty()){
-            Text(
-                text="Aun no hay promociones",
-                style=MaterialTheme.typography.bodyLarge
-            )
-        }
-        // Muestra la lista de promociones si hay datos disponibles.
-        else{
-            LazyColumn (
+
+            Box(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(8.dp),
+                contentAlignment = Alignment.Center
             ) {
-                items(listaPromocion) {promocion->
-                    PromocionItem(promocion=promocion)
+
+                // Muestra un indicador de carga mientras se obtienen los datos.
+                if (estaCargando) {
+                    CircularProgressIndicator(modifier = Modifier.size(50.dp))
+                }
+                // Muestra un mensaje de error si ocurrió un problema.
+                else if (error != null) {
+                    Text(
+                        text = error!!,
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                // Muestra un mensaje si no hay promociones disponibles.
+                else if (listaPromocion.isEmpty()) {
+                    Text(
+                        text = "Aun no hay promociones",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                // Muestra la lista de promociones si hay datos disponibles.
+                else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(8.dp),
+                    ) {
+                        items(listaPromocion) { promocion ->
+                            PromocionItem(promocion = promocion)
+                        }
+                    }
                 }
             }
         }
@@ -121,3 +146,4 @@ fun PromocionItem(
         }
     }
 }
+

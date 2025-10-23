@@ -116,15 +116,14 @@ fun AppPrincipal(appVM: AppVM) {
     // Define las rutas donde la barra de navegación NO debe ser visible (pantallas de flujo inicial).
     val rutasSinBarraNav =
         listOf("Entrada", "Inicio", "InicioSesion", "Registro",
-            "registro_usuario", "SolicitudNegocio", "QR", "ActualizarDatos",
-            "PromocionesScreen", "PantallaPrincipalNegocio")
+            "registro_usuario", "SolicitudNegocio", "QR", "ActualizarDatos", "PantallaPrincipalNegocio")
     val mostrarBarraNav = currentRoute !in rutasSinBarraNav
 
-    val rutasSinBarraNavNegocio =
-        listOf("Entrada", "Inicio", "InicioSesion", "Registro",
-            "registro_usuario", "SolicitudNegocio", "ActualizarDatos",
-            "idDigital", "HomeUsuario", "Mapa")
-    val mostrarBarraNavNegocio = currentRoute !in rutasSinBarraNav
+//    val rutasSinBarraNavNegocio =
+//        listOf("Entrada", "Inicio", "InicioSesion", "Registro",
+//            "registro_usuario", "SolicitudNegocio", "ActualizarDatos",
+//            "idDigital", "HomeUsuario", "Mapa")
+//    val mostrarBarraNavNegocio = currentRoute !in rutasSinBarraNav
 
 
     // --- ESTRUCTURA PRINCIPAL DE LA UI ---
@@ -144,13 +143,7 @@ fun AppPrincipal(appVM: AppVM) {
         Scaffold(
             bottomBar = {
                 // Muestra la BarraNavegacion solo si la condición se cumple.
-                if (mostrarBarraNavNegocio) {
-                    BarraNavegacionNegocios(
-                        navController = navController
-                    )
-                }
-                // Si no, si debe mostrar la barra de joven, muestra BarraNavegacion.
-                else if (mostrarBarraNav) {
+                if (mostrarBarraNav) {
                     BarraNavegacion(
                         navController = navController
                     )
@@ -320,12 +313,6 @@ fun AppNavHost(
         composable("QR") {
             EscaneoQR(
                 paddingValues = PaddingValues()
-            )
-        }
-
-        composable("Prueba"){  //TODO: borrar
-            NegocioProfileScreen(
-
             )
         }
     }

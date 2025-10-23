@@ -80,10 +80,10 @@ interface ServicioAPI {
      * @return Una lista de objetos [TarjetaNegocio]. Se asume que la respuesta es directa
      * y no está envuelta en un objeto `Response`.
      */
-    @GET("/api/negocios")
-    suspend fun obtenerTarjetasNegocios(
-        @Header("Authorization") token: String
-    ): List<TarjetaNegocio>
+//    @GET("/api/negocios")
+//    suspend fun obtenerTarjetasNegocios(
+//        @Header("Authorization") token: String
+//    ): List<TarjetaNegocio>
 
     /**
      * Obtiene una lista de todos los usuarios registrados.
@@ -110,7 +110,7 @@ interface ServicioAPI {
      * @return Un [Response] que contiene el cuerpo de la respuesta crudo ([ResponseBody]),
      * que se espera sea la imagen del código QR.
      */
-    @POST("/usuario/{id}/qr")
+    @GET("/usuario/{ID}/qr")
     suspend fun generarQR(
         @Header("Authorization") token: String,
         @Path("id") idUsuario: Int

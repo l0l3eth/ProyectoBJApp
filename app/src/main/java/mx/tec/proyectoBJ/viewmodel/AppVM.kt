@@ -82,8 +82,8 @@ class AppVM : ViewModel() {
     val borradoExitoso: SharedFlow<Boolean> = _borradoExitoso.asSharedFlow()
 
     // Estado y datos para la generación del código QR
-    private val _qrBitmap = MutableStateFlow<ImageBitmap?>(null)
-    val qrBitmap: StateFlow<ImageBitmap?> = _qrBitmap.asStateFlow()
+    private val _qrData = MutableStateFlow<ByteArray?>(null)
+    val qrData: StateFlow<ByteArray?> = _qrData.asStateFlow()
 
     private val _cargandoQR = MutableStateFlow(false)
     val cargandoQR: StateFlow<Boolean> = _cargandoQR.asStateFlow()
@@ -262,7 +262,7 @@ class AppVM : ViewModel() {
 
     /**
      * Genera un código QR para el usuario que ha iniciado sesión.
-     * El resultado se almacena en [_qrBitmap].
+     * El resultado se almacena en [_qrData].
      * Maneja los estados de carga y error durante el proceso.
      */
     fun generarQR() {
@@ -270,7 +270,6 @@ class AppVM : ViewModel() {
         val idUsuario = usuarioActual?.id
         val token = usuarioActual?.token
 
-        // La validación que ya tienes es perfecta.
         if (idUsuario == null || token == null) {
             _errorMensaje.value = "No se puede generar el QR. Se requiere iniciar sesión."
             return
@@ -278,18 +277,18 @@ class AppVM : ViewModel() {
 
         viewModelScope.launch {
             _cargandoQR.value = true
-            _qrBitmap.value = null
+            _qrData.value = null // Se limpia el estado anterior
             _errorMensaje.value = null
 
             try {
+                // 2. Obtener la respuesta de la red
                 val responseBody = servicioRemoto.generarQR(token, idUsuario)
-                val bitmap = withContext(Dispatchers.IO) {
-                    val bytes = responseBody.bytes() // Esto ya no dará error.
-                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                }
 
-                // 3. ACTUALIZACIÓN EN HILO PRINCIPAL:
-                _qrBitmap.value = bitmap?.asImageBitmap()
+                // 3. Obtener los bytes y asignarlos directamente al StateFlow
+                val bytes = withContext(Dispatchers.IO) {
+                    responseBody.bytes()
+                }
+                _qrData.value = bytes
 
             } catch (e: Exception) {
                 Log.e("AppVM", "Error al generar QR: ${e.message}")

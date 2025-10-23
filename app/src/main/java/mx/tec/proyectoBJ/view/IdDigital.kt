@@ -1,7 +1,6 @@
 package mx.tec.proyectoBJ.view
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,9 +34,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import mx.tec.proyectoBJ.fondoGris
 import mx.tec.proyectoBJ.model.Usuario
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.proyectoBJ.fondoGris
 
 /**
  * Composable que construye la pantalla completa de la Identificación Digital.
@@ -108,7 +108,7 @@ fun IDCard(data: Usuario?, appVM : AppVM ) {
         appVM.generarQR()
     }
     // Observa los estados del ViewModel relacionados con el QR.
-    val qrBitmap by appVM.qrBitmap.collectAsState()
+    val qrData by appVM.qrData.collectAsState()
     val isLoading by appVM.cargandoQR.collectAsState()
     val error by appVM.errorMensaje.observeAsState()
 
@@ -165,10 +165,9 @@ fun IDCard(data: Usuario?, appVM : AppVM ) {
                             Text("Generando tu código QR...")
                         }
                     }
-                    qrBitmap != null -> {
-                        // Estado de éxito: Muestra la imagen del código QR.
-                        Image(
-                            bitmap = qrBitmap!!, // El operador !! es seguro por la condición previa.
+                    qrData != null -> {
+                        AsyncImage(
+                            model = qrData,
                             contentDescription = "Código QR del usuario",
                             modifier = Modifier.fillMaxSize()
                         )
