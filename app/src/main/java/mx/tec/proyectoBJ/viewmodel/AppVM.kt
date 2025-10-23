@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson // IMPORTACIÓN AÑADIDA
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -293,8 +294,13 @@ class AppVM : ViewModel() {
      * Maneja los estados de carga y error durante el proceso.
      */
     fun generarQR() {
-        val idUsuario = _usuarioLogeado.value?.idUsuario ?: run { // CORREGIDO: usar idUsuario
-            _errorMensaje.value = "No se ha iniciado sesión para generar un QR."
+        val usuarioActual = _usuarioLogeado.value
+        val idUsuario = usuarioActual?.idUsuario
+        val token = usuarioActual?.token
+
+        // La validación que ya tienes es perfecta.
+        if (idUsuario == null || token == null) {
+            _errorMensaje.value = "No se puede generar el QR. Se requiere iniciar sesión."
             return
         }
 
@@ -365,7 +371,7 @@ class AppVM : ViewModel() {
                 return@launch
             }
             try {
-                val listaDesdeServidor = servicioRemoto.obtenerPromocionesNegocio()
+                val listaDesdeServidor = servicioRemoto.obtenerPromocionesNegocio(token)
                 _promociones.value = listaDesdeServidor
             } catch (e: Exception) {
                 Log.e("AppVM", "Error al cargar promociones: ${e.message}")
