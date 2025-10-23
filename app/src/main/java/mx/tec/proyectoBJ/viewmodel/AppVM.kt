@@ -168,41 +168,14 @@ class AppVM : ViewModel() {
      */
     fun iniciarSesion(correo: String, contrasena: String) {
         viewModelScope.launch {
-            // 1. Establecer estado de carga
-            _loginState.value = EstadoLogin.Loading
-
-            try {
-                // 2. Llamar al servicio remoto (que ahora devuelve Response<LoginResponse>)
-                val response = servicioRemoto.iniciarSesion(correo, contrasena)
-
-                if (response.isSuccessful) {
-                    val loginResponse = response.body()
-                    val token = loginResponse?.token
-                    // Obtenemos el tipo de usuario, si es nulo, usamos DESCONOCIDO
-                    val tipoUsuario = loginResponse?.tipoUsuario ?: TipoUsuario.DESCONOCIDO
-
-                    if (!token.isNullOrBlank()) {
-                        // 3. Si el login es exitoso, pasar el tipo de usuario al estado Success
-                        _loginState.value = EstadoLogin.Success(tipoUsuario)
-                        // Aquí podrías guardar el token y otros datos del usuario si es necesario
-                        Log.d("LoginSuccess", "Usuario autenticado. Tipo: $tipoUsuario")
-
-                    } else {
-                        // El servidor respondió OK, pero no envió token.
-                        _loginState.value = EstadoLogin.Error("Respuesta del servidor inválida (sin token).")
-                        Log.w("LoginWarning", "Respuesta exitosa pero sin token.")
-                    }
-                } else {
-                    // 4. El servidor respondió con un error (ej. 401 Unauthorized)
-                    val errorBody = response.errorBody()?.string()
-                    _loginState.value = EstadoLogin.Error("Correo o contraseña incorrectos.")
-                    Log.e("LoginFailure", "Error: ${response.code()} - $errorBody")
-                }
-
-            } catch (e: Exception) {
-                // 5. Ocurrió una excepción (ej. sin conexión a internet)
-                _loginState.value = EstadoLogin.Error("No se pudo conectar al servidor. Revisa tu conexión.")
-                Log.e("LoginException", "Excepción en llamada de login: ${e.message}", e)
+            val resultadoUsuario = ServicioRemoto.iniciarSesion(correo, contrasena)
+            println("resultadoUsuario = $resultadoUsuario")
+            if (resultadoUsuario != null) {
+                _usuarioLogeado.value = resultadoUsuario as Usuario?
+                _errorMensaje.value = null
+            } else {
+                _usuarioLogeado.value = null
+                _errorMensaje.value = "Correo o contraseña incorrectos. Inténtalo de nuevo."
             }
         }
     }
