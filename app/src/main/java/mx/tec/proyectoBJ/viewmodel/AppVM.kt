@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mx.tec.proyectoBJ.model.EstadoLogin
 import mx.tec.proyectoBJ.model.Promocion
 import mx.tec.proyectoBJ.model.ServicioRemoto
