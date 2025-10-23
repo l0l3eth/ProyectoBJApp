@@ -70,7 +70,7 @@ interface ServicioAPI {
      * Obtiene una lista completa de todos los negocios registrados.
      * @return Un [Response] que contiene una lista de objetos [Negocio].
      */
-    @GET("/api/negocios")
+    @GET("/api/negocios/lista")
     suspend fun obtenerNegocios(
         @Header("Authorization") token: String
     ): Response<List<Negocio>>
