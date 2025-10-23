@@ -141,7 +141,7 @@ fun IDCard(data: Usuario?, appVM : AppVM ) {
                         color = Color.Black
                     )
                     Text(
-                        text = "ID: ${data?.id.toString()}",
+                        text = "ID: ${data?.idUsuario?.toString() ?: "No disponible"}",
                         fontSize = 14.sp,
                         color = Color.Gray
                     )

@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -38,11 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -327,38 +322,8 @@ fun ParteSuperior(userName: String, modifier: Modifier = Modifier, onClick: () -
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
-            BarraBusqueda(modifier = Modifier.fillMaxWidth())
         }
     }
-}
-
-/**
- * Un `OutlinedTextField` estilizado para funcionar como una barra de búsqueda.
- * Tiene fondo blanco, esquinas redondeadas y un icono de búsqueda.
- *
- * @param modifier Modificador para personalizar el layout.
- */
-@Composable
-fun BarraBusqueda(modifier: Modifier = Modifier) {
-    var searchText by remember { mutableStateOf("") }
-
-    OutlinedTextField(
-        value = searchText,
-        onValueChange = { searchText = it },
-        placeholder = { Text("Busca tu negocio favorito") },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
-        shape = RoundedCornerShape(28.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = White,
-            unfocusedContainerColor = White,
-            focusedBorderColor = Color.Transparent,
-            unfocusedBorderColor = Color.Transparent,
-            focusedLeadingIconColor = morado,
-            unfocusedLeadingIconColor = morado,
-            cursorColor = morado
-        ),
-        modifier = modifier.height(56.dp)
-    )
 }
 
 /**
@@ -426,13 +391,14 @@ fun TarjetasPromocion(promo: Producto) { // Se asume la existencia de data class
 @Composable
 fun ConfirmarSalida(
     appVM: AppVM, // 1. Recibimos el ViewModel como parámetro
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    onConfirmar: () -> Unit
 ) {
     // --- Lógica para obtener el ID del usuario ---
     // 2. Observamos el LiveData del usuario logueado para obtener su ID.
     // Usamos ?.id para manejar de forma segura el caso en que no haya usuario (aunque
     // en esta pantalla siempre debería haber uno).
-    val usuarioId = appVM.usuarioLogeado.observeAsState().value?.id ?: -1
+    val usuarioId = appVM.usuarioLogeado.observeAsState().value?.idUsuario ?: -1
 
     Dialog(onDismissRequest = onDismissRequest) {
         Card(
@@ -490,6 +456,7 @@ fun ConfirmarSalida(
                                 appVM.eliminarUsuario(usuarioId)
                             }
                             onDismissRequest() // Cierra el diálogo después de iniciar la acción
+                            onConfirmar() // Ejecuta la acción
                         },
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(

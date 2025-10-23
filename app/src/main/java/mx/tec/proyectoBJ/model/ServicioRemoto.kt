@@ -8,6 +8,7 @@ import java.lang.Exception
 import android.util.Log
 import com.google.maps.android.ktx.BuildConfig
 import retrofit2.HttpException
+import retrofit2.Response
 
 /**
  * Objeto singleton para gestionar las comunicaciones con el servidor remoto (API).
@@ -28,8 +29,8 @@ object ServicioRemoto {
      */
     private val logging = HttpLoggingInterceptor().apply {
         level = if (BuildConfig.DEBUG) {
-            HttpLoggingInterceptor.Level.BODY }
-        else{
+            HttpLoggingInterceptor.Level.BODY
+        } else {
             HttpLoggingInterceptor.Level.NONE
         }
     }
@@ -40,7 +41,7 @@ object ServicioRemoto {
      * en el Logcat de Android Studio.
      */
 
-    private val certificatePinner=okhttp3.CertificatePinner.Builder()
+    private val certificatePinner = okhttp3.CertificatePinner.Builder()
         .build()
 
     private val cliente = okhttp3.OkHttpClient.Builder()
@@ -80,48 +81,30 @@ object ServicioRemoto {
      * @param usuario El objeto `Usuario` con los datos a registrar.
      */
     suspend fun registrarUsuario(usuario: Usuario): Boolean {
-       return try {
-            val response= servicio.registrarUsuario(usuario)
+        return try {
+            val response = servicio.registrarUsuario(usuario)
             println("Registro de usuario exitoso")
-            if (response.isSuccessful){
+            if (response.isSuccessful) {
                 Log.d("Registro de usuario", "Registro exitoso")
                 true
-            }else{
-                Log.e("Registro",
-                    "Error al registrar usuario, código: ${response.errorBody()?.string()}")
+            } else {
+                Log.e(
+                    "Registro",
+                    "Error al registrar usuario, código: ${response.errorBody()?.string()}"
+                )
                 false
-                }
             }
-       catch (e: Exception) {
-                  Log.e("Registro", "Error en la conexión: ${e.message}")
-                  false
-       }
+        } catch (e: Exception) {
+            Log.e("Registro", "Error en la conexión: ${e.message}")
+            false
+        }
     }
 
-    suspend fun iniciarSesion(correo:String, contrasena:String): Any? {
-        val request= LoginRequest(correo=correo, contrasena=contrasena)
-        return try{
-            val response=servicio.iniciarSesion(request)
-            if(response.isSuccessful){
-                val authResponse=response.body()
-                if(authResponse!=null){
-                    println("Inicio de sesión exitoso, token: ${authResponse.token}")
-                    authResponse.token
-                } else{
-                    println("Respuesta exitosa, cuerpo vacío")
-                    null
-                }
-            }else{
-                val errBody=response.errorBody()?.string()
-                println("Error de inicio de sesión: ${response.code()}. Mensaje del server: $errBody")
-                null
-            }
-        } catch(e: Exception) {
-            println("Error en la descarga: $e")
-            null
-        }
-        return null
+    suspend fun iniciarSesion(correo: String, contrasena: String): Response<LoginResponse> {
+        val request = LoginRequest(correo = correo, contrasena = contrasena)
+        return servicio.iniciarSesion(request)
     }
+
 
     /**
      * Envía una petición a la API para eliminar un usuario por su ID.

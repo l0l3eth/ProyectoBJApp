@@ -10,6 +10,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson // IMPORTACIÓN AÑADIDA
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,9 +19,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import mx.tec.proyectoBJ.model.EstadoLogin
 import mx.tec.proyectoBJ.model.Promocion
 import mx.tec.proyectoBJ.model.ServicioRemoto
 import mx.tec.proyectoBJ.model.TarjetaNegocio
+import mx.tec.proyectoBJ.model.TipoUsuario
 import mx.tec.proyectoBJ.model.Usuario
 import java.io.IOException
 
@@ -47,8 +50,8 @@ import java.io.IOException
  * @property errorMensaje Proporciona mensajes de error para ser mostrados en la UI.
  *
  * Creado por: Estrella Lolbeth Téllez Rivas A01750496
-               Allan Mauricio Brenes Castro A01750747
-               Carlos Antonio Tejero Andrade A01801062
+Allan Mauricio Brenes Castro A01750747
+Carlos Antonio Tejero Andrade A01801062
  */
 sealed class PantallaSplash {
     object NavegarAInicio : PantallaSplash()
@@ -56,6 +59,9 @@ sealed class PantallaSplash {
 
 class AppVM : ViewModel() {
     private val servicioRemoto = ServicioRemoto
+    private val _loginState = MutableStateFlow<EstadoLogin>(EstadoLogin.Idle)
+
+    val loginState: StateFlow<EstadoLogin> = _loginState
 
     // Flujo para la navegación después de la pantalla de bienvenida
     private val _navegarAInicio = MutableSharedFlow<PantallaSplash>()
@@ -136,13 +142,16 @@ class AppVM : ViewModel() {
         viewModelScope.launch {
             servicioRemoto.registrarUsuario(
                 Usuario(
+                    idUsuario = 0, // AÑADIDO: Se necesita un ID, 0 es un valor común para entidades nuevas.
                     nombre = nombre,
                     apellidos = apellido,
                     correo = correo,
                     contrasena = contrasena,
                     direccion = direccion,
                     telefono = numeroTelefono,
-                    curp = curp
+                    curp = curp,
+                    tipoUsuario = TODO(),
+                    token = TODO()
                 )
             )
         }
@@ -157,16 +166,49 @@ class AppVM : ViewModel() {
      */
     fun iniciarSesion(correo: String, contrasena: String) {
         viewModelScope.launch {
-            val resultadoUsuario = ServicioRemoto.iniciarSesion(correo, contrasena)
-            if (resultadoUsuario != null) {
-                _usuarioLogeado.value = resultadoUsuario as Usuario?
-                _errorMensaje.value = null
-            } else {
-                _usuarioLogeado.value = null
-                _errorMensaje.value = "Correo o contraseña incorrectos. Inténtalo de nuevo."
+            // 1. Establecer estado de carga
+            _loginState.value = EstadoLogin.Loading
+
+            try {
+                // 2. Llamar al servicio remoto (que ahora devuelve Response<LoginResponse>)
+                val response = servicioRemoto.iniciarSesion(correo, contrasena)
+
+                if (response.isSuccessful) {
+                    val loginResponse = response.body()
+                    val token = loginResponse?.token
+                    // Obtenemos el tipo de usuario, si es nulo, usamos DESCONOCIDO
+                    val tipoUsuario = loginResponse?.tipoUsuario ?: TipoUsuario.DESCONOCIDO
+
+                    if (!token.isNullOrBlank()) {
+                        // 3. Si el login es exitoso, pasar el tipo de usuario al estado Success
+                        _loginState.value = EstadoLogin.Success(tipoUsuario)
+                        // Aquí podrías guardar el token y otros datos del usuario si es necesario
+                        Log.d("LoginSuccess", "Usuario autenticado. Tipo: $tipoUsuario")
+
+                    } else {
+                        // El servidor respondió OK, pero no envió token.
+                        _loginState.value = EstadoLogin.Error("Respuesta del servidor inválida (sin token).")
+                        Log.w("LoginWarning", "Respuesta exitosa pero sin token.")
+                    }
+                } else {
+                    // 4. El servidor respondió con un error (ej. 401 Unauthorized)
+                    val errorBody = response.errorBody()?.string()
+                    _loginState.value = EstadoLogin.Error("Correo o contraseña incorrectos.")
+                    Log.e("LoginFailure", "Error: ${response.code()} - $errorBody")
+                }
+
+            } catch (e: Exception) {
+                // 5. Ocurrió una excepción (ej. sin conexión a internet)
+                _loginState.value = EstadoLogin.Error("No se pudo conectar al servidor. Revisa tu conexión.")
+                Log.e("LoginException", "Excepción en llamada de login: ${e.message}", e)
             }
         }
     }
+
+    fun resetLoginState() {
+        _loginState.value = EstadoLogin.Idle
+    }
+
 
     /**
      * Elimina un usuario del sistema.
@@ -233,7 +275,7 @@ class AppVM : ViewModel() {
      * Maneja los estados de carga y error durante el proceso.
      */
     fun generarQR() {
-        val idUsuario = _usuarioLogeado.value?.id ?: run {
+        val idUsuario = _usuarioLogeado.value?.idUsuario ?: run { // CORREGIDO: usar idUsuario
             _errorMensaje.value = "No se ha iniciado sesión para generar un QR."
             return
         }
@@ -291,7 +333,7 @@ class AppVM : ViewModel() {
             _error.value = null
 
             try {
-                val listaDesdeServidor = ServicioRemoto.obtenerPromocionesNegocio()
+                val listaDesdeServidor = servicioRemoto.obtenerPromocionesNegocio()
                 _promociones.value = listaDesdeServidor
             } catch (e: Exception) {
                 Log.e("AppVM", "Error al cargar promociones: ${e.message}")

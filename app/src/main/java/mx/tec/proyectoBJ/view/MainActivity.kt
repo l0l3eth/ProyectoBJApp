@@ -114,8 +114,17 @@ fun AppPrincipal(appVM: AppVM) {
 
     // Define las rutas donde la barra de navegación NO debe ser visible (pantallas de flujo inicial).
     val rutasSinBarraNav =
-        listOf("Entrada", "Inicio", "InicioSesion", "Registro", "registro_usuario")
+        listOf("Entrada", "Inicio", "InicioSesion", "Registro",
+            "registro_usuario", "SolicitudNegocio", "QR", "ActualizarDatos",
+            "PromocionesScreen", "PantallaPrincipalNegocio")
     val mostrarBarraNav = currentRoute !in rutasSinBarraNav
+
+    val rutasSinBarraNavNegocio =
+        listOf("Entrada", "Inicio", "InicioSesion", "Registro",
+            "registro_usuario", "SolicitudNegocio", "ActualizarDatos",
+            "idDigital", "HomeUsuario", "Mapa")
+    val mostrarBarraNavNegocio = currentRoute !in rutasSinBarraNav
+
 
     // --- ESTRUCTURA PRINCIPAL DE LA UI ---
     // Contenedor principal que permite un menú deslizable desde el lateral.
@@ -134,7 +143,13 @@ fun AppPrincipal(appVM: AppVM) {
         Scaffold(
             bottomBar = {
                 // Muestra la BarraNavegacion solo si la condición se cumple.
-                if (mostrarBarraNav) {
+                if (mostrarBarraNavNegocio) {
+                    BarraNavegacionNegocios(
+                        navController = navController
+                    )
+                }
+                // Si no, si debe mostrar la barra de joven, muestra BarraNavegacion.
+                else if (mostrarBarraNav) {
                     BarraNavegacion(
                         navController = navController
                     )
@@ -174,7 +189,7 @@ fun AppNavHost(
     // NavHost define el contenedor para el grafo de navegación.
     NavHost(
         navController = navController,
-        startDestination = "InicioSesion", // La pantalla con la que arranca la app.
+        startDestination = "Inicio", // La pantalla con la que arranca la app.
         modifier = modifier.fillMaxSize()
     ) {
         // --- FLUJO DE AUTENTICACIÓN Y REGISTRO ---
@@ -182,7 +197,16 @@ fun AppNavHost(
         composable("InicioSesion") {
             InicioSesion(
                 onNavigateToRegistro = { navController.navigate("Registro") },
-                onNavigateToPrueba = { navController.navigate("PromocionesScreen") },
+                onNavigateToHomeJoven = { navController.navigate("PromocionesScreen") },
+                onNavigateToHomeNegocio = { navController.navigate("PantallaPrincipalNegocio") },
+                appVM = appVM
+            )
+        }
+
+        composable("Inicio") {
+            Inicio(
+                onNavigateToInicioSesion = { navController.navigate("InicioSesion") },
+                onNavigateToRegistro = { navController.navigate("Registro") },
                 appVM = appVM
             )
         }
@@ -232,6 +256,12 @@ fun AppNavHost(
             )
         }
 
+        composable("PantallaPrincipalNegocio") {
+            NegocioProfileScreen(
+
+            )
+        }
+
         // --- PANTALLAS DEL MENÚ LATERAL ---
 
         composable("ActualizarDatos") {
@@ -250,10 +280,33 @@ fun AppNavHost(
             ConfirmarSalida(
                 appVM = appVM,
                 onDismissRequest = { navController.popBackStack() }, // Cierra el diálogo al cancelar
+                onConfirmar = {
+                    navController.navigate("Inicio") {
+                        popUpTo("Inicio") { inclusive = true }
+                    }
+                }
             )
         }
 
-        composable("EscaneoQR"){
+        composable("EscaneoQR") {
+            EscaneoQR(
+                paddingValues = PaddingValues()
+            )
+        }
+
+        composable("PantallaPrincipalNegocio") {
+            NegocioProfileScreen(
+
+            )
+        }
+
+        composable("Mapa") {
+            Mapa(
+                appVM = appVM
+            )
+        }
+
+        composable("QR") {
             EscaneoQR(
                 paddingValues = PaddingValues()
             )
