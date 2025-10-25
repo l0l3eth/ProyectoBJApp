@@ -194,15 +194,6 @@ fun AppNavHost(
                 onNavigateToRegistro = { navController.navigate("Registro") },
                 onNavigateToHomeJoven = { navController.navigate("PromocionesScreen") },
                 onNavigateToHomeNegocio = { navController.navigate("PantallaPrincipalNegocio") },
-//                onNavigateToPrueba = { navController.navigate("Prueba") },
-//                onNavigateToPruebaUsuario = { navController.navigate("ID") },
-                appVM = appVM
-            )
-        }
-
-        composable("PruebaUsuario"){ //TODO: borrar
-
-            HomeUsuario(
                 appVM = appVM
             )
         }

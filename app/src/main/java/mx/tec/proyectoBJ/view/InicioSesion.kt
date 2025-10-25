@@ -71,8 +71,6 @@ import mx.tec.proyectoBJ.morado
 fun InicioSesion( onNavigateToRegistro: () -> Unit,
                   onNavigateToHomeJoven: () -> Unit,
                   onNavigateToHomeNegocio: () -> Unit,
-                  //onNavigateToPrueba: () -> Unit, //TODO: borrar
-                  //onNavigateToPruebaUsuario: () -> Unit, //TODO: borrar
                   appVM: AppVM
 ) {
     // Estados para los campos de texto
