@@ -110,16 +110,27 @@ class AppVM : ViewModel() {
     init {
         viewModelScope.launch {
             delay(2000)
-            // Podrías emitir el evento de navegación aquí si fuera necesario
-            // _navegarAInicio.emit(PantallaSplash.NavegarAInicio)
-        }
-        // Cargar los datos iniciales al crear el ViewModel
-        viewModelScope.launch {
-            delay(25000)
-            obtenerTarjetasNegocios()
-            cargarPromociones()
+            // Lógica de Splash Screen si la necesitas...
         }
 
+        // --- LA SOLUCIÓN DEFINITIVA ---
+        // Creamos una corrutina que OBSERVA los cambios en el estado del usuario.
+        viewModelScope.launch {
+            // Cada vez que _usuarioLogeado cambie, este bloque se ejecutará.
+            usuarioLogeado.observeForever { usuario ->
+                if (usuario?.token != null) {
+                    // Si tenemos un usuario con token, cargamos sus datos.
+                    Log.d("AppVM", "Usuario detectado. Cargando datos de negocio y promociones.")
+                    obtenerTarjetasNegocios()
+                    cargarPromociones()
+                } else {
+                    // Si no hay usuario (o cierra sesión), limpiamos los datos.
+                    Log.d("AppVM", "No hay usuario. Limpiando listas.")
+                    _listaNegocios.value = emptyList()
+                    _promociones.value = emptyList()
+                }
+            }
+        }
     }
 
     /**
@@ -327,28 +338,33 @@ class AppVM : ViewModel() {
 
     /**
      * Carga la lista de promociones desde el servidor.
-     * Actualiza los estados [_estaCargando], [_promociones] y [_error] según el resultado de la operación.
+     * Ahora asume que solo se llama cuando hay un usuario autenticado.
      */
     private fun cargarPromociones() {
         viewModelScope.launch {
+            // 1. Obtener el token (con una guarda de seguridad por si acaso)
+            val token = _usuarioLogeado.value?.token
+            if (token == null) {
+                Log.w("AppVM", "cargarPromociones fue llamada sin un token.")
+                _error.value = "No se pudo cargar las promociones."
+                return@launch
+            }
+
+            // 2. Iniciar el proceso de carga
             _estaCargando.value = true
             _error.value = null
 
-            val token=_usuarioLogeado.value?.token
-
-
-            if(token==null){
-                _error.value = "No se pudo cargar las promociones."
-                _estaCargando.value = false
-                return@launch
-            }
             try {
+                // 3. Llamar al servicio remoto
                 val listaDesdeServidor = servicioRemoto.obtenerPromocionesNegocio(token)
                 _promociones.value = listaDesdeServidor
+                Log.d("AppVM", "Promociones cargadas exitosamente.")
             } catch (e: Exception) {
+                // 4. Manejar errores de la llamada
                 Log.e("AppVM", "Error al cargar promociones: ${e.message}")
                 _error.value = "No se pudieron cargar las promociones. Intenta más tarde."
             } finally {
+                // 5. Finalizar el estado de carga
                 _estaCargando.value = false
             }
         }
