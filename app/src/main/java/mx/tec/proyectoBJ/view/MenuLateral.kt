@@ -52,6 +52,7 @@ fun AppMenuLateral(
                 navController.navigate("Inicio") {
                     popUpTo(navController.graph.startDestinationId) { inclusive = true }
                 }
+                appVM.cerrarSesionLocalmente()
             }
         }
     }
@@ -107,7 +108,6 @@ fun AppMenuLateral(
             },
             onConfirmar = {
                 appVM.eliminarUsuario(appVM.usuarioLogeado.value?.id ?: 0)
-                mostrarDialogo = false
             }
         )
     }

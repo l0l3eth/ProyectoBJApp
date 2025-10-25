@@ -137,19 +137,13 @@ object ServicioRemoto {
      * @return `true` si el usuario fue eliminado exitosamente (código 2xx),
      *         `false` en caso contrario (error del servidor o de conexión).
      */
-    suspend fun borrarUsuario(token: String, idUsuario: Int) {
-        try {
+    suspend fun borrarUsuario(token: String, idUsuario: Int): Result<Unit> {
+        return try {
             val response = servicio.borrarUsuario(token,idUsuario)
-            if (response.isSuccessful) {
-                Log.d("ServicioRemoto","Usuario $idUsuario eliminado correctamente")
-            } else {
-               Log.e("ServicioRemoto", "Error al eliminar usuario. Código: " +
-                       "${response.code()}, mensaje: ${response.message()}")
-                throw HttpException(response)
-            }
+            Result.success(Unit)
         } catch (e: Exception) {
             Log.e("ServicioRemoto", "Error en la conexión: $e")
-            throw e
+            Result.failure(e)
         }
     }
 

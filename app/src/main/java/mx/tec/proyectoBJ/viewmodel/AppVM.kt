@@ -202,7 +202,6 @@ class AppVM : ViewModel() {
      */
     fun eliminarUsuario(idUsuario: Int) {
         viewModelScope.launch {
-            _estaBorrando.value = true
             _errorMensaje.value = null
 
             val token = _usuarioLogeado.value?.token
@@ -211,9 +210,18 @@ class AppVM : ViewModel() {
                 _estaBorrando.value = false
                 return@launch
             }
+
+            _estaBorrando.value = true
+
             try{
-                servicioRemoto.borrarUsuario(token, idUsuario)
-                _borradoExitoso.emit(true)
+                val resultado = servicioRemoto.borrarUsuario(idUsuario = idUsuario, token = token)
+
+                if (resultado.isSuccess) {
+                    Log.d("AppVM", "Usuario eliminado exitosamente en el backend.")
+                    _borradoExitoso.emit(true)
+                } else {
+                    throw resultado.exceptionOrNull() ?: Exception("Error desconocido al eliminar usuario")
+                }
             }
             catch (e: Exception){
                 Log.e("AppVM", "Error al eliminar usuario: ${e.message}")
@@ -368,5 +376,18 @@ class AppVM : ViewModel() {
                 _estaCargando.value = false
             }
         }
+    }
+
+    /**
+     * Limpia el estado del ViewModel a sus valores iniciales.
+     * Se debe llamar después de que la navegación de cierre de sesión haya comenzado.
+     */
+    fun cerrarSesionLocalmente() {
+        _usuarioLogeado.value = null
+        // También es buena idea limpiar otros estados relevantes
+        _error.value = null
+        _listaNegocios.value = emptyList()
+        _promociones.value = emptyList()
+        Log.d("AppVM", "Sesión local limpiada.")
     }
 }
