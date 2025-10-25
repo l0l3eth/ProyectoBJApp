@@ -306,7 +306,14 @@ fun DatosDeNegocio(modifier: Modifier = Modifier,
                 value = state.nombre ?: "",
                 onValueChange = { onStateChange(state.copy(nombre = it)) })
             // Se puede conectar onSelectionChange para guardar el tipo de establecimiento si es necesario
-            TipoEstablecimientoDropdown(onSelectionChange = { /* onStateChange(state.copy(tipo = it)) */ })
+            TipoEstablecimientoDropdown(
+                // 1. Pasa el valor del estado central al dropdown
+                selectedText = state.tipoEstablecimiento ?: "",
+                // 2. Cuando el dropdown notifica un cambio, actualiza el estado central
+                onSelectionChange = { nuevaSeleccion ->
+                    onStateChange(state.copy(tipoEstablecimiento = nuevaSeleccion))
+                }
+            )
         }
     }
 }
@@ -327,12 +334,15 @@ fun DatosDeNegocio(modifier: Modifier = Modifier,
 @Composable
 fun TipoEstablecimientoDropdown(
     modifier: Modifier = Modifier,
-    options: List<String> = listOf("Entretenimiento", "Comida", "Salud", "Belleza", "Educación", "Moda y Accesorios", "Servicios"),
-    initialSelection: String = "Tipo de establecimiento",
+    options: List<String> =
+        listOf("Entretenimiento", "Comida",
+            "Salud", "Belleza", "Educación", "Moda y Accesorios", "Servicios"),
+
+    selectedText: String,
     onSelectionChange: (String) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(initialSelection) }
+
 
     ExposedDropdownMenuBox(
         expanded = isExpanded,
@@ -347,13 +357,9 @@ fun TipoEstablecimientoDropdown(
                 .menuAnchor()
                 .height(56.dp),
             readOnly = true,
-            value = selectedText,
+            value = selectedText.ifEmpty { "Tipo de establecimiento" },
             onValueChange = {},
-            placeholder = {
-                if (selectedText == initialSelection) {
-                    Text(text = initialSelection, color = Color.Gray)
-                }
-            },
+            
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = White,
                 unfocusedContainerColor = White,
@@ -379,7 +385,6 @@ fun TipoEstablecimientoDropdown(
                 DropdownMenuItem(
                     text = { Text(selectionOption) },
                     onClick = {
-                        selectedText = selectionOption
                         isExpanded = false
                         onSelectionChange(selectionOption)
                     },
