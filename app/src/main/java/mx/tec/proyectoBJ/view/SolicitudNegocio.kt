@@ -114,7 +114,6 @@ fun RellenoDeSolicitud(appVM: AppVM, modifier: Modifier = Modifier){
             // Pantalla final: validación y envío de datos.
             if (pantallaActual == 4) {
                 val isValid = estadoDeRegistro.nombre != null &&
-                        estadoDeRegistro.apellido != null &&
                         estadoDeRegistro.correo != null &&
                         estadoDeRegistro.contrasena != null &&
                         estadoDeRegistro.direccion != null &&
@@ -124,9 +123,8 @@ fun RellenoDeSolicitud(appVM: AppVM, modifier: Modifier = Modifier){
                 if (isValid) {
                     TextoTitularRegistro("¡Todo listo! Enviando...")
                     // Llama al ViewModel para enviar los datos al backend.
-                    appVM.enviarUsuario(
+                    appVM.enviarNegocio(
                         nombre = estadoDeRegistro.nombre!!,
-                        apellido = estadoDeRegistro.apellido!!,
                         correo = estadoDeRegistro.correo!!,
                         contrasena = estadoDeRegistro.contrasena!!,
                         direccion = estadoDeRegistro.direccion!!,
@@ -314,6 +312,9 @@ fun DatosDeNegocio(modifier: Modifier = Modifier,
                     onStateChange(state.copy(tipoEstablecimiento = nuevaSeleccion))
                 }
             )
+            CampoDeTexto(etiqueta = "CURP del encargado de la cuenta",
+                value = state.curp ?: "",
+                onValueChange = { onStateChange(state.copy(curp = it)) })
         }
     }
 }

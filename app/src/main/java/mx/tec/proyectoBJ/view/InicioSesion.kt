@@ -81,32 +81,44 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit,
     var passwordVisible by remember { mutableStateOf(false) }
 
     val loginState by appVM.loginState.collectAsState()
-
-    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
 
     LaunchedEffect(loginState) {
         when (val state = loginState) {
             is EstadoLogin.Success -> {
+                // Después de manejar el éxito, reseteamos el estado para evitar
+                // que este bloque se ejecute de nuevo con el mismo evento.
                 when (state.tipoUsuario) {
-                    TipoUsuario.JOVEN -> onNavigateToHomeJoven()
-                    TipoUsuario.NEGOCIO -> onNavigateToHomeNegocio()
-                    TipoUsuario.DESCONOCIDO -> {
+                    TipoUsuario.JOVEN -> {
+                        println("Tipo de usuario: ${state.tipoUsuario}")
+                        onNavigateToHomeJoven()
+                    }
+                    TipoUsuario.NEGOCIO -> {
+                        println("Tipo de usuario: ${state.tipoUsuario}")
+                        onNavigateToHomeNegocio()
+                    }
+                    else -> {
                         scope.launch {
                             snackbarHostState.showSnackbar("Error: Tipo de usuario desconocido.")
                         }
                     }
                 }
+                // --- LÍNEA CLAVE ---
+                // Reseteamos el estado después de navegar.
+                appVM.resetLoginState()
             }
             is EstadoLogin.Error -> {
-                // Mostrar el error en el Snackbar
                 scope.launch {
                     snackbarHostState.showSnackbar(state.message)
                 }
-                // Opcional: resetear el estado para poder reintentar
+                // También reseteamos después de mostrar el error.
                 appVM.resetLoginState()
             }
-            else -> { /* No hacer nada en Idle o Loading desde aquí */ }
+            // Estado neutro, no hacemos nada.
+            is EstadoLogin.Idle -> { /* No hacer nada */ }
+            is EstadoLogin.Loading -> { /* No hacer nada */ }
         }
     }
 

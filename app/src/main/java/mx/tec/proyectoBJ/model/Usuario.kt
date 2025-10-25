@@ -19,7 +19,7 @@ data class Usuario(
     @SerializedName("curp")
     val curp: String?,
 
-    val tipoUsuario: TipoUsuario = TipoUsuario.JOVEN,
+    val tipoUsuario: TipoUsuario,
 
     val token: String? = null
 )

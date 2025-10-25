@@ -24,6 +24,7 @@ import mx.tec.proyectoBJ.model.EstadoLogin
 import mx.tec.proyectoBJ.model.Promocion
 import mx.tec.proyectoBJ.model.ServicioRemoto
 import mx.tec.proyectoBJ.model.TarjetaNegocio
+import mx.tec.proyectoBJ.model.TipoUsuario
 import mx.tec.proyectoBJ.model.Usuario
 
 /**
@@ -163,7 +164,44 @@ class AppVM : ViewModel() {
                     contrasena = contrasena,
                     direccion = direccion,
                     telefono = numeroTelefono,
-                    curp = curp
+                    curp = curp,
+                    tipoUsuario = TipoUsuario.JOVEN
+                )
+            )
+        }
+    }
+
+    /**
+     * Registra un nuevo usuario en el sistema.
+     *
+     * @param nombre Nombre del usuario.
+     * @param apellido Apellidos del usuario.
+     * @param correo Correo electrónico del usuario.
+     * @param contrasena Contraseña para la nueva cuenta.
+     * @param direccion Dirección del usuario.
+     * @param numeroTelefono Número de teléfono del usuario.
+     * @param curp CURP del usuario.
+     */
+    fun enviarNegocio(
+        nombre: String,
+        correo: String,
+        contrasena: String,
+        direccion: String,
+        numeroTelefono: String,
+        curp: String
+    ) {
+        viewModelScope.launch {
+            servicioRemoto.registrarUsuario(
+                Usuario(
+                    id = 0, // AÑADIDO: Se necesita un ID, 0 es un valor común para entidades nuevas.
+                    nombre = nombre,
+                    apellidos = "",
+                    correo = correo,
+                    contrasena = contrasena,
+                    direccion = direccion,
+                    telefono = numeroTelefono,
+                    curp = curp,
+                    tipoUsuario = TipoUsuario.JOVEN
                 )
             )
         }
@@ -178,14 +216,24 @@ class AppVM : ViewModel() {
      */
     fun iniciarSesion(correo: String, contrasena: String) {
         viewModelScope.launch {
+            _loginState.value = EstadoLogin.Loading // 1. Indica que está cargando
+
             val resultadoUsuario = ServicioRemoto.iniciarSesion(correo, contrasena)
-            println("resultadoUsuario = $resultadoUsuario")
+
             if (resultadoUsuario != null) {
+                // Si el login fue exitoso en el backend, actualizamos el usuario
                 _usuarioLogeado.value = resultadoUsuario as Usuario?
                 _errorMensaje.value = null
+
+                // Y emitimos el estado de éxito con el tipo de usuario correcto
+                _loginState.value = EstadoLogin.Success(resultadoUsuario.tipoUsuario) // 2. Éxito
             } else {
+                // Si el login falló
                 _usuarioLogeado.value = null
                 _errorMensaje.value = "Correo o contraseña incorrectos. Inténtalo de nuevo."
+
+                // Emitimos el estado de error
+                _loginState.value = EstadoLogin.Error("Correo o contraseña incorrectos.") // 3. Error
             }
         }
     }
