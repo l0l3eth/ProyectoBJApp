@@ -130,7 +130,31 @@ object ServicioRemoto {
         return null
     }
 
+    /**
+    * Llama a la API para crear una nueva promoción para el negocio autenticado.
+    *
+    * @param token El token de autenticación del negocio (ej. "Bearer xyz...").
+    * @param nuevaPromocion El objeto Promocion con los datos a guardar.
+    */
+    suspend fun crearPromocion(token: String, nuevaPromocion: Promocion) {
+        try {
 
+            val response = servicio.crearPromocion(token, nuevaPromocion)
+
+
+            if (response.isSuccessful) {
+                Log.d("ServicioRemoto", "Promoción creada exitosamente.")
+            } else {
+                Log.e("ServicioRemoto", "Error al crear promoción: ${response.code()}")
+                // Lanza una excepción para que el ViewModel sepa que algo salió mal.
+                throw HttpException(response)
+            }
+        } catch (e: Exception) {
+            Log.e("ServicioRemoto", "Fallo en la conexión al crear promoción: ${e.message}")
+            // Vuelve a lanzar la excepción para que el ViewModel la capture.
+            throw e
+        }
+    }
     /**
      * Envía una petición a la API para eliminar un usuario por su ID.
      * @param idUsuario El ID del usuario que se desea eliminar.

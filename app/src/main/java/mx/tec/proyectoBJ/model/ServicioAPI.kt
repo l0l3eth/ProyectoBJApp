@@ -138,4 +138,17 @@ interface ServicioAPI {
 //    suspend fun solicitarRestablecimientoContrasena(
 //        @com.google.android.gms.fitness.data.Field("email") correo: String
 //    ): Response<Unit>
+
+    @POST("/api/descuentos")
+    suspend fun crearPromocion(
+        @Header("Authorization") token: String,
+        @Body promocion: Promocion
+    ): Response<Unit>
+
+    @PUT("negocios/{id}") // O la ruta correcta que tengas en tu backend, ej: "auth/negocio/{id}"
+    suspend fun actualizarNegocio(
+        @Header("Authorization") token: String,
+        @Path("id") idNegocio: Int,
+        @Body negocio: Negocio
+    ): Response<Void>
 }

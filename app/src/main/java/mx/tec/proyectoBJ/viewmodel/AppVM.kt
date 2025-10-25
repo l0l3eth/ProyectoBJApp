@@ -396,7 +396,7 @@ class AppVM : ViewModel() {
      * Carga la lista de promociones desde el servidor.
      * Ahora asume que solo se llama cuando hay un usuario autenticado.
      */
-    private fun cargarPromociones() {
+    fun cargarPromociones() {
         viewModelScope.launch {
             // 1. Obtener el token (con una guarda de seguridad por si acaso)
             val token = _usuarioLogeado.value?.token
@@ -423,6 +423,43 @@ class AppVM : ViewModel() {
                 // 5. Finalizar el estado de carga
                 _estaCargando.value = false
             }
+        }
+    }
+
+    /**
+     * Crea una nueva promoción en el servidor para el negocio que ha iniciado sesión.
+     * Si la operación es exitosa, recarga la lista de promociones para reflejar el cambio.
+     *
+     * @param nuevaPromocion El objeto [Promocion] con los datos del formulario.
+     */
+    fun guardarPromocion(nuevaPromocion: Promocion) {
+        viewModelScope.launch {
+            _estaCargando.value = true // Indica que una operación de red ha comenzado
+            _error.value = null
+
+            val token = _usuarioLogeado.value?.token
+            if (token == null) {
+                _error.value = "Error de autenticación. No se pudo guardar."
+                _estaCargando.value = false
+                Log.w("AppVM", "guardarPromocion fue llamada sin un token.")
+                return@launch
+            }
+
+            try {
+
+                servicioRemoto.crearPromocion(token, nuevaPromocion)
+                Log.d("AppVM", "Promoción guardada exitosamente en el servidor.")
+
+
+                cargarPromociones()
+
+            } catch (e: Exception) {
+                // 3. Manejar cualquier error de la llamada de red.
+                Log.e("AppVM", "Error al guardar la promoción: ${e.message}")
+                _error.value = "No se pudo guardar la promoción. Inténtalo de nuevo."
+                _estaCargando.value = false // Solo detenemos la carga si hay un error
+            }
+            // Nota: El `_estaCargando.value = false` se gestionará al final de `cargarPromociones()`.
         }
     }
 
