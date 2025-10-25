@@ -43,13 +43,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import mx.tec.proyectoBJ.R
 import mx.tec.proyectoBJ.model.Negocio
 import mx.tec.proyectoBJ.fondoGris
 import mx.tec.proyectoBJ.morado
+import mx.tec.proyectoBJ.viewmodel.AppVM
 
 @Composable
-fun NegocioEdicionPerfil(modifier: Modifier = Modifier) {
+fun NegocioEdicionPerfil(modifier: Modifier = Modifier,
+                         appVM: AppVM = AppVM(),
+                         navController: NavHostController = rememberNavController()) {
     // Objeto provisional
     var negocio: Negocio by remember { mutableStateOf(Negocio(
             nombreNegocio = "JÖTUNHEIM",

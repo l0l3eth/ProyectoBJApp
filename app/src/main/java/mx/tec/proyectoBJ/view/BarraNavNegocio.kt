@@ -44,9 +44,9 @@ data class NavItemNegocio(val label: String, val icon: ImageVector, val route: S
  * Cada elemento define una sección principal de la app.
  */
 val navItemsNegocio = listOf(
-    NavItemNegocio("Inicio", Icons.Default.Store, "PaginaPrincipalNegocio"),
+    NavItemNegocio("Inicio", Icons.Default.Store, "PantallaPrincipalNegocio"),
     NavItemNegocio("Promociones", Icons.Default.Discount, "PromocionesScreen"),
-    NavItemNegocio("Escanear QR", Icons.Default.QrCode, "Escanear QR"),
+    NavItemNegocio("Escanear QR", Icons.Default.QrCode, "QR"),
 )
 
 /**

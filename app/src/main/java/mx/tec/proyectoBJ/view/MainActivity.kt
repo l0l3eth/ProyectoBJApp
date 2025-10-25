@@ -253,7 +253,23 @@ fun AppNavHost(
 
         composable("PantallaPrincipalNegocio") {
             NegocioProfileScreen(
+                appVM = appVM,
+                navController = navController
+            )
+        }
 
+        composable("EdicionNegocio") {
+            // Aquí llamas a la pantalla de edición del perfil.
+            NegocioEdicionPerfil(
+                appVM = appVM,
+                navController = navController
+            )
+        }
+
+
+        composable("QR") {
+            EscaneoQR(
+                paddingValues = PaddingValues()
             )
         }
 
@@ -289,21 +305,9 @@ fun AppNavHost(
             )
         }
 
-        composable("PantallaPrincipalNegocio") {
-            NegocioProfileScreen(
-
-            )
-        }
-
         composable("Mapa") {
             Mapa(
                 appVM = appVM
-            )
-        }
-
-        composable("QR") {
-            EscaneoQR(
-                paddingValues = PaddingValues()
             )
         }
     }
