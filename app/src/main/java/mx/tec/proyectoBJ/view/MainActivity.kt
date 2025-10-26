@@ -184,7 +184,11 @@ fun AppPrincipal(appVM: AppVM) {
                     .padding(innerPadding)
                     .fillMaxSize()
                     .background(Color(0xFFFFF9ED)),
-                onMenuClick = abrirMenu // Pasa la función para abrir el menú a los componentes hijos.
+                onMenuClick = abrirMenu, // Pasa la función para abrir el menú a los componentes hijos.
+                onGuardarClick= {
+                    navController.popBackStack("PantallaPrincipalNegocio",false)
+
+                }
             )
         }
     }
@@ -206,6 +210,7 @@ fun AppNavHost(
     appVM: AppVM,
     modifier: Modifier,
     onMenuClick: () -> Unit,
+    onGuardarClick: () -> Unit
 ) {
     // NavHost define el contenedor para el grafo de navegación.
     NavHost(
@@ -214,6 +219,8 @@ fun AppNavHost(
         modifier = modifier.fillMaxSize()
     ) {
         // --- FLUJO DE AUTENTICACIÓN Y REGISTRO ---
+
+
 
         composable("InicioSesion") {
             InicioSesion(
@@ -298,7 +305,9 @@ fun AppNavHost(
             // Aquí llamas a la pantalla de edición del perfil.
             NegocioEdicionPerfil(
                 appVM = appVM,
-                navController = navController
+                navController = navController,
+                onGuardarClick= onGuardarClick
+
             )
         }
 
@@ -353,6 +362,8 @@ fun AppNavHost(
                 navController = navController
             )
         }
+
     }
 }
+
 

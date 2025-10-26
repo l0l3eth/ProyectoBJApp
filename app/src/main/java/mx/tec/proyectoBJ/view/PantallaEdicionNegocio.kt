@@ -54,7 +54,8 @@ import mx.tec.proyectoBJ.viewmodel.AppVM
 @Composable
 fun NegocioEdicionPerfil(modifier: Modifier = Modifier,
                          appVM: AppVM = AppVM(),
-                         navController: NavHostController = rememberNavController()) {
+                         navController: NavHostController = rememberNavController(),
+                        onGuardarClick: ()-> Unit = {}) {
     // Objeto provisional
     var negocio: Negocio by remember { mutableStateOf(Negocio(
             nombreNegocio = "JÖTUNHEIM",
@@ -112,7 +113,9 @@ fun NegocioEdicionPerfil(modifier: Modifier = Modifier,
             }
 
             ElevatedButton(
-                onClick = {  },
+                onClick = {
+                    onGuardarClick()
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = White, // Fondo blanco
                     contentColor = morado // Color del texto
