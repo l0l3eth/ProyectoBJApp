@@ -53,19 +53,12 @@ import mx.tec.proyectoBJ.model.Usuario
 Allan Mauricio Brenes Castro A01750747
 Carlos Antonio Tejero Andrade A01801062
  */
-sealed class PantallaSplash {
-    object NavegarAInicio : PantallaSplash()
-}
 
 class AppVM : ViewModel() {
     private val servicioRemoto = ServicioRemoto
     private val _loginState = MutableStateFlow<EstadoLogin>(EstadoLogin.Idle)
 
     val loginState: StateFlow<EstadoLogin> = _loginState
-
-    // Flujo para la navegación después de la pantalla de bienvenida
-    private val _navegarAInicio = MutableSharedFlow<PantallaSplash>()
-    val navegarAInicio: SharedFlow<PantallaSplash> = _navegarAInicio.asSharedFlow()
 
     // Estado del usuario que ha iniciado sesión
     private val _usuarioLogeado = MutableLiveData<Usuario?>(null)
@@ -332,6 +325,11 @@ class AppVM : ViewModel() {
      * El resultado se almacena en [_qrData].
      * Maneja los estados de carga y error durante el proceso.
      */
+
+    fun limpiarQR() {
+        _qrData.value = null
+        _errorMensaje.value = null
+    }
     fun generarQR() {
         val usuarioActual = _usuarioLogeado.value
         val idUsuario = usuarioActual?.id
@@ -344,14 +342,11 @@ class AppVM : ViewModel() {
 
         viewModelScope.launch {
             _cargandoQR.value = true
-            _qrData.value = null // Se limpia el estado anterior
+            _qrData.value = null
             _errorMensaje.value = null
 
             try {
-                // 2. Obtener la respuesta de la red
                 val responseBody = servicioRemoto.generarQR(token, idUsuario)
-
-                // 3. Obtener los bytes y asignarlos directamente al StateFlow
                 val bytes = withContext(Dispatchers.IO) {
                     responseBody.bytes()
                 }
@@ -366,6 +361,7 @@ class AppVM : ViewModel() {
             }
         }
     }
+
 
     /**
      * Obtiene la lista de tarjetas de negocio del servidor y la almacena en [_listaNegocios].

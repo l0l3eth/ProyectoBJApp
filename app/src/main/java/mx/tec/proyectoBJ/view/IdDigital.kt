@@ -1,7 +1,6 @@
 package mx.tec.proyectoBJ.view
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -30,14 +29,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import mx.tec.proyectoBJ.R
 import mx.tec.proyectoBJ.fondoGris
 import mx.tec.proyectoBJ.model.Usuario
 import mx.tec.proyectoBJ.viewmodel.AppVM
@@ -88,7 +85,7 @@ fun PantallaIDDigital(appVM: AppVM) {
                 contentAlignment = Alignment.TopCenter
             ) {
                 //IDCard(data = usuario, appVM = appVM)
-                IDCardEmergencia(data = usuario, appVM = appVM)
+                IDCard(data = usuario, appVM = appVM)
             }
         }
     }
@@ -108,8 +105,17 @@ fun PantallaIDDigital(appVM: AppVM) {
 @Composable
 fun IDCard(data: Usuario?, appVM : AppVM ) {
     // `LaunchedEffect(Unit)` ejecuta la generación del QR una sola vez cuando el Composable entra en la composición.
-    LaunchedEffect(Unit) {
-        appVM.generarQR()
+    DisposableEffect(data?.id) {
+        val userId = data?.id
+        if (userId != null) {
+            appVM.generarQR()
+        }
+
+        // Este bloque se ejecuta cuando el efecto se cancela o reinicia
+        // (por ejemplo, si el usuario se va de la pantalla).
+        onDispose {
+            appVM.limpiarQR() // Necesitarás crear esta función en tu ViewModel.
+        }
     }
     // Observa los estados del ViewModel relacionados con el QR.
     val qrData by appVM.qrData.collectAsState()
@@ -192,72 +198,6 @@ fun IDCard(data: Usuario?, appVM : AppVM ) {
                         )
                     }
                 }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
-
-@Composable
-fun IDCardEmergencia(data: Usuario?, appVM : AppVM ) {
-    // `LaunchedEffect(Unit)` ejecuta la generación del QR una sola vez cuando el Composable entra en la composición.
-    LaunchedEffect(Unit) {
-        appVM.generarQR()
-    }
-    // Observa los estados del ViewModel relacionados con el QR.
-    val qrData by appVM.qrData.collectAsState()
-    val isLoading by appVM.cargandoQR.collectAsState()
-    val error by appVM.errorMensaje.observeAsState()
-
-    Card(
-        modifier = Modifier
-            .width(300.dp) // Ancho fijo para simular una tarjeta física.
-            .wrapContentHeight(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Cabecera de la tarjeta: Nombre e ID del usuario.
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column {
-                    Text(
-                        text = data?.nombre ?: "Usuario",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                    Text(
-                        text = "ID: ${data?.id?.toString() ?: "No disponible"}",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Contenedor del código QR que gestiona los diferentes estados.
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(250.dp) // Tamaño fijo para el QR.
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.codigo),
-                    contentDescription = "QR",
-                    modifier = Modifier.size(200.dp)
-                )
             }
             Spacer(modifier = Modifier.height(16.dp))
         }

@@ -56,6 +56,7 @@ dependencies {
 
     //Imágenes. Coil
     implementation(libs.coil.compose)
+    implementation(libs.coil.svg.v330)
     implementation(libs.coil.network)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)

@@ -110,7 +110,7 @@ interface ServicioAPI {
      * @return Un [Response] que contiene el cuerpo de la respuesta crudo ([ResponseBody]),
      * que se espera sea la imagen del código QR.
      */
-    @GET("/usuario/{ID}/qr")
+    @GET("/usuario/{id}/qr")
     suspend fun generarQR(
         @Header("Authorization") token: String,
         @Path("id") idUsuario: Int
