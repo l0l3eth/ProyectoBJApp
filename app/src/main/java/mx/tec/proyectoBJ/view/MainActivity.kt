@@ -29,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import mx.tec.proyectoBJ.model.TipoUsuario
 import mx.tec.proyectoBJ.ui.theme.PtoyectoBJTheme
 import mx.tec.proyectoBJ.viewmodel.AppVM
 
@@ -101,27 +102,45 @@ fun AppPrincipal(appVM: AppVM) {
     // --- NAVEGACIÓN AUTOMÁTICA POR AUTENTICACIÓN ---
     // Observa el estado de la autenticación para navegar automáticamente al iniciar sesión.
     val usuarioLogeado by appVM.usuarioLogeado.observeAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val rutaActual = navBackStackEntry?.destination?.route
+
     LaunchedEffect(usuarioLogeado) {
         if (usuarioLogeado != null) {
-            // Si el usuario se logea, navega a la pantalla principal y limpia el backstack
-            // para evitar que el usuario regrese a la pantalla de login con el botón "Atrás".
-            navController.navigate("PromocionesScreen") {
-                popUpTo("InicioSesion") { inclusive = true }
+            val destino = when (usuarioLogeado?.tipoUsuario) {
+                // Comparamos con los valores del enum, no con Strings
+                TipoUsuario.NEGOCIO -> "PantallaPrincipalNegocio"
+                TipoUsuario.JOVEN -> "PromocionesScreen"
+                else -> null
+            }
+
+            if (destino != null) {
+                navController.navigate(destino) {
+                    // Limpia la pila para no volver al login
+                    popUpTo("InicioSesion") { inclusive = true }
+                    launchSingleTop = true
+                }
             }
         }
     }
 
     // --- CONTROL DE VISIBILIDAD DE LA BARRA DE NAVEGACIÓN ---
     // Observa la ruta actual para decidir si se muestra o no la barra de navegación inferior.
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    // Listas que definen en QUÉ pantallas se muestra cada barra.
+    val rutasConBarraNegocio = listOf("PantallaPrincipalNegocio", "EscanearQR", "QR")
+    val rutasConBarraUsuario = listOf("PromocionesScreen", "HomeUsuario", "ID", "Mapa", "EscanearQR", "QR")
 
-    // Define las rutas donde la barra de navegación NO debe ser visible (pantallas de flujo inicial).
-    val rutasSinBarraNav =
-        listOf("Entrada", "Inicio", "InicioSesion", "Registro",
-            "registro_usuario", "SolicitudNegocio", "QR", "ActualizarDatos", "PantallaPrincipalNegocio", "PantallaEdicionNegocio")
-    val mostrarBarraNav = currentRoute !in rutasSinBarraNav
+    // Determina si la barra debe mostrarse y de qué tipo debe ser.
+    val mostrarBarra: Boolean
+    val esUsuarioNegocio: Boolean
 
+    if (usuarioLogeado?.tipoUsuario == TipoUsuario.NEGOCIO) {
+        mostrarBarra = rutaActual in rutasConBarraNegocio
+        esUsuarioNegocio = true
+    } else { // Si no es NEGOCIO, o no está logueado, se asumen las reglas de JOVEN/invitado
+        mostrarBarra = rutaActual in rutasConBarraUsuario
+        esUsuarioNegocio = false
+    }
 //    val rutasSinBarraNavNegocio =
 //        listOf("Entrada", "Inicio", "InicioSesion", "Registro",
 //            "registro_usuario", "SolicitudNegocio", "ActualizarDatos",
@@ -146,9 +165,11 @@ fun AppPrincipal(appVM: AppVM) {
         Scaffold(
             bottomBar = {
                 // Muestra la BarraNavegacion solo si la condición se cumple.
-                if (mostrarBarraNav) {
+                if (mostrarBarra) {
+                    // Pasamos un booleano para que la barra sepa qué botones mostrar
                     BarraNavegacion(
-                        navController = navController
+                        navController = navController,
+                        esNegocio = esUsuarioNegocio
                     )
                 }
             }
