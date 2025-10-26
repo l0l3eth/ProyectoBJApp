@@ -1,22 +1,26 @@
 package mx.tec.proyectoBJ.view
 
-import Inicio
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
@@ -25,35 +29,40 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import mx.tec.proyectoBJ.model.TipoUsuario
 import mx.tec.proyectoBJ.ui.theme.PtoyectoBJTheme
 import mx.tec.proyectoBJ.viewmodel.AppVM
 
 /**
  * `MainActivity` es la actividad principal y el punto de entrada de la aplicación.
- * Se encarga de configurar la ventana, inicializar el ViewModel principal y establecer
- * el contenido de la UI con Jetpack Compose.
- * Autores: Estrella Lolbeth Téllez Rivas A01750496
- *          Allan Mauricio Brenes Castro  A01750747
+ *
+ * Se encarga de configurar la ventana principal, inicializar el [AppVM] (ViewModel principal)
+ * y establecer el contenido de la UI utilizando Jetpack Compose. Actúa como el anfitrión
+ * para toda la navegación y la estructura de la aplicación.
+ *
+ * Creado por: Estrella Lolbeth Téllez Rivas A01750496
+ *
  */
 class MainActivity : ComponentActivity() {
-    // Inicializa el ViewModel principal que será compartido a través de la app.
+    // Inicializa el ViewModel principal usando la delegación de 'viewModels()'.
+    // Esto asegura que el ViewModel sobreviva a cambios de configuración como rotaciones.
     private val viewModel: AppVM by viewModels()
 
     /**
      * Se llama cuando la actividad es creada por primera vez.
-     * Configura el edge-to-edge display y establece el Composable raíz de la aplicación.
+     * Aquí se configura la UI de la aplicación.
      *
-     * @param savedInstanceState Si la actividad se está recreando después de haber sido
-     * cerrada por el sistema, este Bundle contiene el estado más reciente.
+     * @param savedInstanceState Si la actividad se está recreando, este Bundle contiene
+     * el estado guardado previamente.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Habilita el modo de pantalla completa (edge-to-edge).
+        // Habilita que la UI se dibuje de borde a borde para un look moderno.
         enableEdgeToEdge()
         setContent {
-            // Aplica el tema personalizado de la aplicación.
+            // Aplica el tema personalizado (colores, tipografía) a toda la aplicación.
             PtoyectoBJTheme {
-                // Llama al Composable principal que construye la UI y la navegación.
+                // Llama al Composable raíz que construye la UI y la navegación.
                 AppPrincipal(viewModel)
             }
         }
@@ -61,92 +70,139 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * Composable raíz que estructura la navegación principal y el menú lateral.
- * Gestiona el estado del `NavController` y del menú de navegación (`ModalNavigationDrawer`).
+ * Composable raíz que estructura la navegación principal y el menú lateral (`Drawer`).
+ *
+ * Este Composable es el núcleo de la UI. Gestiona:
+ * 1.  El estado y control del menú de navegación lateral ([ModalNavigationDrawer]).
+ * 2.  La navegación automática basada en el estado de autenticación del usuario.
+ * 3.  La visibilidad condicional de la barra de navegación inferior (`BottomBar`).
+ * 4.  La integración del `NavHost` que contiene todas las pantallas de la app.
  *
  * @param appVM La instancia del ViewModel [AppVM] que contiene la lógica de negocio y el estado global.
  */
 @Composable
 fun AppPrincipal(appVM: AppVM) {
     val navController = rememberNavController()
-    // 1. ESTADO Y CONTROL DEL MENÚ LATERAL
+    // --- ESTADO Y CONTROL DEL MENÚ LATERAL ---
     val estadoMenu = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-    // Función para abrir el menú que se pasará a los componentes hijos.
+    // Función lambda para abrir el menú. Se pasará a los componentes que necesiten esta acción.
     val abrirMenu: () -> Unit = {
         coroutineScope.launch {
             estadoMenu.open()
         }
     }
-    // Función para cerrar el menú.
+    // Función lambda para cerrar el menú.
     val cerrarMenu: () -> Unit = {
         coroutineScope.launch {
             estadoMenu.close()
         }
     }
-    // Observa el estado de la autenticación para navegar automáticamente.
-    // Si el usuario se logea, navega a la pantalla principal y limpia el backstack.
+
+    // --- NAVEGACIÓN AUTOMÁTICA POR AUTENTICACIÓN ---
+    // Observa el estado de la autenticación para navegar automáticamente al iniciar sesión.
     val usuarioLogeado by appVM.usuarioLogeado.observeAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val rutaActual = navBackStackEntry?.destination?.route
+
     LaunchedEffect(usuarioLogeado) {
         if (usuarioLogeado != null) {
-            navController.navigate("PromocionesScreen") {
-                popUpTo("InicioSesion") { inclusive = true }
+            val destino = when (usuarioLogeado?.tipoUsuario) {
+                // Comparamos con los valores del enum, no con Strings
+                TipoUsuario.NEGOCIO -> "PantallaPrincipalNegocio"
+                TipoUsuario.JOVEN -> "PromocionesScreen"
+                else -> null
+            }
+
+            if (destino != null) {
+                navController.navigate(destino) {
+                    // Limpia la pila para no volver al login
+                    popUpTo("InicioSesion") { inclusive = true }
+                    launchSingleTop = true
+                }
             }
         }
     }
 
-    // 1. Observa la ruta actual desde el NavController
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    // --- CONTROL DE VISIBILIDAD DE LA BARRA DE NAVEGACIÓN ---
+    // Observa la ruta actual para decidir si se muestra o no la barra de navegación inferior.
+    // Listas que definen en QUÉ pantallas se muestra cada barra.
+    val rutasConBarraNegocio = listOf("PantallaPrincipalNegocio", "EscanearQR", "QR")
+    val rutasConBarraUsuario = listOf("PromocionesScreen", "HomeUsuario", "ID", "Mapa", "EscanearQR", "QR")
 
-    // 2. Define las rutas donde la barra de navegación NO debe ser visible
-    val rutasSinBarraNav =
-        listOf("Entrada", "Inicio", "InicioSesion", "Registro", "registro_usuario")
-    val mostrarBarraNav = currentRoute !in rutasSinBarraNav
+    // Determina si la barra debe mostrarse y de qué tipo debe ser.
+    val mostrarBarra: Boolean
+    val esUsuarioNegocio: Boolean
 
-    // 2. CONTENEDOR PRINCIPAL CON MENÚ LATERAL
-    // ModalNavigationDrawer permite mostrar un menú deslizable desde el lateral.
+    if (usuarioLogeado?.tipoUsuario == TipoUsuario.NEGOCIO) {
+        mostrarBarra = rutaActual in rutasConBarraNegocio
+        esUsuarioNegocio = true
+    } else { // Si no es NEGOCIO, o no está logueado, se asumen las reglas de JOVEN/invitado
+        mostrarBarra = rutaActual in rutasConBarraUsuario
+        esUsuarioNegocio = false
+    }
+//    val rutasSinBarraNavNegocio =
+//        listOf("Entrada", "Inicio", "InicioSesion", "Registro",
+//            "registro_usuario", "SolicitudNegocio", "ActualizarDatos",
+//            "idDigital", "HomeUsuario", "Mapa")
+//    val mostrarBarraNavNegocio = currentRoute !in rutasSinBarraNav
+
+
+    // --- ESTRUCTURA PRINCIPAL DE LA UI ---
+    // Contenedor principal que permite un menú deslizable desde el lateral.
     ModalNavigationDrawer(
         drawerState = estadoMenu,
         drawerContent = {
-            // Contenido del menú lateral.
+            // El contenido que se muestra dentro del menú lateral.
             AppMenuLateral(
                 navController = navController,
                 appVM = appVM,
-                closeDrawer = cerrarMenu // Pasa la función para que el menú pueda cerrarse.
+                closeDrawer = cerrarMenu // Pasa la función para que el menú pueda cerrarse desde su interior.
             )
         }
     ) {
+        // Scaffold proporciona la estructura básica de Material Design (app bar, bottom bar, etc.).
         Scaffold(
             bottomBar = {
-                // 3. Muestra la BarraNavegacion solo si la condición se cumple
-                if (mostrarBarraNav) {
-                    BarraNavegacion(
-                        navController = navController
-                    )
+                // Muestra la BarraNavegacion solo si la condición se cumple.
+                if (mostrarBarra) {
+                    if (esUsuarioNegocio) {
+                        // Si es un negocio, llama a tu barra de navegación para negocios.
+                        BarraNavegacionNegocios(navController = navController)
+                    } else {
+                        // Si es un usuario joven, llama a la barra de navegación normal.
+                        BarraNavegacion(navController = navController)
+                    }
                 }
             }
         ) { innerPadding ->
-            // Contenido principal de la aplicación, gestionado por AppNavHost.
+            // El contenido principal de la aplicación, gestionado por AppNavHost.
             AppNavHost(
                 navController = navController,
                 appVM = appVM,
                 modifier = Modifier
+                    .padding(innerPadding)
                     .fillMaxSize()
                     .background(Color(0xFFFFF9ED)),
-                onMenuClick = abrirMenu // Pasa la función para abrir el menú al contenido principal
+                onMenuClick = abrirMenu, // Pasa la función para abrir el menú a los componentes hijos.
+                onGuardarClick= {
+                    navController.popBackStack("PantallaPrincipalNegocio",false)
+
+                }
             )
         }
     }
 }
 /**
  * Gestiona el grafo de navegación de la aplicación usando un [NavHost].
- * Define todas las rutas (pantallas) y las transiciones entre ellas.
+ *
+ * Define todas las rutas (pantallas) y las transiciones entre ellas. Cada `composable`
+ * dentro del `NavHost` representa una pantalla o destino en la aplicación.
  *
  * @param navController El controlador de navegación para gestionar las rutas.
- * @param appVM El ViewModel global [AppVM].
+ * @param appVM El ViewModel global [AppVM], pasado a cada pantalla que lo necesite.
  * @param modifier El modificador de Compose para aplicar al [NavHost].
- * @param onMenuClick La función lambda que se ejecutará para abrir el menú lateral.
+ * @param onMenuClick La función lambda que se ejecutará para abrir el menú lateral desde una pantalla.
  */
 @Composable
 fun AppNavHost(
@@ -154,22 +210,27 @@ fun AppNavHost(
     appVM: AppVM,
     modifier: Modifier,
     onMenuClick: () -> Unit,
+    onGuardarClick: () -> Unit
 ) {
-    // NavHost define el grafo de navegación.
+    // NavHost define el contenedor para el grafo de navegación.
     NavHost(
         navController = navController,
-        startDestination = "Entrada", // La pantalla con la que arranca la app.
+        startDestination = "Inicio", // La pantalla con la que arranca la app.
         modifier = modifier.fillMaxSize()
     ) {
-        // Define la pantalla "Entrada"
-        composable("Entrada") {
-            Entrada(
-                navController = navController,
+        // --- FLUJO DE AUTENTICACIÓN Y REGISTRO ---
+
+
+
+        composable("InicioSesion") {
+            InicioSesion(
+                onNavigateToRegistro = { navController.navigate("Registro") },
+                onNavigateToHomeJoven = { navController.navigate("PromocionesScreen") },
+                onNavigateToHomeNegocio = { navController.navigate("PantallaPrincipalNegocio") },
                 appVM = appVM
             )
         }
 
-        // Define la pantalla "Inicio"
         composable("Inicio") {
             Inicio(
                 onNavigateToInicioSesion = { navController.navigate("InicioSesion") },
@@ -178,15 +239,6 @@ fun AppNavHost(
             )
         }
 
-        // Define la pantalla "InicioSesion"
-        composable("InicioSesion") {
-            InicioSesion(
-                onNavigateToRegistro = { navController.navigate("Registro") },
-                appVM = appVM
-            )
-        }
-
-        // Define la pantalla "Registro"
         composable("Registro") {
             Registro(
                 onNavigateToRegistroUsuario = { navController.navigate("registro_usuario") },
@@ -194,26 +246,80 @@ fun AppNavHost(
             )
         }
 
-        // Define la pantalla "registro_usuario" para el ingreso de datos
         composable("registro_usuario") {
             IngresoDeDatos(
                 appVM = appVM,
                 onNavigateToLogin = {
                     navController.navigate("InicioSesion") {
+                        // Limpia el backstack hasta la pantalla de inicio para un flujo limpio.
                         popUpTo("Inicio") { inclusive = true }
                     }
                 }
             )
         }
 
-        //Define la pantalla de solicitud de negocio
         composable("SolicitudNegocio") {
             RellenoDeSolicitud(
                 appVM = appVM,
             )
         }
 
-        // Define la pantalla para actualizar datos con acceso al menú
+        // --- PANTALLAS PRINCIPALES (POST-AUTENTICACIÓN) ---
+
+        //////Pantalla de Promociones//////
+        composable("PromocionesScreen") {
+            PromocionesScreen(
+                appVM = appVM,
+                onNavigateToCreatePromocion = {
+                    navController.navigate("crear_promocion")
+                }
+            )
+        }
+
+        composable("crear_promocion") {
+            Box (modifier=Modifier.fillMaxSize(),contentAlignment = Alignment.Center){
+                Text("Pantalla para Crear/Editar Promoción (En construcción)")
+            }
+        }
+
+        composable("HomeUsuario") {
+            HomeUsuario(
+                appVM = appVM
+            )
+        }
+
+        composable("ID") {
+            PantallaIDDigital(
+                appVM = appVM
+            )
+        }
+
+        composable("PantallaPrincipalNegocio") {
+            NegocioProfileScreen(
+                appVM = appVM,
+                navController = navController
+            )
+        }
+
+        composable("EdicionNegocio") {
+            // Aquí llamas a la pantalla de edición del perfil.
+            NegocioEdicionPerfil(
+                appVM = appVM,
+                navController = navController,
+                onGuardarClick= onGuardarClick
+
+            )
+        }
+
+
+        composable("QR") {
+            EscaneoQR(
+                paddingValues = PaddingValues()
+            )
+        }
+
+        // --- PANTALLAS DEL MENÚ LATERAL ---
+
         composable("ActualizarDatos") {
             ActualizarDatos(
                 appVM = appVM,
@@ -226,24 +332,38 @@ fun AppNavHost(
             )
         }
 
-        // Define la pantalla para confirmar la salida (logout)
         composable("ConfirmarSalida") {
             ConfirmarSalida(
                 appVM = appVM,
-                onDismissRequest = { navController.popBackStack() },
+                onDismissRequest = { navController.popBackStack() }, // Cierra el diálogo al cancelar
+                onConfirmar = {
+                    navController.navigate("Inicio") {
+                        popUpTo("Inicio") { inclusive = true }
+                    }
+                }
             )
         }
 
-        composable("Promociones") {
-            HomeUsuario(
+        composable("EscanearQR") {
+            EscaneoQR(
+                paddingValues = PaddingValues()
+            )
+        }
+
+        composable("Mapa") {
+            Mapa(
                 appVM = appVM
             )
         }
 
-        composable("ID") {
-            PantallaIDDigital(
-                appVM = appVM
+        composable("PantallaEdicionNegocio") {
+            NegocioEdicionPerfil(
+                appVM = appVM,
+                navController = navController
             )
         }
+
     }
 }
+
+

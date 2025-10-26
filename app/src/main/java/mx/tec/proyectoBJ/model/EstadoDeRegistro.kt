@@ -26,5 +26,8 @@ data class EstadoDeRegistro(
     val numeroTelefono: String? = null,
     val correo: String? = null,
     val direccion: String? = null,
-    val contrasena: String? = null
+    val contrasena: String? = null,
+
+    // Otros campos según sea necesario
+    val tipoEstablecimiento: String?=null
 )

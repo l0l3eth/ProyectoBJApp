@@ -1,6 +1,6 @@
-package mx.tec.proyectoBJ.model
+package mx.tec.proyectoBJ.view
 
-
+import android.Manifest
 import android.util.Log
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -27,21 +27,46 @@ import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import androidx.camera.core.ExperimentalGetImage
-import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
+/**
+ * Un Composable que implementa una pantalla completa para el escaneo de códigos QR.
+ *
+ * Esta función integra varias tecnologías para proporcionar una experiencia de escaneo robusta:
+ * - **Accompanist Permissions:** Gestiona la solicitud del permiso de la cámara en tiempo de ejecución.
+ * - **CameraX:** Proporciona una vista previa de la cámara y un flujo de análisis de imágenes.
+ * - **ML Kit Vision:** Procesa los frames de la cámara para detectar y decodificar códigos QR.
+ *
+ * La UI permite al usuario iniciar un escaneo, muestra una vista de la cámara mientras
+ * escanea, y mantiene una lista de los códigos QR únicos que han sido escaneados.
+ * El escaneo se detiene automáticamente después de detectar el primer código QR.
+ *
+ * @param paddingValues El padding proporcionado por un `Scaffold` u otro contenedor padre
+ *                      para evitar que el contenido se solape con las barras del sistema.
+ *
+ * Creado por: Carlos Antonio Tejero Andrade A01801062
+ */
 @androidx.annotation.OptIn(ExperimentalGetImage::class)
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun escaneoQR(
+fun EscaneoQR(
     paddingValues: PaddingValues
 ){
-    var escaneos by remember {mutableStateOf(emptyList<String>())}
-    var escaneo by remember {mutableStateOf(false)}
-    val lifecycleOwner=LocalLifecycleOwner.current
-    val cameraExecutor: ExecutorService=remember{
-        Executors.newSingleThreadExecutor()
-    }
-    val barcodeScanner = remember{
+    // Estado para almacenar los valores de los QR escaneados (cadenas de texto).
+    var escaneos by remember { mutableStateOf(emptyList<String>()) }
+    // Estado para controlar si la vista de la cámara está activa.
+    var escaneo by remember { mutableStateOf(false) }
+
+    // Propietarios del ciclo de vida y contexto local, necesarios para CameraX.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
+
+    // Executor para ejecutar el análisis de imágenes en un hilo separado.
+    val cameraExecutor: ExecutorService = remember { Executors.newSingleThreadExecutor() }
+
+    // Cliente del escáner de códigos de barras de ML Kit, configurado solo para QR.
+    val barcodeScanner = remember {
         BarcodeScanning.getClient(
             BarcodeScannerOptions.Builder()
                 .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
@@ -49,19 +74,22 @@ fun escaneoQR(
         )
     }
 
-    val cameraPermissionState =
-        rememberPermissionState(android.Manifest.permission.CAMERA)
+    // --- Manejo de Permisos de la Cámara ---
+    val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
     LaunchedEffect(Unit) {
-        if (!cameraPermissionState.status.isGranted){
+        // Solicita el permiso si aún no ha sido otorgado.
+        if (!cameraPermissionState.status.isGranted) {
             cameraPermissionState.launchPermissionRequest()
         }
     }
 
+    // Libera el Executor cuando el Composable se elimina de la composición.
     DisposableEffect(Unit) {
-        onDispose{
+        onDispose {
             cameraExecutor.shutdown()
         }
     }
+
     Surface(
         modifier = Modifier
             .padding(paddingValues)
@@ -69,7 +97,7 @@ fun escaneoQR(
         color = MaterialTheme.colorScheme.background
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            //Botón para activar el modo de escaneo
+            // Botón para activar el modo de escaneo.
             Button(
                 modifier = Modifier
                     .padding(12.dp)
@@ -79,14 +107,14 @@ fun escaneoQR(
                 Text(text = "Escanear QR")
             }
 
-            //Muestra cuántos registros hay
+            // Muestra un contador de los códigos escaneados.
             Text(
-                text = "${escaneos.size} códigos Escaneados",
+                text = "${escaneos.size} códigos escaneados",
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
             )
 
-
-            //Si estamos escaneando, se muestra la vista de la cámara
+            // --- Vista de la Cámara ---
+            // Muestra la vista de la cámara solo si el modo de escaneo está activo y se tienen los permisos.
             if (escaneo && cameraPermissionState.status.isGranted) {
                 AndroidView(
                     modifier = Modifier
@@ -95,18 +123,18 @@ fun escaneoQR(
                         .padding(top = 12.dp),
                     factory = { ctx ->
                         val previewView = PreviewView(ctx)
-                        val cameraProviderFuture =
-                            ProcessCameraProvider.getInstance(ctx)
+                        val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
 
                         cameraProviderFuture.addListener({
                             val cameraProvider = cameraProviderFuture.get()
 
+                            // Configura el caso de uso de `Preview` para mostrar la imagen de la cámara.
                             val preview = Preview.Builder().build().also {
                                 it.setSurfaceProvider(previewView.surfaceProvider)
                             }
 
+                            // Configura el caso de uso de `ImageAnalysis` para procesar los frames.
                             val imageAnalysis = ImageAnalysis.Builder().build().apply {
-
                                 setAnalyzer(cameraExecutor) { imageProxy ->
                                     val mediaImage = imageProxy.image
                                     if (mediaImage != null) {
@@ -114,29 +142,27 @@ fun escaneoQR(
                                             mediaImage,
                                             imageProxy.imageInfo.rotationDegrees
                                         )
+                                        // Procesa la imagen con ML Kit.
                                         barcodeScanner.process(inputImage)
                                             .addOnSuccessListener { barcodes ->
                                                 for (barcode in barcodes) {
                                                     barcode.rawValue?.let { value ->
+                                                        // Añade el valor a la lista solo si es nuevo.
                                                         if (!escaneos.contains(value)) {
-                                                            val lista =
-                                                                escaneos.toMutableList()
+                                                            val lista = escaneos.toMutableList()
                                                             lista.add(value)
                                                             escaneos = lista
-                                                            escaneo =
-                                                                false // Se detiene al encontrar uno
+                                                            // Detiene el escaneo al encontrar un QR válido.
+                                                            escaneo = false
                                                         }
                                                     }
                                                 }
                                             }
-
                                             .addOnFailureListener { e ->
-                                                Log.e(
-                                                    "Scanner",
-                                                    "Error ${e.message}"
-                                                )
+                                                Log.e("Scanner", "Error: ${e.message}")
                                             }
                                             .addOnCompleteListener {
+                                                // Cierra la imagen para que el analizador reciba la siguiente.
                                                 imageProxy.close()
                                             }
                                     } else {
@@ -145,9 +171,12 @@ fun escaneoQR(
                                 }
                             }
 
+                            // Selecciona la cámara trasera por defecto.
                             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
                             try {
+                                // Desvincula todos los casos de uso antes de volver a vincular.
                                 cameraProvider.unbindAll()
+                                // Vincula los casos de uso al ciclo de vida del Composable.
                                 cameraProvider.bindToLifecycle(
                                     lifecycleOwner,
                                     cameraSelector,
@@ -160,10 +189,10 @@ fun escaneoQR(
                         }, ContextCompat.getMainExecutor(ctx))
                         previewView
                     }
-
                 )
             }
-            //Muestra la lista de códigos escaneados con la opción de eliminarlos
+
+            // --- Lista de Códigos Escaneados ---
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -174,9 +203,8 @@ fun escaneoQR(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 4.dp), // Ajuste de padding
-                        elevation =
-                            CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
                         Row(
                             modifier = Modifier.padding(8.dp),
@@ -186,11 +214,10 @@ fun escaneoQR(
                                 modifier = Modifier.weight(1f),
                                 text = item
                             )
-
+                            // Botón para eliminar un código de la lista.
                             IconButton(
                                 onClick = {
-                                    val lista =
-                                        escaneos.toMutableList()
+                                    val lista = escaneos.toMutableList()
                                     lista.removeAt(index)
                                     escaneos = lista
                                 }
@@ -206,6 +233,4 @@ fun escaneoQR(
             }
         }
     }
-
 }
-

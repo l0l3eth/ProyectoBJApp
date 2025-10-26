@@ -1,7 +1,6 @@
 package mx.tec.proyectoBJ.view
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -30,19 +29,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.semantics.error
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import mx.tec.proyectoBJ.fondoGris
 import mx.tec.proyectoBJ.model.Usuario
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.ptoyectobj.fondoGris
 
+/**
+ * Composable que construye la pantalla completa de la Identificación Digital.
+ *
+ * Esta pantalla muestra una barra superior con el nombre del usuario y, en el área
+ * principal, presenta la tarjeta de identificación digital (`IDCard`).
+ * Utiliza un `Scaffold` para una estructura de diseño estándar de Material Design.
+ *
+ * @param appVM La instancia del ViewModel [AppVM] que proporciona los datos del usuario
+ *              y la lógica para generar el código QR.
+ *
+ * Creado por: Estrella Lolbeth Téllez Rivas A01750496
+ *                Allan Mauricio Brenes Castro A01750747
+ *                Carlos Antonio Tejero Andrade A01801062
+ */
 @Composable
 fun PantallaIDDigital(appVM: AppVM) {
 
+    // Observa el LiveData del usuario logeado para actualizar la UI cuando cambie.
     val usuario by appVM.usuarioLogeado.observeAsState()
 
     Scaffold(
@@ -55,14 +69,14 @@ fun PantallaIDDigital(appVM: AppVM) {
                 .background(fondoGris)
                 .padding(paddingValues)
         ) {
-            // --- Parte Superior (Reutilizada) ---
+            // --- Barra superior personalizada ---
             ParteSuperior(
                 userName = usuario?.nombre ?: "Usuario",
                 modifier = Modifier.padding(bottom = 0.dp),
                 onClick = {}
             )
 
-            // Contenido principal (centrado horizontalmente)
+            // Contenido principal: la tarjeta de ID, centrada.
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -70,28 +84,47 @@ fun PantallaIDDigital(appVM: AppVM) {
                     .padding(top = 40.dp, bottom = 40.dp),
                 contentAlignment = Alignment.TopCenter
             ) {
+                //IDCard(data = usuario, appVM = appVM)
                 IDCard(data = usuario, appVM = appVM)
             }
         }
     }
 }
 
-// ---------------------------------------------------------------------
-// TARJETA DE ID DIGITAL
-// ---------------------------------------------------------------------
-
+/**
+ * Composable que representa la tarjeta de identificación digital.
+ *
+ * Esta tarjeta muestra el nombre y el ID del usuario, junto con un código QR único.
+ * Se encarga de solicitar la generación del QR a través del [AppVM] y de gestionar
+ * los diferentes estados de la UI (carga, éxito, error) durante este proceso.
+ *
+ * @param data El objeto [Usuario] que contiene la información a mostrar. Puede ser nulo.
+ * @param appVM La instancia del ViewModel [AppVM] para invocar la generación del QR
+ *              y observar su estado.
+ */
 @Composable
 fun IDCard(data: Usuario?, appVM : AppVM ) {
-    LaunchedEffect(Unit) {
-        appVM.generarQR()
+    // `LaunchedEffect(Unit)` ejecuta la generación del QR una sola vez cuando el Composable entra en la composición.
+    DisposableEffect(data?.id) {
+        val userId = data?.id
+        if (userId != null) {
+            appVM.generarQR()
+        }
+
+        // Este bloque se ejecuta cuando el efecto se cancela o reinicia
+        // (por ejemplo, si el usuario se va de la pantalla).
+        onDispose {
+            appVM.limpiarQR() // Necesitarás crear esta función en tu ViewModel.
+        }
     }
-    val qrBitmap by appVM.qrBitmap.collectAsState()
+    // Observa los estados del ViewModel relacionados con el QR.
+    val qrData by appVM.qrData.collectAsState()
     val isLoading by appVM.cargandoQR.collectAsState()
     val error by appVM.errorMensaje.observeAsState()
 
     Card(
         modifier = Modifier
-            .width(300.dp) // Ancho fijo para parecer una tarjeta física
+            .width(300.dp) // Ancho fijo para simular una tarjeta física.
             .wrapContentHeight(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = White),
@@ -102,7 +135,7 @@ fun IDCard(data: Usuario?, appVM : AppVM ) {
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Fila: Foto de perfil y Texto (Beneficio Joven / ID)
+            // Cabecera de la tarjeta: Nombre e ID del usuario.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -118,7 +151,7 @@ fun IDCard(data: Usuario?, appVM : AppVM ) {
                         color = Color.Black
                     )
                     Text(
-                        text = data?.id.toString(),
+                        text = "ID: ${data?.id?.toString() ?: "No disponible"}",
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
@@ -127,29 +160,30 @@ fun IDCard(data: Usuario?, appVM : AppVM ) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Contenedor del código QR que gestiona los diferentes estados.
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(250.dp) // Da un tamaño fijo al contenedor
+                    .size(250.dp) // Tamaño fijo para el QR.
             ) {
                 when {
                     isLoading -> {
+                        // Estado de carga: Muestra un indicador de progreso.
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             CircularProgressIndicator()
                             Spacer(modifier = Modifier.height(8.dp))
                             Text("Generando tu código QR...")
                         }
                     }
-                    qrBitmap != null -> {
-                        // Si el bitmap no es nulo, muestra la imagen
-                        Image(
-                            bitmap = qrBitmap!!, // El !! es seguro aquí
+                    qrData != null -> {
+                        AsyncImage(
+                            model = qrData,
                             contentDescription = "Código QR del usuario",
-                            modifier = Modifier.fillMaxSize() // La imagen llena el Box
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                     error != null -> {
-                        // Si hay un error, muéstralo
+                        // Estado de error: Muestra el mensaje de error.
                         Text(
                             text = "Error: $error",
                             color = MaterialTheme.colorScheme.error,
@@ -157,7 +191,7 @@ fun IDCard(data: Usuario?, appVM : AppVM ) {
                         )
                     }
                     else -> {
-                        // Estado inicial o si data es null
+                        // Estado por defecto o si no hay datos.
                         Text(
                             text = "No se puede generar el QR.",
                             textAlign = TextAlign.Center
@@ -170,11 +204,13 @@ fun IDCard(data: Usuario?, appVM : AppVM ) {
     }
 }
 
-
-// ---------------------------------------------------------------------
-// PREVIEW
-// ---------------------------------------------------------------------
-
+/**
+ * Composable de previsualización para la pantalla `PantallaIDDigital`.
+ *
+ * Permite a Android Studio renderizar una vista previa del diseño sin necesidad
+ * de ejecutar la aplicación completa en un emulador o dispositivo.
+ * Crea una instancia simulada de `AppVM`.
+ */
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable

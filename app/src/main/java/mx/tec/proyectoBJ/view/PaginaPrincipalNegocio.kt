@@ -17,10 +17,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import mx.tec.proyectoBJ.model.Horarios
-import mx.tec.ptoyectobj.fondoGris
-import mx.tec.ptoyectobj.morado
-import mx.tec.ptoyectobj.rosa
+import mx.tec.proyectoBJ.fondoGris
+import mx.tec.proyectoBJ.morado
+import mx.tec.proyectoBJ.rosa
+import mx.tec.proyectoBJ.viewmodel.AppVM
 
 val sampleSchedule = listOf(
     Horarios("Lunes", "9:00 - 9:00, 18:00 - 22:00"),
@@ -34,7 +37,8 @@ val sampleSchedule = listOf(
 
 @Composable
 fun NegocioProfileScreen(
-    // Aquí iría el ViewModel si fuera necesario
+    appVM: AppVM = AppVM(),
+    navController: NavHostController
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -65,7 +69,7 @@ fun NegocioProfileScreen(
             item {
                 // Botón/Enlace "Editar perfil"
                 TextButton(
-                    onClick = { /* Por hacer: Navegar a pantalla de edición */ }
+                    onClick = { navController.navigate("EdicionNegocio") } // <-- CAMBIA ESTO
                 ) {
                     Text(text = "Editar perfil",
                         color = rosa,
@@ -185,5 +189,5 @@ fun ScheduleSection(schedule: List<Horarios>) {
 @Preview(showBackground = true)
 @Composable
 fun NegocioProfileScreenPreview() {
-    NegocioProfileScreen()
+    // NegocioProfileScreen()
 }

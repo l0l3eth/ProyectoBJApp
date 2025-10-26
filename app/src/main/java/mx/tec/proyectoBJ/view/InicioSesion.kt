@@ -1,6 +1,7 @@
 package mx.tec.proyectoBJ.view
 
 import android.annotation.SuppressLint
+import androidx.activity.result.launch
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -23,11 +24,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,11 +46,14 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import mx.tec.proyectoBJ.R
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.ptoyectobj.blanco
-import mx.tec.ptoyectobj.degradado
-import mx.tec.ptoyectobj.morado
+import mx.tec.proyectoBJ.blanco
+import mx.tec.proyectoBJ.degradado
+import mx.tec.proyectoBJ.model.EstadoLogin
+import mx.tec.proyectoBJ.model.TipoUsuario
+import mx.tec.proyectoBJ.morado
 
 /**
  * Composable que define la pantalla de inicio de sesión de la aplicación.
@@ -59,13 +68,57 @@ import mx.tec.ptoyectobj.morado
  *              de inicio de sesión.
  */
 @Composable
-fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
+fun InicioSesion( onNavigateToRegistro: () -> Unit,
+                  onNavigateToHomeJoven: () -> Unit,
+                  onNavigateToHomeNegocio: () -> Unit,
                   appVM: AppVM
 ) {
     // Estados para los campos de texto
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+    val loginState by appVM.loginState.collectAsState()
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+
+    LaunchedEffect(loginState) {
+        when (val state = loginState) {
+            is EstadoLogin.Success -> {
+                // Después de manejar el éxito, reseteamos el estado para evitar
+                // que este bloque se ejecute de nuevo con el mismo evento.
+                when (state.tipoUsuario) {
+                    TipoUsuario.JOVEN -> {
+                        println("Tipo de usuario: ${state.tipoUsuario}")
+                        onNavigateToHomeJoven()
+                    }
+                    TipoUsuario.NEGOCIO -> {
+                        println("Tipo de usuario: ${state.tipoUsuario}")
+                        onNavigateToHomeNegocio()
+                    }
+                    else -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Error: Tipo de usuario desconocido.")
+                        }
+                    }
+                }
+                // --- LÍNEA CLAVE ---
+                // Reseteamos el estado después de navegar.
+                appVM.resetLoginState()
+            }
+            is EstadoLogin.Error -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(state.message)
+                }
+                // También reseteamos después de mostrar el error.
+                appVM.resetLoginState()
+            }
+            // Estado neutro, no hacemos nada.
+            is EstadoLogin.Idle -> { /* No hacer nada */ }
+            is EstadoLogin.Loading -> { /* No hacer nada */ }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -150,18 +203,18 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
             )
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Enlace "Olvidaste tu contraseña?"
-            Text(
-                text = "¿Olvidaste tu contraseña?",
-                color = blanco,
-                fontSize = 14.sp,
-                textDecoration = TextDecoration.Underline,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 16.dp)
-                    .clickable {/* TODO Logica de contraseña*/  } //Navegación a PuntoPartida
-                    .wrapContentWidth(Alignment.End)// Alinear a la derecha
-            )
+//            // Enlace "Olvidaste tu contraseña?"
+//            Text(
+//                text = "¿Prueba?",
+//                color = blanco,
+//                fontSize = 14.sp,
+//                textDecoration = TextDecoration.Underline,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 8.dp, bottom = 16.dp)
+//                    .clickable {   } //Navegación a PuntoPartida
+//                    .wrapContentWidth(Alignment.End)// Alinear a la derecha
+//            )
 
             //Enlace "¿Eres nuevo? Registrate"
             Text(
@@ -178,7 +231,7 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
 
             // Botón "Iniciar sesión" (con degradado)
             Button(
-                onClick = {appVM.iniciarSesion(email, password) },
+                onClick = { appVM.iniciarSesion(email, password) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
@@ -201,6 +254,7 @@ fun InicioSesion( onNavigateToRegistro: () -> Unit /*Logica de navegación*/,
                     )
                 }
             }
+
         }
     }
 }
@@ -236,5 +290,5 @@ private fun outlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    InicioSesion( onNavigateToRegistro = { }, appVM = AppVM())
+    InicioSesion( onNavigateToRegistro = { }, onNavigateToHomeJoven = { }, onNavigateToHomeNegocio = { }, appVM = AppVM())
 }

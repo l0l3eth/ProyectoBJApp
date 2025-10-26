@@ -19,7 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import mx.tec.ptoyectobj.morado
+import mx.tec.proyectoBJ.morado
 
 /**
  * Pantalla de registro que permite al usuario elegir si se registra como "Usuario" o como "Negocio".

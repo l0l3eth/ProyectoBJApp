@@ -56,6 +56,7 @@ dependencies {
 
     //Imágenes. Coil
     implementation(libs.coil.compose)
+    implementation(libs.coil.svg.v330)
     implementation(libs.coil.network)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
@@ -101,6 +102,8 @@ dependencies {
     implementation("androidx.camera:camera-camera2:1.5.0")
     implementation("androidx.camera:camera-lifecycle:1.5.0")
     implementation("androidx.camera:camera-view:1.5.0")
+    implementation(libs.volley)
+    implementation(libs.material)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

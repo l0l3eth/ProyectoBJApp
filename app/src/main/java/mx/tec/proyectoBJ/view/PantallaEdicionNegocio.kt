@@ -20,12 +20,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,31 +44,41 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import mx.tec.proyectoBJ.R
-import mx.tec.proyectoBJ.model.Horarios
 import mx.tec.proyectoBJ.model.Negocio
-import mx.tec.ptoyectobj.fondoGris
-import mx.tec.ptoyectobj.morado
+import mx.tec.proyectoBJ.fondoGris
+import mx.tec.proyectoBJ.morado
+import mx.tec.proyectoBJ.viewmodel.AppVM
 
 @Composable
-fun NegocioEdicionPerfil(modifier: Modifier = Modifier) {
+fun NegocioEdicionPerfil(modifier: Modifier = Modifier,
+                         appVM: AppVM = AppVM(),
+                         navController: NavHostController = rememberNavController(),
+                         onGuardarClick: () -> Unit = {}) {
     // Objeto provisional
-    val negocio = Negocio(
-        nombreNegocio = "JÖTUNHEIM",
+    var negocio: Negocio by remember { mutableStateOf(Negocio(
+            nombreNegocio = "JÖTUNHEIM",
         numeroTelefono = "555-1234567",
         ubicacion = "Ciudad de México",
-        correo = "jottunheim@gmail.com",
-        descripcion = "Academia de Artes Marciales",
-        horarios = listOf(
-            Horarios("Lunes", "9:00 - 9:00, 18:00 - 22:00"),
-            Horarios("Martes", "9:00 - 9:00, 18:00 - 22:00"),
-            Horarios("Miércoles", "9:00 - 9:00, 18:00 - 22:00"),
-            Horarios("Jueves", "9:00 - 12:00"),
-            Horarios("Viernes", "11:00 - 20:00", esHoy = true), // Resaltado
-            Horarios("Sábado", "9:00 - 9:00, 18:00 - 22:00"),
-            Horarios("Domingo", "9:00 - 12:00"),
-        )
-    )
+        correo = "jottunheim@gmail.com"
+        ))
+    }
+
+    fun actualizar(nombreNegocio: String = "",
+                   numeroTelefono: String = "",
+                   correo: String = "",
+                   icono: String = "",
+                   portada: String = "") {
+        // Lógica para actualizar los datos del negocio
+        negocio.nombreNegocio = nombreNegocio
+        negocio.numeroTelefono = numeroTelefono
+        negocio.correo = correo
+        negocio.icono = icono
+        negocio.portada = portada
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
@@ -85,14 +101,32 @@ fun NegocioEdicionPerfil(modifier: Modifier = Modifier) {
                 EditarIcono(
                     contenido = {
                         EditarIcono()
-                    }
+                    },
+                    actualizar = { actualizar() }
                 )
             }
 
             BusinessInfoSectionEditable(
                 negocio = negocio,
                 modifier = modifier
-            )
+            ) {
+                actualizar()
+            }
+
+            ElevatedButton(
+                onClick = {  },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = White, // Fondo blanco
+                    contentColor = morado // Color del texto
+            )) {
+                TextButton(onClick = { onGuardarClick() }) {
+                    Text(
+                        text = "Guardar configuración",
+                        color = morado, // Mantiene el color de tu tema
+                        fontSize = 16.sp // Opcional: ajusta el tamaño si es necesario
+                    )
+                }
+            }
         }
     }
 }
@@ -100,7 +134,8 @@ fun NegocioEdicionPerfil(modifier: Modifier = Modifier) {
 @Composable
 private fun EditarPerfilHeader(
     modifier: Modifier,
-    innerPadding: PaddingValues
+    innerPadding: PaddingValues,
+    actualizar: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -113,11 +148,6 @@ private fun EditarPerfilHeader(
             // Fila superior (Menú y Título)
             BarraArmaPerfil(
                 modifier = modifier.padding(innerPadding)
-            )
-
-            // Espacio negro para el banner/imagen del negocio
-            EditarPortada(
-                contenido = { Portada() }
             )
         }
     }
@@ -145,44 +175,13 @@ fun BarraArmaPerfil(modifier: Modifier = Modifier) {
 }
 
 /**
- * Contenedor para la portada que superpone un botón "Cambiar Portada".
- * @param contenido El composable que se mostrará como fondo de la portada.
- */
-@Composable
-fun EditarPortada(
-    modifier: Modifier = Modifier,
-    contenido: @Composable () -> Unit
-) {
-    // 1. Box permite superponer elementos unos encima de otros.
-    Box (
-        modifier = modifier.fillMaxWidth(),
-        contentAlignment = Alignment.TopStart // Centra el botón
-    ) {
-        // 2. El contenido de fondo que pasaste a la función.
-        contenido()
-
-        // 3. El botón que se mostrará encima del contenido.
-        Button(
-            onClick = { /* TODO: Lógica para cambiar la portada */ },
-            shape = RoundedCornerShape(8.dp), // Esquinas redondeadas
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White, // Fondo blanco
-                contentColor = morado // Color del texto
-            ),
-            modifier = modifier.padding(4.dp)
-        ) {
-            Text(text = "Cambiar Portada")
-        }
-    }
-}
-
-/**
  * Contenedor para el icono que superpone un botón de edición.
  * @param contenido El composable que se mostrará como el icono.
  */
 @Composable
 fun EditarIcono(
     modifier: Modifier = Modifier,
+    actualizar: () -> Unit,
     contenido: @Composable () -> Unit
 ) {
     // 1. Box para superponer el botón sobre el icono.
@@ -216,7 +215,8 @@ fun EditarIcono(
 
 @Composable
 fun BusinessInfoSectionEditable(negocio: Negocio,
-                                modifier: Modifier = Modifier) {
+                                modifier: Modifier = Modifier,
+                                actualizar: () -> Unit) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -232,14 +232,6 @@ fun BusinessInfoSectionEditable(negocio: Negocio,
                 modifier = modifier.padding(vertical = 8.dp)
             )
         }
-        item {
-            CampoDeTexto(
-                value = negocio.descripcion,
-                onValueChange = { /* Actualiza la descripción */ },
-                etiqueta = "Descripción",
-                modifier = modifier.padding(vertical = 8.dp)
-            )
-        }
 
         item {
             CampoDeTexto(
@@ -248,17 +240,6 @@ fun BusinessInfoSectionEditable(negocio: Negocio,
                 etiqueta = "Número de teléfono",
                 modifier = modifier.padding(vertical = 8.dp)
             )
-        }
-
-        for (horario in negocio.horarios) {
-            item {
-                CampoDeTexto(
-                    value = horario.horario,
-                    onValueChange = { /* Actualiza el horario */ },
-                    etiqueta = horario.dia,
-                    modifier = modifier.padding(vertical = 8.dp)
-                )
-            }
         }
     }
     Spacer(modifier = Modifier.height(32.dp))

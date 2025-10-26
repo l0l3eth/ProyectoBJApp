@@ -1,6 +1,5 @@
 package mx.tec.proyectoBJ.view
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,11 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,11 +56,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import mx.tec.proyectoBJ.R
 import mx.tec.proyectoBJ.model.Producto
-import mx.tec.proyectoBJ.view.outlinedTextFieldColors
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.ptoyectobj.blanco
-import mx.tec.ptoyectobj.morado
-import mx.tec.ptoyectobj.naranja
+import mx.tec.proyectoBJ.blanco
+import mx.tec.proyectoBJ.morado
+import mx.tec.proyectoBJ.naranja
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -78,7 +71,7 @@ import java.util.Date
  * @param modifier Modificador para personalizar el layout y la apariencia.
  * @param etiqueta El texto que se muestra como placeholder o etiqueta flotante.
  * @param onValueChange Callback que se invoca cuando el valor del texto cambia.
- * Autores: Estrella Lolbeth Téllez Rivas A01750496
+ * Creado por: Estrella Lolbeth Téllez Rivas A01750496
  *          Allan Mauricio Brenes Castro  A01750747
  */
 @Composable
@@ -170,7 +163,6 @@ fun BotonCircular(icono: ImageVector,
         modifier = modifier
             .padding(0.dp)
             .size(tamano.dp)
-            .background(White)
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -330,38 +322,8 @@ fun ParteSuperior(userName: String, modifier: Modifier = Modifier, onClick: () -
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
-            BarraBusqueda(modifier = Modifier.fillMaxWidth())
         }
     }
-}
-
-/**
- * Un `OutlinedTextField` estilizado para funcionar como una barra de búsqueda.
- * Tiene fondo blanco, esquinas redondeadas y un icono de búsqueda.
- *
- * @param modifier Modificador para personalizar el layout.
- */
-@Composable
-fun BarraBusqueda(modifier: Modifier = Modifier) {
-    var searchText by remember { mutableStateOf("") }
-
-    OutlinedTextField(
-        value = searchText,
-        onValueChange = { searchText = it },
-        placeholder = { Text("Busca tu negocio favorito") },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
-        shape = RoundedCornerShape(28.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = White,
-            unfocusedContainerColor = White,
-            focusedBorderColor = Color.Transparent,
-            unfocusedBorderColor = Color.Transparent,
-            focusedLeadingIconColor = morado,
-            unfocusedLeadingIconColor = morado,
-            cursorColor = morado
-        ),
-        modifier = modifier.height(56.dp)
-    )
 }
 
 /**
@@ -429,7 +391,8 @@ fun TarjetasPromocion(promo: Producto) { // Se asume la existencia de data class
 @Composable
 fun ConfirmarSalida(
     appVM: AppVM, // 1. Recibimos el ViewModel como parámetro
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    onConfirmar: () -> Unit
 ) {
     // --- Lógica para obtener el ID del usuario ---
     // 2. Observamos el LiveData del usuario logueado para obtener su ID.
@@ -493,6 +456,7 @@ fun ConfirmarSalida(
                                 appVM.eliminarUsuario(usuarioId)
                             }
                             onDismissRequest() // Cierra el diálogo después de iniciar la acción
+                            onConfirmar() // Ejecuta la acción
                         },
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
@@ -568,13 +532,6 @@ fun BoxScope.Icono() {
                     .fillMaxSize()
                     .background(Color.Red.copy(alpha = 0.5f)) // Simulación del logo interno
             )
-            /* Si tuvieras el asset:
-                Image(
-                    painter = painterResource(id = R.drawable.logo_negocio),
-                    contentDescription = "Logo del negocio",
-                    modifier = Modifier.fillMaxSize()
-                )
-                */
         }
     }
 }

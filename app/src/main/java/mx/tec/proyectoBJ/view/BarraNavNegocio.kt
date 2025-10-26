@@ -6,9 +6,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -25,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import mx.tec.proyectoBJ.morado
 
 /**
@@ -36,17 +36,16 @@ import mx.tec.proyectoBJ.morado
  * Creado por: Estrella Lolbeth Téllez Rivas A01750496
  */
 // MODIFICADO: Añadimos 'route' para asociar el ítem con una ruta del NavController
-data class NavItem(val label: String, val icon: ImageVector, val route: String)
+data class NavItemNegocio(val label: String, val icon: ImageVector, val route: String)
 
 /**
  * Lista predefinida de objetos [NavItem] que representan las opciones
  * en la barra de navegación inferior de la aplicación.
  * Cada elemento define una sección principal de la app.
  */
-val navItems = listOf(
-    NavItem("Inicio", Icons.Default.Home, "PromocionesScreen"),
-    NavItem("Mapa", Icons.Default.LocationOn, "Mapa"),
-    NavItem("ID digital", Icons.Default.CreditCard, "ID"),
+val navItemsNegocio = listOf(
+    NavItemNegocio("Inicio", Icons.Default.Store, "PantallaPrincipalNegocio"),
+    NavItemNegocio("Escanear QR", Icons.Default.QrCode, "QR"),
 )
 
 /**
@@ -61,7 +60,7 @@ val navItems = listOf(
  * @param navController El controlador de navegación que gestiona el estado y las acciones de navegación.
  */
 @Composable
-fun BarraNavegacion(navController: NavHostController) {
+fun BarraNavegacionNegocios(navController: NavHostController) {
     // 1. OBTENEMOS LA RUTA ACTUAL DESDE EL NAVCONTROLLER
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -70,9 +69,13 @@ fun BarraNavegacion(navController: NavHostController) {
         containerColor = Color.White,
         modifier = Modifier
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-            .border(1.dp, Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+            .border(
+                1.dp,
+                Color.LightGray.copy(alpha = 0.5f),
+                RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+            )
     ) {
-        navItems.forEach { item ->
+        navItemsNegocio.forEach { item ->
             // 2. LA SELECCIÓN DEPENDE DE LA RUTA ACTUAL, NO DE UN ESTADO LOCAL
             val isSelected = currentRoute == item.route
 
@@ -117,7 +120,8 @@ fun BarraNavegacion(navController: NavHostController) {
 }
 
 @Composable
-@Preview
-fun BarraNavegacionPreview(){
-    BarraNavegacion(NavHostController(LocalContext.current))
+@Preview(showBackground = true, name = "Barra de Navegación de Negocio")
+fun BarraNavegacionNegocioPreview(){
+    // Ahora el Preview llama a la función correcta: BarraNavegacionNegocios
+    BarraNavegacionNegocios(navController = rememberNavController())
 }

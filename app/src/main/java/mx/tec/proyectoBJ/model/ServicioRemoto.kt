@@ -1,6 +1,6 @@
 package mx.tec.proyectoBJ.model
 
-import mx.tec.ptoyectobj.URL_BASE
+import mx.tec.proyectoBJ.URL_BASE
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -8,6 +8,7 @@ import java.lang.Exception
 import android.util.Log
 import com.google.maps.android.ktx.BuildConfig
 import retrofit2.HttpException
+import retrofit2.Response
 
 /**
  * Objeto singleton para gestionar las comunicaciones con el servidor remoto (API).
@@ -28,8 +29,8 @@ object ServicioRemoto {
      */
     private val logging = HttpLoggingInterceptor().apply {
         level = if (BuildConfig.DEBUG) {
-            HttpLoggingInterceptor.Level.BODY }
-        else{
+            HttpLoggingInterceptor.Level.BODY
+        } else {
             HttpLoggingInterceptor.Level.NONE
         }
     }
@@ -40,7 +41,7 @@ object ServicioRemoto {
      * en el Logcat de Android Studio.
      */
 
-    private val certificatePinner=okhttp3.CertificatePinner.Builder()
+    private val certificatePinner = okhttp3.CertificatePinner.Builder()
         .build()
 
     private val cliente = okhttp3.OkHttpClient.Builder()
@@ -80,33 +81,40 @@ object ServicioRemoto {
      * @param usuario El objeto `Usuario` con los datos a registrar.
      */
     suspend fun registrarUsuario(usuario: Usuario): Boolean {
-       return try {
-            val response= servicio.registrarUsuario(usuario)
+        return try {
+            val response = servicio.registrarUsuario(usuario)
             println("Registro de usuario exitoso")
-            if (response.isSuccessful){
+            if (response.isSuccessful) {
                 Log.d("Registro de usuario", "Registro exitoso")
                 true
-            }else{
-                Log.e("Registro",
-                    "Error al registrar usuario, código: ${response.errorBody()?.string()}")
+            } else {
+                Log.e(
+                    "Registro",
+                    "Error al registrar usuario, código: ${response.errorBody()?.string()}"
+                )
                 false
-                }
             }
-       catch (e: Exception) {
-                  Log.e("Registro", "Error en la conexión: ${e.message}")
-                  false
-       }
+        } catch (e: Exception) {
+            Log.e("Registro", "Error en la conexión: ${e.message}")
+            false
+        }
     }
 
     suspend fun iniciarSesion(correo:String, contrasena:String): Any? {
         val request= LoginRequest(correo=correo, contrasena=contrasena)
-        return try{
+        try{
             val response=servicio.iniciarSesion(request)
             if(response.isSuccessful){
-                val authResponse=response.body()
+                val authResponse = response.body()
+                if (authResponse != null) {
+                    // Asignamos el token al objeto usuario que vamos a devolver.
+                    // Es buena práctica que el objeto Usuario contenga su propio token.
+                    val usuarioConToken = authResponse.usuario.copy(token = authResponse.token)
+                    return usuarioConToken
+                }
                 if(authResponse!=null){
                     println("Inicio de sesión exitoso, token: ${authResponse.token}")
-                    authResponse.token
+                    authResponse
                 } else{
                     println("Respuesta exitosa, cuerpo vacío")
                     null
@@ -124,92 +132,154 @@ object ServicioRemoto {
     }
 
     /**
+    * Llama a la API para crear una nueva promoción para el negocio autenticado.
+    *
+    * @param token El token de autenticación del negocio (ej. "Bearer xyz...").
+    * @param nuevaPromocion El objeto Promocion con los datos a guardar.
+    */
+    suspend fun crearPromocion(token: String, nuevaPromocion: Promocion) {
+        try {
+
+            val response = servicio.crearPromocion(token, nuevaPromocion)
+
+
+            if (response.isSuccessful) {
+                Log.d("ServicioRemoto", "Promoción creada exitosamente.")
+            } else {
+                Log.e("ServicioRemoto", "Error al crear promoción: ${response.code()}")
+                // Lanza una excepción para que el ViewModel sepa que algo salió mal.
+                throw HttpException(response)
+            }
+        } catch (e: Exception) {
+            Log.e("ServicioRemoto", "Fallo en la conexión al crear promoción: ${e.message}")
+            // Vuelve a lanzar la excepción para que el ViewModel la capture.
+            throw e
+        }
+    }
+
+    /**
+     * Llama a la API para eliminar una promoción específica.
+     *
+     * @param token El token de autenticación del negocio.
+     * @param idPromocion El ID de la promoción que se va a eliminar.
+     * @return Un [Response] que indica si la operación fue exitosa.
+     */
+    suspend fun eliminarPromocion(token: String, idPromocion: Int): Response<Unit> {
+        // La implementación es simplemente llamar al método correspondiente
+        // de la interfaz 'servicio' que Retrofit ya ha creado.
+        return servicio.eliminarPromocion(token, idPromocion)
+    }
+
+
+
+    /**
      * Envía una petición a la API para eliminar un usuario por su ID.
      * @param idUsuario El ID del usuario que se desea eliminar.
      * @return `true` si el usuario fue eliminado exitosamente (código 2xx),
      *         `false` en caso contrario (error del servidor o de conexión).
      */
-    suspend fun borrarUsuario(idUsuario: Int): Boolean {
+    suspend fun borrarUsuario(token: String, idUsuario: Int): Result<Unit> {
         return try {
-            val response = servicio.borrarUsuario(idUsuario)
-            if (response.isSuccessful) {
-                println("Usuario con ID $idUsuario borrado exitosamente.")
-                true
-            } else {
-                println("Error al borrar el usuario. Código: ${response.code()}, Mensaje: ${response.message()}")
-                false
-            }
-        } catch (e: HttpException) {
-            println("Error HTTP al borrar usuario: ${e.message()}")
-            false
+            val response = servicio.borrarUsuario(token,idUsuario)
+            Result.success(Unit)
         } catch (e: Exception) {
-            println("Error de conexión al intentar borrar usuario: $e")
-            false
+            Log.e("ServicioRemoto", "Error en la conexión: $e")
+            Result.failure(e)
         }
     }
 
-    suspend fun actualizarUsuario(idUsuario: Int, usuario: Usuario): Boolean {
-        return try {
-            val response = servicio.actualizarUsuario(idUsuario, usuario)
-            if (response.isSuccessful) {
-                println("Usuario actualizado correctamente (ID: $idUsuario).")
-                true
-            } else {
-                println("Error al actualizar usuario. Código: ${response.code()}, mensaje: ${response.message()}")
-                false
-            }
-        } catch (e: HttpException) {
-            println("Error HTTP al actualizar usuario: ${e.message()}")
-            false
-        } catch (e: Exception) {
-            println("Error de conexión al intentar actualizar usuario: $e")
-            false
-        }
-    }
-
-    suspend fun obtenerTarjetasNegocios(): List<TarjetaNegocio> {
+    suspend fun actualizarUsuario(token: String,idUsuario: Int, usuario: Usuario) {
         try {
-            val response=servicio.obtenerNegocios()
+            val response = servicio.actualizarUsuario(token,idUsuario, usuario)
+            if (response.isSuccessful) {
+                Log.d("ServicioRemoto","Usuario $idUsuario actualizado correctamente")
+            } else {
+                Log.e("ServicioRemoto", "Error al actualizar usuario. Código: " +
+                        "${response.code()}, mensaje: ${response.message()}")
+                throw HttpException(response)
+            }
+        } catch (e: Exception) {
+            Log.e("ServicioRemoto", "Error en la conexión: ${e.message}")
+            throw e
+        }
+    }
+
+    suspend fun obtenerTarjetasNegocios(token: String):
+            List<TarjetaNegocio> {
+        try {
+            val response=servicio.obtenerNegocios(token)
             if (response.isSuccessful){
-                return (response.body() ?: listOf()) as List<TarjetaNegocio>
+                return (response.body() ?: emptyList())
+                        as List<TarjetaNegocio>
             } else{
-                println("Error al obtener negocios, codigo: ${response.code()}")
+                Log.e("Error al obtener negocios",
+                    "Código: ${response.code()}")
+                throw HttpException(response)
             }
         } catch (e: Exception){
-            println("Error en la conexión al obtener negocios: $e")
+            Log.e("ServicioRemoto", "Error en la " +
+                    "conexión al obtener negocios: ${e.message}")
+            throw e
         }
-        return listOf()
     }
 
 
-    suspend fun obtenerUsuariID(): List<Usuario> {
+    suspend fun obtenerUsuarios(token: String): List<Usuario> {
         try{
-            val response=servicio.obtenerUsuarios()
+            val response=servicio.obtenerUsuarios(token)
             if(response.isSuccessful){
-                return response.body() ?: listOf()
+                return response.body() ?: emptyList()
             }else{
-                Log.e("Error al obtener usuarios", "Código: ${response.code()}")
+                Log.e("Error al obtener usuarios",
+                    "Código: ${response.code()}")
+                throw HttpException(response)
             }
         }catch(e: Exception){
             Log.e("Error en la conexión", "Mensaje: $e")
+            throw e
         }
-        return listOf()
     }
 
-    suspend fun generarQR(idUsuario: Int): okhttp3.ResponseBody? {
-        return try {
-            val respuesta = servicio.generarQR(idUsuario)
+
+    suspend fun obtenerPromocionesNegocio(token: String): List<Promocion> {
+        try{
+            val response = servicio.obtenerPromocionesNegocio(token)
+            if (response.isSuccessful){
+                return response.body() ?: emptyList()
+            }else{
+                Log.e("Error al obtener promociones", "Código: ${response.code()}")
+                throw HttpException(response)
+            }
+        }catch(e:Exception){
+            Log.e("Fallo de conexión",
+                "Mensaje: ${e.message}")
+            throw e
+        }
+    }
+
+    suspend fun generarQR(token: String, idUsuario: Int): okhttp3.ResponseBody {
+        try {
+            val respuesta = servicio.generarQR(token, idUsuario)
 
             if (respuesta.isSuccessful) {
-                Log.d("ServicioRemoto", "QR generado exitosamente para el usuario $idUsuario.")
-                respuesta.body() // Devuelve el cuerpo de la respuesta (la imagen)
+                val cuerpoRespuesta = respuesta.body()
+                if (cuerpoRespuesta != null) {
+                    Log.d("ServicioRemoto", "QR generado exitosamente para el usuario $idUsuario.")
+                    return cuerpoRespuesta
+                } else {
+                    // Lanzamos una excepción específica si el cuerpo es nulo inesperadamente.
+                    throw NullPointerException("La respuesta fue exitosa pero el cuerpo del QR está vacío.")
+                }
             } else {
-                Log.e("ServicioRemoto", "Error al generar QR. Código: ${respuesta.code()}, Mensaje: ${respuesta.errorBody()?.string()}")
-                null
+
+                val errorBody = respuesta.errorBody()?.string()
+                Log.e("ServicioRemoto", "Error al generar QR. Código: ${respuesta.code()}, Mensaje: $errorBody")
+                throw HttpException(respuesta)
             }
         } catch (e: Exception) {
+
             Log.e("ServicioRemoto", "Excepción al generar QR: ${e.message}")
-            null
+            throw e
         }
     }
 }

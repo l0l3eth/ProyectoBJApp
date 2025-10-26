@@ -1,6 +1,7 @@
 package mx.tec.proyectoBJ.viewmodel
 
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.ImageBitmap
@@ -9,6 +10,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,77 +19,170 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import mx.tec.proyectoBJ.model.EstadoLogin
+import mx.tec.proyectoBJ.model.Promocion
 import mx.tec.proyectoBJ.model.ServicioRemoto
 import mx.tec.proyectoBJ.model.TarjetaNegocio
+import mx.tec.proyectoBJ.model.TipoUsuario
 import mx.tec.proyectoBJ.model.Usuario
-import java.io.IOException // Importante para un manejo de errores más específico
 
 /**
- * ViewModel principal de la aplicación (`AppVM`).
+ * ViewModel principal de la aplicación que actúa como el centro de la lógica de negocio.
  *
- * Se encarga de la lógica de negocio y de gestionar el estado de la UI para
- * funcionalidades clave como:
- * - Control de la pantalla de bienvenida (splash screen).
- * - Registro e inicio de sesión de usuarios.
- * - Eliminación y actualización de usuarios.
- * - Generación de códigos QR.
- * - Carga de tarjetas de negocio.
+ * Esta clase se encarga de preparar y gestionar los datos para la UI, reaccionando a las
+ * interacciones del usuario y comunicándose con la capa de datos (a través de [ServicioRemoto]).
+ * Expone el estado de la aplicación a los Composables mediante el uso de [LiveData] y [StateFlow],
+ * asegurando una arquitectura reactiva y desacoplada.
  *
- * Comunica el resultado de las operaciones a la UI a través de LiveData y StateFlow,
- * permitiendo una arquitectura reactiva y desacoplada.
- * Autores: Estrella Lolbeth Téllez Rivas A01750496
- *          Allan Mauricio Brenes Castro  A01750747
+ * ### Responsabilidades Clave:
+ * - **Gestión de Sesión:** Maneja el inicio de sesión, registro, actualización y eliminación de usuarios.
+ * - **Visualización de Datos:** Obtiene y gestiona listas de tarjetas de negocio y promociones.
+ * - **Generación de Contenido:** Crea códigos QR para los usuarios.
+ * - **Control de Flujo de UI:** Gestiona la navegación inicial después de la pantalla de bienvenida.
+ * - **Manejo de Estado:** Proporciona estados de carga, éxito y error para las operaciones asíncronas,
+ *   permitiendo que la UI reaccione de manera apropiada.
+ *
+ * @property usuarioLogeado Expone los datos del usuario que ha iniciado sesión.
+ * @property listaNegocios Mantiene y expone la lista de tarjetas de negocio.
+ * @property promociones Mantiene y expone la lista de promociones.
+ * @property qrBitmap Contiene el [ImageBitmap] del código QR generado.
+ * @property errorMensaje Proporciona mensajes de error para ser mostrados en la UI.
+ *
+ * Creado por: Estrella Lolbeth Téllez Rivas A01750496
+Allan Mauricio Brenes Castro A01750747
+Carlos Antonio Tejero Andrade A01801062
  */
-
-sealed class PantallaSplash {
-    object NavegarAInicio : PantallaSplash()
-}
 
 class AppVM : ViewModel() {
     private val servicioRemoto = ServicioRemoto
+    // --- Estado de Autenticación y Usuario ---
 
-    // Flujo para la navegación después de la pantalla de bienvenida
-    private val _navegarAInicio = MutableSharedFlow<PantallaSplash>()
-    val navegarAInicio: SharedFlow<PantallaSplash> = _navegarAInicio.asSharedFlow()
+    /**
+     * Representa el estado actual del proceso de inicio de sesión.
+     * Utiliza un sealed class `EstadoLogin` para manejar los estados: Idle, Loading, Success, Error.
+     */
+    private val _loginState = MutableStateFlow<EstadoLogin>(EstadoLogin.Idle)
+    val loginState: StateFlow<EstadoLogin> = _loginState
 
-    // Estado del usuario que ha iniciado sesión
+    /**
+     * Almacena los datos del usuario que ha iniciado sesión.
+     * Es un `LiveData` que puede ser observado para reaccionar a cambios en la sesión.
+     */
     private val _usuarioLogeado = MutableLiveData<Usuario?>(null)
     val usuarioLogeado: LiveData<Usuario?> = _usuarioLogeado
 
-    // Mensajes de error para mostrar en la UI
+    /**
+     * Mensaje de error para operaciones fallidas, como login o registro.
+     */
     private val _errorMensaje = MutableLiveData<String?>(null)
     val errorMensaje: LiveData<String?> = _errorMensaje
 
-    // Estado para operaciones de borrado
+    // --- Estado para Operaciones de Borrado ---
+
+    /**
+     * Indica si una operación de borrado de usuario está en progreso.
+     */
     private val _estaBorrando = MutableStateFlow(false)
     val estaBorrando: StateFlow<Boolean> = _estaBorrando.asStateFlow()
 
+    /**
+     * Emite un evento `true` cuando un usuario ha sido borrado exitosamente.
+     * Se usa `SharedFlow` para eventos de una sola vez (ej. navegar hacia atrás).
+     */
     private val _borradoExitoso = MutableSharedFlow<Boolean>()
     val borradoExitoso: SharedFlow<Boolean> = _borradoExitoso.asSharedFlow()
 
-    // Estado y datos para la generación del código QR
-    private val _qrBitmap = MutableStateFlow<ImageBitmap?>(null)
-    val qrBitmap: StateFlow<ImageBitmap?> = _qrBitmap.asStateFlow()
+    /**
+     * Contiene los datos binarios (bytes) del código QR generado (en formato SVG).
+     * Un valor `null` indica que no hay QR generado o ha sido limpiado.
+     */
+    private val _qrData = MutableStateFlow<ByteArray?>(null)
+    val qrData: StateFlow<ByteArray?> = _qrData.asStateFlow()
 
+    /**
+     * Indica si la generación del código QR está en curso.
+     */
     private val _cargandoQR = MutableStateFlow(false)
     val cargandoQR: StateFlow<Boolean> = _cargandoQR.asStateFlow()
 
-    // Estado y datos para la lista de tarjetas de negocio
+    // --- Estado para Lista de Tarjetas de Negocio ---
+
+    /**
+     * Contiene la lista de tarjetas de negocio obtenidas del servidor.
+     */
     private val _listaNegocios = mutableStateOf<List<TarjetaNegocio>>(emptyList())
     val listaNegocios: State<List<TarjetaNegocio>> = _listaNegocios
 
+    /**
+     * Indica si la carga de las tarjetas de negocio está en progreso.
+     */
     private val _cargandoNegocios = mutableStateOf(false)
     val cargandoNegocios: State<Boolean> = _cargandoNegocios
 
+    // --- Estado para Lista de Promociones ---
+
+    /**
+     * Contiene la lista de promociones obtenidas del servidor.
+     */
+    private val _promociones = MutableStateFlow<List<Promocion>>(emptyList())
+    val promociones = _promociones.asStateFlow()
+
+    /**
+     * Estado de carga genérico, usado principalmente para la carga de promociones.
+     */
+    private val _estaCargando = MutableStateFlow(false)
+    val estaCargando = _estaCargando.asStateFlow()
+
+
+    /**
+     * Estado de error genérico para operaciones como la carga de promociones.
+     */
+    private val _error = MutableStateFlow<String?>(null)
+    val error = _error.asStateFlow()
+
+    /**
+     * Bloque de inicialización del ViewModel.
+     * Configura un observador permanente sobre `usuarioLogeado` para cargar
+     * o limpiar datos automáticamente cuando el estado de autenticación cambia.
+     */
     init {
         viewModelScope.launch {
-            delay(2000L) // Retraso para la pantalla de bienvenida
-            _navegarAInicio.emit(PantallaSplash.NavegarAInicio)
+            delay(2000)
+            // Lógica de Splash Screen si la necesitas...
         }
-        // Cargar los negocios al iniciar el ViewModel
-        obtenerTarjetasNegocios()
+
+        // --- LA SOLUCIÓN DEFINITIVA ---
+        // Creamos una corrutina que OBSERVA los cambios en el estado del usuario.
+        viewModelScope.launch {
+            // Cada vez que _usuarioLogeado cambie, este bloque se ejecutará.
+            usuarioLogeado.observeForever { usuario ->
+                if (usuario?.token != null) {
+                    // Si tenemos un usuario con token, cargamos sus datos.
+                    Log.d("AppVM", "Usuario detectado. Cargando datos de negocio y promociones.")
+                    obtenerTarjetasNegocios()
+                    cargarPromociones()
+                } else {
+                    // Si no hay usuario (o cierra sesión), limpiamos los datos.
+                    Log.d("AppVM", "No hay usuario. Limpiando listas.")
+                    _listaNegocios.value = emptyList()
+                    _promociones.value = emptyList()
+                }
+            }
+        }
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     *
+     * @param nombre Nombre del usuario.
+     * @param apellido Apellidos del usuario.
+     * @param correo Correo electrónico del usuario.
+     * @param contrasena Contraseña para la nueva cuenta.
+     * @param direccion Dirección del usuario.
+     * @param numeroTelefono Número de teléfono del usuario.
+     * @param curp CURP del usuario.
+     */
     fun enviarUsuario(
         nombre: String,
         apellido: String,
@@ -98,51 +193,144 @@ class AppVM : ViewModel() {
         curp: String
     ) {
         viewModelScope.launch {
-            // Aquí también podrías añadir validaciones antes de enviar
             servicioRemoto.registrarUsuario(
                 Usuario(
+                    id = 0, // AÑADIDO: Se necesita un ID, 0 es un valor común para entidades nuevas.
                     nombre = nombre,
                     apellidos = apellido,
                     correo = correo,
                     contrasena = contrasena,
                     direccion = direccion,
                     telefono = numeroTelefono,
-                    curp = curp
+                    curp = curp,
+                    tipoUsuario = TipoUsuario.JOVEN
                 )
             )
         }
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     *
+     * @param nombre Nombre del usuario.
+     * @param apellido Apellidos del usuario.
+     * @param correo Correo electrónico del usuario.
+     * @param contrasena Contraseña para la nueva cuenta.
+     * @param direccion Dirección del usuario.
+     * @param numeroTelefono Número de teléfono del usuario.
+     * @param curp CURP del usuario.
+     */
+    fun enviarNegocio(
+        nombre: String,
+        correo: String,
+        contrasena: String,
+        direccion: String,
+        numeroTelefono: String,
+        curp: String
+    ) {
+        viewModelScope.launch {
+            servicioRemoto.registrarUsuario(
+                Usuario(
+                    id = 0, // AÑADIDO: Se necesita un ID, 0 es un valor común para entidades nuevas.
+                    nombre = nombre,
+                    apellidos = "",
+                    correo = correo,
+                    contrasena = contrasena,
+                    direccion = direccion,
+                    telefono = numeroTelefono,
+                    curp = curp,
+                    tipoUsuario = TipoUsuario.JOVEN
+                )
+            )
+        }
+    }
+
+    /**
+     * Autentica a un usuario con su correo y contraseña.
+     * Actualiza [_usuarioLogeado] si las credenciales son correctas, o [_errorMensaje] si fallan.
+     *
+     * @param correo Correo electrónico del usuario.
+     * @param contrasena Contraseña del usuario.
+     */
     fun iniciarSesion(correo: String, contrasena: String) {
         viewModelScope.launch {
+            _loginState.value = EstadoLogin.Loading // 1. Indica que está cargando
+
             val resultadoUsuario = ServicioRemoto.iniciarSesion(correo, contrasena)
+
             if (resultadoUsuario != null) {
+                // Si el login fue exitoso en el backend, actualizamos el usuario
                 _usuarioLogeado.value = resultadoUsuario as Usuario?
                 _errorMensaje.value = null
+
+                // Y emitimos el estado de éxito con el tipo de usuario correcto
+                _loginState.value = EstadoLogin.Success(resultadoUsuario.tipoUsuario) // 2. Éxito
             } else {
+                // Si el login falló
                 _usuarioLogeado.value = null
                 _errorMensaje.value = "Correo o contraseña incorrectos. Inténtalo de nuevo."
+
+                // Emitimos el estado de error
+                _loginState.value =
+                    EstadoLogin.Error("Correo o contraseña incorrectos.") // 3. Error
             }
         }
     }
 
+    /**
+     * Resetea el estado de `loginState` a `Idle`.
+     * Útil para llamar después de que la UI ha reaccionado a un `Success` o `Error`.
+     */
+    fun resetLoginState() {
+        _loginState.value = EstadoLogin.Idle
+    }
+
+
+    /**
+     * Elimina un usuario del sistema.
+     *
+     * @param idUsuario El ID del usuario a eliminar.
+     */
     fun eliminarUsuario(idUsuario: Int) {
         viewModelScope.launch {
-            _estaBorrando.value = true
             _errorMensaje.value = null
 
-            val exito = servicioRemoto.borrarUsuario(idUsuario)
-            if (exito) {
-                _borradoExitoso.emit(true)
-            } else {
-                _errorMensaje.value = "No se pudo eliminar el usuario. Inténtalo de nuevo."
+            val token = _usuarioLogeado.value?.token
+            if (token == null) {
+                _errorMensaje.value = "No se pudo eliminar el usuario.No está autenticado."
+                _estaBorrando.value = false
+                return@launch
             }
-            _estaBorrando.value = false
+
+            _estaBorrando.value = true
+
+            try {
+                val resultado = servicioRemoto.borrarUsuario(idUsuario = idUsuario, token = token)
+
+                if (resultado.isSuccess) {
+                    Log.d("AppVM", "Usuario eliminado exitosamente en el backend.")
+                    _borradoExitoso.emit(true)
+                } else {
+                    throw resultado.exceptionOrNull()
+                        ?: Exception("Error desconocido al eliminar usuario")
+                }
+            } catch (e: Exception) {
+                Log.e("AppVM", "Error al eliminar usuario: ${e.message}")
+                _errorMensaje.value = "No se pudo eliminar el usuario. Inténtalo de nuevo."
+            } finally {
+                _estaBorrando.value = false
+            }
         }
     }
 
+    /**
+     * Actualiza los datos de un usuario existente.
+     * Realiza validaciones de formato y campos vacíos antes de enviar la solicitud.
+     *
+     * @param idUsuario El ID del usuario a actualizar.
+     * @param usuario El objeto [Usuario] con la información actualizada.
+     */
     fun actualizarUsuario(idUsuario: Int, usuario: Usuario) {
-        // CORRECCIÓN: Validaciones mejoradas y centralizadas al inicio de la función.
         val emailRegex = Regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$")
 
         if (usuario.nombre.isBlank() || usuario.apellidos.isBlank() || usuario.correo.isBlank()) {
@@ -163,52 +351,62 @@ class AppVM : ViewModel() {
         }
 
         viewModelScope.launch {
-            _errorMensaje.postValue(null)
-            val exito = servicioRemoto.actualizarUsuario(idUsuario, usuario)
-            if (exito) {
+            _errorMensaje.value = null
+            val token = _usuarioLogeado.value?.token
+            if (token == null) {
+                _errorMensaje.value = "No se pudo actualizar el usuario. Inténtalo de nuevo."
+                return@launch
+            }
+            try {
+                servicioRemoto.actualizarUsuario(token, idUsuario, usuario)
                 println("Usuario actualizado con éxito.")
                 _usuarioLogeado.postValue(usuario)
-            } else {
+            } catch (e: Exception) {
+                Log.e("AppVM", "Error al actualizar usuario: ${e.message}")
                 _errorMensaje.value = "No se pudo actualizar el usuario. Inténtalo de nuevo."
             }
         }
     }
 
     /**
-     * CORRECCIÓN: Se unificaron las funciones `generarQR` en una sola.
+     * Limpia los datos del código QR almacenado.
+     * Se llama cuando la vista del QR se destruye para liberar memoria.
+     */
+    fun limpiarQR() {
+        _qrData.value = null
+        _errorMensaje.value = null
+    }
+
+    /**
      * Genera un código QR para el usuario que ha iniciado sesión.
-     * Si necesitas generar un QR para otro usuario, puedes crear otra función como `generarQROtroUsuario(id: Int)`.
+     * La respuesta del servidor es un SVG, cuyos datos en bytes se almacenan en `_qrData`.
+     * Coil (configurado en `MyApplication`) decodifica y muestra el SVG en la UI.
      */
     fun generarQR() {
-        // Se obtiene el ID del usuario logeado. Si no hay, la función termina.
-        val idUsuario = _usuarioLogeado.value?.id ?: run {
-            _errorMensaje.value = "No se ha iniciado sesión para generar un QR."
+        val usuarioActual = _usuarioLogeado.value
+        val idUsuario = usuarioActual?.id
+        val token = usuarioActual?.token
+
+        if (idUsuario == null || token == null) {
+            _errorMensaje.value = "No se puede generar el QR. Se requiere iniciar sesión."
             return
         }
 
         viewModelScope.launch {
             _cargandoQR.value = true
-            _qrBitmap.value = null
+            _qrData.value = null
             _errorMensaje.value = null
 
             try {
-                // Se asume que ServicioRemoto.generarQR devuelve ResponseBody?
-                val responseBody = servicioRemoto.generarQR(idUsuario)
-
-                if (responseBody != null) {
-                    val bytes = responseBody.bytes()
-                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    _qrBitmap.value = bitmap?.asImageBitmap()
-                } else {
-                    _errorMensaje.value = "No se pudo obtener el código QR del servidor."
+                val responseBody = servicioRemoto.generarQR(token, idUsuario)
+                val bytes = withContext(Dispatchers.IO) {
+                    responseBody.bytes()
                 }
-            } catch (e: IOException) {
-                // Error de red o de I/O
-                _errorMensaje.value = "Error de conexión al generar QR: ${e.message}"
-                e.printStackTrace()
+                _qrData.value = bytes
+
             } catch (e: Exception) {
-                // Otro tipo de error
-                _errorMensaje.value = "Ocurrió un error inesperado al generar QR: ${e.message}"
+                Log.e("AppVM", "Error al generar QR: ${e.message}")
+                _errorMensaje.value = "Ocurrió un error al generar el código QR."
                 e.printStackTrace()
             } finally {
                 _cargandoQR.value = false
@@ -216,17 +414,125 @@ class AppVM : ViewModel() {
         }
     }
 
+
+    /**
+     * Obtiene la lista de tarjetas de negocio del servidor y la almacena en [_listaNegocios].
+     */
     fun obtenerTarjetasNegocios() {
         viewModelScope.launch {
             _cargandoNegocios.value = true
+            _errorMensaje.value = null
+            val token = _usuarioLogeado.value?.token
+
+            if (token == null) {
+                _errorMensaje.value = "No se pudo obtener la lista de negocios.No está autenticado."
+                _cargandoNegocios.value = false
+                return@launch
+            }
             try {
-                _listaNegocios.value = servicioRemoto.obtenerTarjetasNegocios()
+                _listaNegocios.value = servicioRemoto.obtenerTarjetasNegocios(token)
             } catch (e: Exception) {
-                _errorMensaje.value = "Error al obtener negocios: ${e.message}"
-                println("Error al obtener negocios: ${e.message}")
+                _errorMensaje.value = "Error al obtener negocios"
+                Log.e("AppVM", "Error al obtener negocios: ${e.message}")
             } finally {
                 _cargandoNegocios.value = false
             }
         }
+    }
+
+    /**
+     * Carga la lista de promociones desde el servidor.
+     * Ahora asume que solo se llama cuando hay un usuario autenticado.
+     */
+    fun cargarPromociones() {
+        viewModelScope.launch {
+            // 1. Obtener el token (con una guarda de seguridad por si acaso)
+            val token = _usuarioLogeado.value?.token
+            if (token == null) {
+                Log.w("AppVM", "cargarPromociones fue llamada sin un token.")
+                _error.value = "No se pudo cargar las promociones."
+                return@launch
+            }
+
+            // 2. Iniciar el proceso de carga
+            _estaCargando.value = true
+            _error.value = null
+
+            try {
+                // 3. Llamar al servicio remoto
+                val listaDesdeServidor = servicioRemoto.obtenerPromocionesNegocio(token)
+                _promociones.value = listaDesdeServidor
+                Log.d("AppVM", "Promociones cargadas exitosamente.")
+            } catch (e: Exception) {
+                // 4. Manejar errores de la llamada
+                Log.e("AppVM", "Error al cargar promociones: ${e.message}")
+                _error.value = "No se pudieron cargar las promociones. Intenta más tarde."
+            } finally {
+                // 5. Finalizar el estado de carga
+                _estaCargando.value = false
+            }
+        }
+    }
+
+    /**
+     * Limpia el estado del ViewModel a sus valores iniciales.
+     * Se debe llamar después de que la navegación de cierre de sesión haya comenzado.
+     */
+    fun cerrarSesionLocalmente() {
+        _usuarioLogeado.value = null
+        // También es buena idea limpiar otros estados relevantes
+        _error.value = null
+        _listaNegocios.value = emptyList()
+        _promociones.value = emptyList()
+        Log.d("AppVM", "Sesión local limpiada.")
+    }
+
+    /**
+     * Función de utilidad genérica para ejecutar operaciones de red relacionadas con promociones.
+     * Encapsula la lógica repetitiva de manejo de estado (carga, error) y autenticación (token).
+     * Si la operación tiene éxito, refresca automáticamente la lista de promociones.
+     *
+     * @param T El tipo de dato que devuelve la operación de red. A menudo es `Unit` para operaciones
+     *          de borrado o creación que no devuelven un cuerpo de respuesta.
+     * @param operacion Una función lambda suspendida que contiene la llamada de red real.
+     *                  Esta función recibe el token de autenticación como parámetro.
+     *                  Ejemplo: `{ token -> servicioRemoto.eliminarPromocion(token, id) }`.
+     * @param mensajeError El mensaje de error específico que se mostrará en la UI si la operación falla.
+     */
+    private fun <T> ejecutarOperacionPromocion(
+        operacion: suspend (token: String) -> T,
+        mensajeError: String
+    ) {
+        viewModelScope.launch {
+            val token = _usuarioLogeado.value?.token
+            if (token == null) {
+                _error.value = "Error de autenticación."
+                return@launch
+            }
+
+            _estaCargando.value = true
+            _error.value = null
+
+            try {
+                operacion(token) // Ejecuta la acción de red (ej: borrar, crear, etc.)
+                cargarPromociones() // Si tiene éxito, siempre refresca la lista
+            } catch (e: Exception) {
+                Log.e("AppVM", "$mensajeError: ${e.message}")
+                _error.value = mensajeError
+                _estaCargando.value = false // Detenemos la carga solo si hay error
+            }
+        }
+    }
+
+    /**
+     * Elimina una promoción existente del servidor (versión simplificada).
+     */
+    fun eliminarPromocion(idPromocion: Int) {
+        ejecutarOperacionPromocion(
+            operacion = { token ->
+                servicioRemoto.eliminarPromocion(token, idPromocion)
+            },
+            mensajeError = "No se pudo eliminar la promoción."
+        )
     }
 }

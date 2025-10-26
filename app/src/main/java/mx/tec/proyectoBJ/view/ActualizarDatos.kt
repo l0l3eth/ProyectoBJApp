@@ -20,10 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -50,9 +47,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mx.tec.proyectoBJ.viewmodel.AppVM
-import mx.tec.ptoyectobj.morado
-import mx.tec.ptoyectobj.naranja
-import mx.tec.ptoyectobj.rosa
+import mx.tec.proyectoBJ.morado
+import mx.tec.proyectoBJ.naranja
+import mx.tec.proyectoBJ.rosa
 
 /**
  * Modelo de datos que representa una opción configurable en la pantalla de perfil del usuario.
@@ -140,11 +137,11 @@ fun ActualizarDatos( appVM: AppVM,
             .background(morado)
     ) {
         // --- Decoraciones de fondo (formas circulares y bordes) ---
-        Box(modifier = Modifier.offset(x = (-40).dp, y = (-120).dp).size(400.dp).clip(CircleShape).background(rosa))
-        Box(modifier = Modifier.offset(x = 5.dp, y = (-190).dp).size(width = 800.dp, height = 400.dp).clip(CircleShape).background(naranja))
+        //Box(modifier = Modifier.offset(x = (-40).dp, y = (-120).dp).size(400.dp).clip(CircleShape).background(rosa))
+        //Box(modifier = Modifier.offset(x = 5.dp, y = (-190).dp).size(width = 800.dp, height = 400.dp).clip(CircleShape).background(naranja))
         Box(modifier = Modifier.offset(x = (-150).dp, y = 700.dp).size(400.dp).clip(CircleShape).background(rosa))
         Box(modifier = Modifier.offset(x = 20.dp, y = 700.dp).size(400.dp).clip(CircleShape).background(naranja))
-        Box(modifier = Modifier.align(Alignment.TopCenter).offset(x = 8.dp, y = (-170).dp).size(400.dp).clip(CircleShape).border(1.dp, White, CircleShape))
+        //Box(modifier = Modifier.align(Alignment.TopCenter).offset(x = 8.dp, y = (-170).dp).size(400.dp).clip(CircleShape).border(1.dp, White, CircleShape))
         Box(modifier = Modifier.align(Alignment.BottomEnd).offset(x = 100.dp, y = 200.dp).size(400.dp).clip(CircleShape).border(1.dp, White, CircleShape))
 
         // --- Contenido principal con scroll ---
@@ -200,7 +197,8 @@ fun ActualizarDatos( appVM: AppVM,
     if (mostrarDialogoSalida) {
         ConfirmarSalida(
             appVM = appVM,
-            onDismissRequest = { if (!estaBorrando) mostrarDialogoSalida = false }
+            onDismissRequest = { if (!estaBorrando) mostrarDialogoSalida = false },
+            onConfirmar = { appVM.eliminarUsuario( usuario?.id ?: 0) }
         )
     }
 
