@@ -41,12 +41,7 @@ fun NegocioProfileScreen(
     navController: NavHostController
 ) {
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        bottomBar = {
-            BarraNavegacionNegocios(
-                navController = navController
-            )
-        }
+        modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
 
         LazyColumn(
