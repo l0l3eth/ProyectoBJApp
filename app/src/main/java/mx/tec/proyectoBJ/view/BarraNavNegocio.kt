@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import mx.tec.proyectoBJ.morado
 
 /**
@@ -68,7 +69,11 @@ fun BarraNavegacionNegocios(navController: NavHostController) {
         containerColor = Color.White,
         modifier = Modifier
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-            .border(1.dp, Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+            .border(
+                1.dp,
+                Color.LightGray.copy(alpha = 0.5f),
+                RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+            )
     ) {
         navItemsNegocio.forEach { item ->
             // 2. LA SELECCIÓN DEPENDE DE LA RUTA ACTUAL, NO DE UN ESTADO LOCAL
@@ -115,7 +120,8 @@ fun BarraNavegacionNegocios(navController: NavHostController) {
 }
 
 @Composable
-@Preview
+@Preview(showBackground = true, name = "Barra de Navegación de Negocio")
 fun BarraNavegacionNegocioPreview(){
-    BarraNavegacion(NavHostController(LocalContext.current))
+    // Ahora el Preview llama a la función correcta: BarraNavegacionNegocios
+    BarraNavegacionNegocios(navController = rememberNavController())
 }

@@ -9,8 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -51,10 +49,6 @@ val navItems = listOf(
     NavItem("ID digital", Icons.Default.CreditCard, "ID"),
 )
 
-val navItemsNegocio = listOf(
-    NavItem("Mi negocio", Icons.Default.Store, "PantallaPrincipalNegocio"),
-    NavItem("Escanear", Icons.Default.QrCodeScanner, "EscanearQR"),
-)
 /**
  * Composable que renderiza la barra de navegación inferior de la aplicación.
  *
@@ -67,12 +61,10 @@ val navItemsNegocio = listOf(
  * @param navController El controlador de navegación que gestiona el estado y las acciones de navegación.
  */
 @Composable
-fun BarraNavegacion(navController: NavHostController, esNegocio: Boolean) {
+fun BarraNavegacion(navController: NavHostController) {
     // 1. OBTENEMOS LA RUTA ACTUAL DESDE EL NAVCONTROLLER
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-
-    val itemsAMostrar = if (esNegocio) navItemsNegocio else navItems
 
     NavigationBar(
         containerColor = Color.White,
