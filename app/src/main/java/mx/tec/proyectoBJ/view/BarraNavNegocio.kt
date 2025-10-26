@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Discount
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.Icon
@@ -45,7 +44,6 @@ data class NavItemNegocio(val label: String, val icon: ImageVector, val route: S
  */
 val navItemsNegocio = listOf(
     NavItemNegocio("Inicio", Icons.Default.Store, "PantallaPrincipalNegocio"),
-    NavItemNegocio("Promociones", Icons.Default.Discount, "PromocionesScreen"),
     NavItemNegocio("Escanear QR", Icons.Default.QrCode, "QR"),
 )
 
