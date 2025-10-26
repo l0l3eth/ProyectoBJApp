@@ -26,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,7 +55,8 @@ import mx.tec.proyectoBJ.viewmodel.AppVM
 @Composable
 fun NegocioEdicionPerfil(modifier: Modifier = Modifier,
                          appVM: AppVM = AppVM(),
-                         navController: NavHostController = rememberNavController()) {
+                         navController: NavHostController = rememberNavController(),
+                         onGuardarClick: () -> Unit = {}) {
     // Objeto provisional
     var negocio: Negocio by remember { mutableStateOf(Negocio(
             nombreNegocio = "JÖTUNHEIM",
@@ -117,7 +119,13 @@ fun NegocioEdicionPerfil(modifier: Modifier = Modifier,
                     containerColor = White, // Fondo blanco
                     contentColor = morado // Color del texto
             )) {
-                Text("Guardar configuración")
+                TextButton(onClick = { onGuardarClick() }) {
+                    Text(
+                        text = "Guardar configuración",
+                        color = morado, // Mantiene el color de tu tema
+                        fontSize = 16.sp // Opcional: ajusta el tamaño si es necesario
+                    )
+                }
             }
         }
     }
@@ -141,14 +149,6 @@ private fun EditarPerfilHeader(
             BarraArmaPerfil(
                 modifier = modifier.padding(innerPadding)
             )
-
-            // Espacio negro para el banner/imagen del negocio
-            EditarPortada(
-                contenido = { Portada() },
-                actualizar = {
-                    actualizar()
-                }
-            )
         }
     }
     // Relleno para que el contenido de abajo inicie después de los logos flotantes
@@ -171,39 +171,6 @@ fun BarraArmaPerfil(modifier: Modifier = Modifier) {
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center
         )
-    }
-}
-
-/**
- * Contenedor para la portada que superpone un botón "Cambiar Portada".
- * @param contenido El composable que se mostrará como fondo de la portada.
- */
-@Composable
-fun EditarPortada(
-    modifier: Modifier = Modifier,
-    actualizar: () -> Unit,
-    contenido: @Composable () -> Unit
-) {
-    // 1. Box permite superponer elementos unos encima de otros.
-    Box (
-        modifier = modifier.fillMaxWidth(),
-        contentAlignment = Alignment.TopStart // Centra el botón
-    ) {
-        // 2. El contenido de fondo que pasaste a la función.
-        contenido()
-
-        // 3. El botón que se mostrará encima del contenido.
-        Button(
-            onClick = { /* TODO: Lógica para cambiar la portada */ },
-            shape = RoundedCornerShape(8.dp), // Esquinas redondeadas
-            colors = ButtonDefaults.buttonColors(
-                containerColor = White, // Fondo blanco
-                contentColor = morado // Color del texto
-            ),
-            modifier = modifier.padding(4.dp)
-        ) {
-            Text(text = "Cambiar Portada")
-        }
     }
 }
 
