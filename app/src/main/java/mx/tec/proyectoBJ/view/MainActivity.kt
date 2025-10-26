@@ -119,7 +119,7 @@ fun AppPrincipal(appVM: AppVM) {
     // Define las rutas donde la barra de navegación NO debe ser visible (pantallas de flujo inicial).
     val rutasSinBarraNav =
         listOf("Entrada", "Inicio", "InicioSesion", "Registro",
-            "registro_usuario", "SolicitudNegocio", "QR", "ActualizarDatos", "PantallaPrincipalNegocio")
+            "registro_usuario", "SolicitudNegocio", "QR", "ActualizarDatos", "PantallaPrincipalNegocio", "PantallaEdicionNegocio")
     val mostrarBarraNav = currentRoute !in rutasSinBarraNav
 
 //    val rutasSinBarraNavNegocio =
@@ -321,6 +321,13 @@ fun AppNavHost(
         composable("Mapa") {
             Mapa(
                 appVM = appVM
+            )
+        }
+
+        composable("PantallaEdicionNegocio") {
+            NegocioEdicionPerfil(
+                appVM = appVM,
+                navController = navController
             )
         }
     }
