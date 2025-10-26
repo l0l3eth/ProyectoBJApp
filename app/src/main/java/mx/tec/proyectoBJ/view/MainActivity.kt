@@ -166,11 +166,13 @@ fun AppPrincipal(appVM: AppVM) {
             bottomBar = {
                 // Muestra la BarraNavegacion solo si la condición se cumple.
                 if (mostrarBarra) {
-                    // Pasamos un booleano para que la barra sepa qué botones mostrar
-                    BarraNavegacion(
-                        navController = navController,
-                        esNegocio = esUsuarioNegocio
-                    )
+                    if (esUsuarioNegocio) {
+                        // Si es un negocio, llama a tu barra de navegación para negocios.
+                        BarraNavegacionNegocios(navController = navController)
+                    } else {
+                        // Si es un usuario joven, llama a la barra de navegación normal.
+                        BarraNavegacion(navController = navController)
+                    }
                 }
             }
         ) { innerPadding ->
