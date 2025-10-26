@@ -8,6 +8,7 @@ import java.lang.Exception
 import android.util.Log
 import com.google.maps.android.ktx.BuildConfig
 import retrofit2.HttpException
+import retrofit2.Response
 
 /**
  * Objeto singleton para gestionar las comunicaciones con el servidor remoto (API).
@@ -155,6 +156,22 @@ object ServicioRemoto {
             throw e
         }
     }
+
+    /**
+     * Llama a la API para eliminar una promoción específica.
+     *
+     * @param token El token de autenticación del negocio.
+     * @param idPromocion El ID de la promoción que se va a eliminar.
+     * @return Un [Response] que indica si la operación fue exitosa.
+     */
+    suspend fun eliminarPromocion(token: String, idPromocion: Int): Response<Unit> {
+        // La implementación es simplemente llamar al método correspondiente
+        // de la interfaz 'servicio' que Retrofit ya ha creado.
+        return servicio.eliminarPromocion(token, idPromocion)
+    }
+
+
+
     /**
      * Envía una petición a la API para eliminar un usuario por su ID.
      * @param idUsuario El ID del usuario que se desea eliminar.

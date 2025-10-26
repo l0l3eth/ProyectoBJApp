@@ -145,6 +145,13 @@ interface ServicioAPI {
         @Body promocion: Promocion
     ): Response<Unit>
 
+    @DELETE("api/descuentos/{id}")
+    suspend fun eliminarPromocion(
+        @Header("Authorization") token: String,
+        @Path("id") idPromocion: Int
+    ): Response<Unit>
+
+
     @PUT("negocios/{id}") // O la ruta correcta que tengas en tu backend, ej: "auth/negocio/{id}"
     suspend fun actualizarNegocio(
         @Header("Authorization") token: String,

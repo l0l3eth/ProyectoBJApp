@@ -367,6 +367,44 @@ class AppVM : ViewModel() {
         }
     }
 
+    private fun <T> ejecutarOperacionPromocion(
+        operacion: suspend (token: String) -> T,
+        mensajeError: String
+    ) {
+        viewModelScope.launch {
+            val token = _usuarioLogeado.value?.token
+            if (token == null) {
+                _error.value = "Error de autenticación."
+                return@launch
+            }
+
+            _estaCargando.value = true
+            _error.value = null
+
+            try {
+                operacion(token) // Ejecuta la acción de red (ej: borrar, crear, etc.)
+                cargarPromociones() // Si tiene éxito, siempre refresca la lista
+            } catch (e: Exception) {
+                Log.e("AppVM", "$mensajeError: ${e.message}")
+                _error.value = mensajeError
+                _estaCargando.value = false // Detenemos la carga solo si hay error
+            }
+        }
+    }
+
+    /**
+     * Elimina una promoción existente del servidor (versión simplificada).
+     */
+    fun eliminarPromocion(idPromocion: Int) {
+        ejecutarOperacionPromocion(
+            operacion = { token ->
+                servicioRemoto.eliminarPromocion(token, idPromocion)
+            },
+            mensajeError = "No se pudo eliminar la promoción."
+        )
+    }
+
+
     /**
      * Obtiene la lista de tarjetas de negocio del servidor y la almacena en [_listaNegocios].
      */
