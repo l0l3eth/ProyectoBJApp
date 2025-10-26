@@ -236,6 +236,7 @@ fun AppNavHost(
 
         // --- PANTALLAS PRINCIPALES (POST-AUTENTICACIÓN) ---
 
+        //////Pantalla de Promociones//////
         composable("PromocionesScreen") {
             PromocionesScreen(
                 appVM = appVM,

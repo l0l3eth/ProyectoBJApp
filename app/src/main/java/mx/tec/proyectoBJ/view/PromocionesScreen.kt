@@ -71,6 +71,7 @@ fun PromocionesScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        ///Botón de añadir promocion///
         floatingActionButton = {
             FloatingActionButton(onClick = { onNavigateToCreatePromocion() }) {
                 Icon(Icons.Filled.Add, contentDescription = "Añadir Promoción")
