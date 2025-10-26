@@ -26,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,7 +55,8 @@ import mx.tec.proyectoBJ.viewmodel.AppVM
 @Composable
 fun NegocioEdicionPerfil(modifier: Modifier = Modifier,
                          appVM: AppVM = AppVM(),
-                         navController: NavHostController = rememberNavController()) {
+                         navController: NavHostController = rememberNavController(),
+                         onPPNegocio: () -> Unit = {}) {
     // Objeto provisional
     var negocio: Negocio by remember { mutableStateOf(Negocio(
             nombreNegocio = "JÖTUNHEIM",
@@ -117,7 +119,13 @@ fun NegocioEdicionPerfil(modifier: Modifier = Modifier,
                     containerColor = White, // Fondo blanco
                     contentColor = morado // Color del texto
             )) {
-                Text("Guardar configuración")
+                TextButton(onClick = { onPPNegocio() }) {
+                    Text(
+                        text = "Guardar configuración",
+                        color = morado, // Mantiene el color de tu tema
+                        fontSize = 16.sp // Opcional: ajusta el tamaño si es necesario
+                    )
+                }
             }
         }
     }
