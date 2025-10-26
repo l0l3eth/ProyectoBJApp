@@ -56,51 +56,96 @@ Carlos Antonio Tejero Andrade A01801062
 
 class AppVM : ViewModel() {
     private val servicioRemoto = ServicioRemoto
-    private val _loginState = MutableStateFlow<EstadoLogin>(EstadoLogin.Idle)
+    // --- Estado de Autenticación y Usuario ---
 
+    /**
+     * Representa el estado actual del proceso de inicio de sesión.
+     * Utiliza un sealed class `EstadoLogin` para manejar los estados: Idle, Loading, Success, Error.
+     */
+    private val _loginState = MutableStateFlow<EstadoLogin>(EstadoLogin.Idle)
     val loginState: StateFlow<EstadoLogin> = _loginState
 
-    // Estado del usuario que ha iniciado sesión
+    /**
+     * Almacena los datos del usuario que ha iniciado sesión.
+     * Es un `LiveData` que puede ser observado para reaccionar a cambios en la sesión.
+     */
     private val _usuarioLogeado = MutableLiveData<Usuario?>(null)
     val usuarioLogeado: LiveData<Usuario?> = _usuarioLogeado
 
-    // Mensajes de error para mostrar en la UI
+    /**
+     * Mensaje de error para operaciones fallidas, como login o registro.
+     */
     private val _errorMensaje = MutableLiveData<String?>(null)
     val errorMensaje: LiveData<String?> = _errorMensaje
 
-    // Estado para operaciones de borrado
+    // --- Estado para Operaciones de Borrado ---
+
+    /**
+     * Indica si una operación de borrado de usuario está en progreso.
+     */
     private val _estaBorrando = MutableStateFlow(false)
     val estaBorrando: StateFlow<Boolean> = _estaBorrando.asStateFlow()
 
+    /**
+     * Emite un evento `true` cuando un usuario ha sido borrado exitosamente.
+     * Se usa `SharedFlow` para eventos de una sola vez (ej. navegar hacia atrás).
+     */
     private val _borradoExitoso = MutableSharedFlow<Boolean>()
     val borradoExitoso: SharedFlow<Boolean> = _borradoExitoso.asSharedFlow()
 
-    // Estado y datos para la generación del código QR
+    /**
+     * Contiene los datos binarios (bytes) del código QR generado (en formato SVG).
+     * Un valor `null` indica que no hay QR generado o ha sido limpiado.
+     */
     private val _qrData = MutableStateFlow<ByteArray?>(null)
     val qrData: StateFlow<ByteArray?> = _qrData.asStateFlow()
 
+    /**
+     * Indica si la generación del código QR está en curso.
+     */
     private val _cargandoQR = MutableStateFlow(false)
     val cargandoQR: StateFlow<Boolean> = _cargandoQR.asStateFlow()
 
-    // Estado y datos para la lista de tarjetas de negocio
+    // --- Estado para Lista de Tarjetas de Negocio ---
+
+    /**
+     * Contiene la lista de tarjetas de negocio obtenidas del servidor.
+     */
     private val _listaNegocios = mutableStateOf<List<TarjetaNegocio>>(emptyList())
     val listaNegocios: State<List<TarjetaNegocio>> = _listaNegocios
 
+    /**
+     * Indica si la carga de las tarjetas de negocio está en progreso.
+     */
     private val _cargandoNegocios = mutableStateOf(false)
     val cargandoNegocios: State<Boolean> = _cargandoNegocios
 
-    // Estado y datos para la lista de promociones
-    private val _promociones=MutableStateFlow<List<Promocion>>(emptyList())
-    val promociones=_promociones.asStateFlow()
+    // --- Estado para Lista de Promociones ---
 
-    // Estado de carga genérico para operaciones como la carga de promociones
-    private val _estaCargando=MutableStateFlow(false)
-    val estaCargando=_estaCargando.asStateFlow()
+    /**
+     * Contiene la lista de promociones obtenidas del servidor.
+     */
+    private val _promociones = MutableStateFlow<List<Promocion>>(emptyList())
+    val promociones = _promociones.asStateFlow()
 
-    // Estado de error genérico
-    private val _error=MutableStateFlow<String?>(null)
-    val error=_error.asStateFlow()
+    /**
+     * Estado de carga genérico, usado principalmente para la carga de promociones.
+     */
+    private val _estaCargando = MutableStateFlow(false)
+    val estaCargando = _estaCargando.asStateFlow()
 
+
+    /**
+     * Estado de error genérico para operaciones como la carga de promociones.
+     */
+    private val _error = MutableStateFlow<String?>(null)
+    val error = _error.asStateFlow()
+
+    /**
+     * Bloque de inicialización del ViewModel.
+     * Configura un observador permanente sobre `usuarioLogeado` para cargar
+     * o limpiar datos automáticamente cuando el estado de autenticación cambia.
+     */
     init {
         viewModelScope.launch {
             delay(2000)
@@ -226,11 +271,16 @@ class AppVM : ViewModel() {
                 _errorMensaje.value = "Correo o contraseña incorrectos. Inténtalo de nuevo."
 
                 // Emitimos el estado de error
-                _loginState.value = EstadoLogin.Error("Correo o contraseña incorrectos.") // 3. Error
+                _loginState.value =
+                    EstadoLogin.Error("Correo o contraseña incorrectos.") // 3. Error
             }
         }
     }
 
+    /**
+     * Resetea el estado de `loginState` a `Idle`.
+     * Útil para llamar después de que la UI ha reaccionado a un `Success` o `Error`.
+     */
     fun resetLoginState() {
         _loginState.value = EstadoLogin.Idle
     }
@@ -246,7 +296,7 @@ class AppVM : ViewModel() {
             _errorMensaje.value = null
 
             val token = _usuarioLogeado.value?.token
-            if (token==null) {
+            if (token == null) {
                 _errorMensaje.value = "No se pudo eliminar el usuario.No está autenticado."
                 _estaBorrando.value = false
                 return@launch
@@ -254,22 +304,20 @@ class AppVM : ViewModel() {
 
             _estaBorrando.value = true
 
-            try{
+            try {
                 val resultado = servicioRemoto.borrarUsuario(idUsuario = idUsuario, token = token)
 
                 if (resultado.isSuccess) {
                     Log.d("AppVM", "Usuario eliminado exitosamente en el backend.")
                     _borradoExitoso.emit(true)
                 } else {
-                    throw resultado.exceptionOrNull() ?: Exception("Error desconocido al eliminar usuario")
+                    throw resultado.exceptionOrNull()
+                        ?: Exception("Error desconocido al eliminar usuario")
                 }
-            }
-            catch (e: Exception){
+            } catch (e: Exception) {
                 Log.e("AppVM", "Error al eliminar usuario: ${e.message}")
                 _errorMensaje.value = "No se pudo eliminar el usuario. Inténtalo de nuevo."
-            }
-
-            finally{
+            } finally {
                 _estaBorrando.value = false
             }
         }
@@ -303,17 +351,17 @@ class AppVM : ViewModel() {
         }
 
         viewModelScope.launch {
-            _errorMensaje.value=null
+            _errorMensaje.value = null
             val token = _usuarioLogeado.value?.token
             if (token == null) {
                 _errorMensaje.value = "No se pudo actualizar el usuario. Inténtalo de nuevo."
                 return@launch
             }
-            try{
+            try {
                 servicioRemoto.actualizarUsuario(token, idUsuario, usuario)
                 println("Usuario actualizado con éxito.")
                 _usuarioLogeado.postValue(usuario)
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 Log.e("AppVM", "Error al actualizar usuario: ${e.message}")
                 _errorMensaje.value = "No se pudo actualizar el usuario. Inténtalo de nuevo."
             }
@@ -321,15 +369,19 @@ class AppVM : ViewModel() {
     }
 
     /**
-     * Genera un código QR para el usuario que ha iniciado sesión.
-     * El resultado se almacena en [_qrData].
-     * Maneja los estados de carga y error durante el proceso.
+     * Limpia los datos del código QR almacenado.
+     * Se llama cuando la vista del QR se destruye para liberar memoria.
      */
-
     fun limpiarQR() {
         _qrData.value = null
         _errorMensaje.value = null
     }
+
+    /**
+     * Genera un código QR para el usuario que ha iniciado sesión.
+     * La respuesta del servidor es un SVG, cuyos datos en bytes se almacenan en `_qrData`.
+     * Coil (configurado en `MyApplication`) decodifica y muestra el SVG en la UI.
+     */
     fun generarQR() {
         val usuarioActual = _usuarioLogeado.value
         val idUsuario = usuarioActual?.id
@@ -372,7 +424,7 @@ class AppVM : ViewModel() {
             _errorMensaje.value = null
             val token = _usuarioLogeado.value?.token
 
-            if(token==null){
+            if (token == null) {
                 _errorMensaje.value = "No se pudo obtener la lista de negocios.No está autenticado."
                 _cargandoNegocios.value = false
                 return@launch
@@ -392,7 +444,7 @@ class AppVM : ViewModel() {
      * Carga la lista de promociones desde el servidor.
      * Ahora asume que solo se llama cuando hay un usuario autenticado.
      */
-    private fun cargarPromociones() {
+    fun cargarPromociones() {
         viewModelScope.launch {
             // 1. Obtener el token (con una guarda de seguridad por si acaso)
             val token = _usuarioLogeado.value?.token
@@ -433,5 +485,54 @@ class AppVM : ViewModel() {
         _listaNegocios.value = emptyList()
         _promociones.value = emptyList()
         Log.d("AppVM", "Sesión local limpiada.")
+    }
+
+    /**
+     * Función de utilidad genérica para ejecutar operaciones de red relacionadas con promociones.
+     * Encapsula la lógica repetitiva de manejo de estado (carga, error) y autenticación (token).
+     * Si la operación tiene éxito, refresca automáticamente la lista de promociones.
+     *
+     * @param T El tipo de dato que devuelve la operación de red. A menudo es `Unit` para operaciones
+     *          de borrado o creación que no devuelven un cuerpo de respuesta.
+     * @param operacion Una función lambda suspendida que contiene la llamada de red real.
+     *                  Esta función recibe el token de autenticación como parámetro.
+     *                  Ejemplo: `{ token -> servicioRemoto.eliminarPromocion(token, id) }`.
+     * @param mensajeError El mensaje de error específico que se mostrará en la UI si la operación falla.
+     */
+    private fun <T> ejecutarOperacionPromocion(
+        operacion: suspend (token: String) -> T,
+        mensajeError: String
+    ) {
+        viewModelScope.launch {
+            val token = _usuarioLogeado.value?.token
+            if (token == null) {
+                _error.value = "Error de autenticación."
+                return@launch
+            }
+
+            _estaCargando.value = true
+            _error.value = null
+
+            try {
+                operacion(token) // Ejecuta la acción de red (ej: borrar, crear, etc.)
+                cargarPromociones() // Si tiene éxito, siempre refresca la lista
+            } catch (e: Exception) {
+                Log.e("AppVM", "$mensajeError: ${e.message}")
+                _error.value = mensajeError
+                _estaCargando.value = false // Detenemos la carga solo si hay error
+            }
+        }
+    }
+
+    /**
+     * Elimina una promoción existente del servidor (versión simplificada).
+     */
+    fun eliminarPromocion(idPromocion: Int) {
+        ejecutarOperacionPromocion(
+            operacion = { token ->
+                servicioRemoto.eliminarPromocion(token, idPromocion)
+            },
+            mensajeError = "No se pudo eliminar la promoción."
+        )
     }
 }
