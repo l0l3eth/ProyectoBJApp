@@ -8,6 +8,7 @@ import java.lang.Exception
 import android.util.Log
 import com.google.maps.android.ktx.BuildConfig
 import retrofit2.HttpException
+import retrofit2.Response
 
 /**
  * Objeto singleton para gestionar las comunicaciones con el servidor remoto (API).
@@ -129,6 +130,46 @@ object ServicioRemoto {
         }
         return null
     }
+
+    /**
+    * Llama a la API para crear una nueva promoción para el negocio autenticado.
+    *
+    * @param token El token de autenticación del negocio (ej. "Bearer xyz...").
+    * @param nuevaPromocion El objeto Promocion con los datos a guardar.
+    */
+    suspend fun crearPromocion(token: String, nuevaPromocion: Promocion) {
+        try {
+
+            val response = servicio.crearPromocion(token, nuevaPromocion)
+
+
+            if (response.isSuccessful) {
+                Log.d("ServicioRemoto", "Promoción creada exitosamente.")
+            } else {
+                Log.e("ServicioRemoto", "Error al crear promoción: ${response.code()}")
+                // Lanza una excepción para que el ViewModel sepa que algo salió mal.
+                throw HttpException(response)
+            }
+        } catch (e: Exception) {
+            Log.e("ServicioRemoto", "Fallo en la conexión al crear promoción: ${e.message}")
+            // Vuelve a lanzar la excepción para que el ViewModel la capture.
+            throw e
+        }
+    }
+
+    /**
+     * Llama a la API para eliminar una promoción específica.
+     *
+     * @param token El token de autenticación del negocio.
+     * @param idPromocion El ID de la promoción que se va a eliminar.
+     * @return Un [Response] que indica si la operación fue exitosa.
+     */
+    suspend fun eliminarPromocion(token: String, idPromocion: Int): Response<Unit> {
+        // La implementación es simplemente llamar al método correspondiente
+        // de la interfaz 'servicio' que Retrofit ya ha creado.
+        return servicio.eliminarPromocion(token, idPromocion)
+    }
+
 
 
     /**

@@ -15,10 +15,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -26,9 +28,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import mx.tec.proyectoBJ.fondoGris
 import mx.tec.proyectoBJ.model.Promocion
 import mx.tec.proyectoBJ.viewmodel.AppVM
+import android.R.attr.onClick
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 
 
 /**
@@ -47,6 +57,7 @@ import mx.tec.proyectoBJ.viewmodel.AppVM
 @Composable
 fun PromocionesScreen(
     appVM: AppVM,
+    onNavigateToCreatePromocion: ()-> Unit
 ) {
     // Se suscribe a los flujos de estado del ViewModel para reaccionar a los cambios.
     val listaPromocion by appVM.promociones.collectAsState()
@@ -54,8 +65,17 @@ fun PromocionesScreen(
     val error by appVM.error.collectAsState()
     val usuario by appVM.usuarioLogeado.observeAsState()
 
+    LaunchedEffect(Unit) {
+        appVM.cargarPromociones()
+    }
+
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        floatingActionButton = {
+            FloatingActionButton(onClick = { onNavigateToCreatePromocion() }) {
+                Icon(Icons.Filled.Add, contentDescription = "Añadir Promoción")
+            }
+        }
     ) { paddingValues ->
 
         Column(
@@ -102,7 +122,14 @@ fun PromocionesScreen(
                         contentPadding = PaddingValues(8.dp),
                     ) {
                         items(listaPromocion) { promocion ->
-                            PromocionItem(promocion = promocion)
+                            // --- ¡CAMBIO AQUÍ! ---
+                            // Ahora pasamos la función para eliminar
+                            PromocionItem(
+                                promocion = promocion,
+                                onDeleteClick = {
+                                    appVM.eliminarPromocion(promocion.id)
+                                }
+                            )
                         }
                     }
                 }
@@ -123,7 +150,8 @@ fun PromocionesScreen(
 @Composable
 fun PromocionItem(
     promocion: Promocion,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDeleteClick: () -> Unit
 ){
     Card(
         modifier = modifier
@@ -131,19 +159,33 @@ fun PromocionItem(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         elevation=CardDefaults.cardElevation(defaultElevation = 4.dp)
     ){
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = promocion.titulo,
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Válido hasta: ${promocion.tipo_descuento}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
+       Row(
+           modifier = Modifier.padding(start = 16.dp), // Padding solo al inicio
+           verticalAlignment = Alignment.CenterVertically
+       )   {
+           Column(
+               modifier = Modifier
+                   .weight(1f)
+                   .padding(16.dp)
+           ) {
+               Text(
+                   text = promocion.titulo,
+                   style = MaterialTheme.typography.titleLarge
+               )
+               Spacer(modifier = Modifier.height(8.dp))
+               Text(
+                   text = "Válido hasta: ${promocion.tipo_descuento}",
+                   style = MaterialTheme.typography.bodyMedium
+               )
+           }
+           IconButton(onClick = onDeleteClick) {
+               Icon(
+                   imageVector = Icons.Default.Delete,
+                   contentDescription = "Eliminar Promoción",
+                   tint = MaterialTheme.colorScheme.error // Color rojo para indicar peligro
+               )
+           }
+       }
     }
 }
 
